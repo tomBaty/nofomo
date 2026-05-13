@@ -1,0 +1,13 @@
+{
+  "name": "exhibitions-api",
+  "version": "1.0.0",
+  "description": "Azure Functions API for exhibitions data",
+  "main": "main.js",
+  "scripts": {
+    "start": "func start"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@azure/functions": "^4.0.0"
+  }
+}

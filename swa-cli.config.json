@@ -1,0 +1,10 @@
+{
+  "$schema": "https://aka.ms/azure/static-web-apps-cli/schema",
+  "configurations": {
+    "exhibits-london": {
+      "appLocation": "exhibits-london",
+      "apiLocation": "api",
+      "outputLocation": "dist"
+    }
+  }
+}

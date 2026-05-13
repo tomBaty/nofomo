@@ -1,0 +1,21 @@
+{
+  "name": "exhibits-london-app",
+  "version": "1.0.0",
+  "description": "London Exhibitions - Azure Static Web App",
+  "scripts": {
+    "dev": "swa start http://localhost:5173 --run \"npm run dev:frontend\" --api-location ./api",
+    "dev:frontend": "cd exhibits-london && npm run dev",
+    "dev:api": "cd api && func start",
+    "build": "cd exhibits-london && npm run build",
+    "install:all": "npm install && cd exhibits-london && npm install && cd ../api && npm install",
+    "swa:start": "swa start"
+  },
+  "keywords": [
+    "azure",
+    "static-web-apps",
+    "exhibitions"
+  ],
+  "devDependencies": {
+    "@azure/static-web-apps-cli": "^2.0.9"
+  }
+}

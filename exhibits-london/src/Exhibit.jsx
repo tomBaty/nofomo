@@ -134,12 +134,14 @@ export function Exhibit({ data, densityMode }) {
     }
 
     return (
-        <div className={densityMode ? 'dense' : ''} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px', display: 'flex', gap: '25px', flexDirection: 'row', alignItems: 'center' }}>
+        <div className={'exhibit' + (densityMode ? ' dense' : '') + (new Date(data.startDate) > new Date() ? ' notYetOpen' : '')}>
             <div class='card_icon_container'>
                 <img style={{width: '100%'}} src={'/assets/' + (categoryToIconMap[data.venue]?.[data.category] || 'icon_painting.svg')} alt={data.category} />
             </div>
             <div class='card_content'>
-                <h2 style={{fontWeight: 'bold'}}>{data.title}</h2>
+                {data.title.includes(':') && data.title.length > 30 ? <><h2 style={{fontWeight: 'bold', fontSize: '20px', marginBottom: 0}}>{data.title.split(':')[0]}</h2><h3>{data.title.split(':')[1]}</h3></> :
+                    <h2 style={{fontWeight: 'bold', fontSize: '20px'}}>{data.title}</h2>}
+
                 <div className='labels'>{getLabels(data).map(label => <span key={label[0]} className='label' style={{backgroundColor: label[1]}}>{label[0]}</span>)}</div>
                 <p><strong>{data.venue}</strong> · {formatDate(data)}</p>
                 {data.speakers? <p><em>{data.speakers}</em></p> : null}

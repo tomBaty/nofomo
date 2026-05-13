@@ -3,6 +3,7 @@ import './App.css'
 import { Exhibit } from "./Exhibit";
 import { Filter } from "./Filter";
 import { Slider } from "./Slider";
+import { SearchBar } from "./SearchBar";
 
 // API endpoint - works with Azure Functions locally and when deployed
 const API_URL = '/api/exhibitions';
@@ -46,31 +47,36 @@ function App() {
     }, [exhibitions])
 
     // Calculate date range (in days from today)
-    const { minDays, maxDays } = useMemo(() => {
-        if (!exhibitions.length) return { minDays: 0, maxDays: 365 }
+    // const { minDays, maxDays } = useMemo(() => {
+    //     if (!exhibitions.length) return { minDays: 0, maxDays: 365 }
         
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
+    //     const today = new Date()
+    //     today.setHours(0, 0, 0, 0)
         
-        const daysFromToday = exhibitions.map(ex => {
-            const startDate = new Date(ex.startDate)
-            startDate.setHours(0, 0, 0, 0)
-            return Math.floor((startDate - today) / (1000 * 60 * 60 * 24))
-        })
+    //     const daysFromToday = exhibitions.map(ex => {
+    //         const startDate = new Date(ex.startDate)
+    //         startDate.setHours(0, 0, 0, 0)
+    //         return Math.floor((startDate - today) / (1000 * 60 * 60 * 24))
+    //     })
         
-        return {
-            minDays: Math.min(...daysFromToday),
-            maxDays: Math.max(...daysFromToday)
-        }
-    }, [exhibitions])
+    //     return {
+    //         minDays: Math.min(...daysFromToday),
+    //         maxDays: Math.max(...daysFromToday)
+    //     }
+    // }, [exhibitions])
+    const minDays = 0
+    const maxDays = 365
 
     // Date range state - start with wide range to show all exhibitions initially
     const [dateRange, setDateRange] = useState([0, 31])
+    
+    // Search term state
+    const [searchTerm, setSearchTerm] = useState('')
 
     // Initialize date range when data loads
     useEffect(() => {
         if (exhibitions.length > 0) {
-            setDateRange([minDays, maxDays])
+            setDateRange([minDays, 31])
         }
     }, [minDays, maxDays, exhibitions.length])
 
@@ -123,30 +129,86 @@ function App() {
         })
     }
 
+    // Fuzzy text matching function
+    const fuzzyMatch = (text, searchTerm) => {
+        if (!text || !searchTerm) return false;
+        const searchLower = searchTerm.toLowerCase().trim();
+        const textLower = text.toLowerCase();
+        
+        // Direct substring match
+        if (textLower.includes(searchLower)) return true;
+        
+        // Fuzzy match - allow for typos and character variations
+        const searchChars = searchLower.split('');
+        let textIndex = 0;
+        let matchedChars = 0;
+        
+        for (let char of searchChars) {
+            while (textIndex < textLower.length) {
+                if (textLower[textIndex] === char) {
+                    matchedChars++;
+                    textIndex++;
+                    break;
+                }
+                textIndex++;
+            }
+        }
+        
+        // Match if at least 70% of characters found in order
+        return matchedChars / searchChars.length >= 0.7;
+    };
+    
     // Filter exhibitions based on all selected filters
     const filteredExhibitions = useMemo(() => {
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         
+        const rangeStart = new Date(today)
+        rangeStart.setDate(rangeStart.getDate() + dateRange[0])
+        
+        const rangeEnd = new Date(today)
+        rangeEnd.setDate(rangeEnd.getDate() + dateRange[1])
+        
         return exhibitions
             .filter(ex => filters.venues.includes(ex.venue))
             .filter(ex => filters.categories.includes(ex.category))
             .filter(ex => filters.paid.includes(ex.paid))
-            .filter(ex => (new Date(ex.startDate) <= new Date(today) || ex.dates))
-            // .filter(ex => {
-            //     const startDate = new Date(ex.startDate? ex.startDate : ex.endDate)
-            //     startDate.setHours(0, 0, 0, 0)
-            //     const daysFromToday = Math.floor((startDate - today) / (1000 * 60 * 60 * 24))
-            //     return daysFromToday >= dateRange[0] && daysFromToday <= dateRange[1]
-            // })
-    }, [exhibitions, filters, dateRange])
+            .filter(ex => {
+                if (ex.dates && ex.dates.length > 0) {
+                    // Check if any date in ex.dates falls within the range
+                    return ex.dates.some(dateStr => {
+                        const date = new Date(dateStr)
+                        date.setHours(0, 0, 0, 0)
+                        return date >= rangeStart && date <= rangeEnd
+                    })
+                } else {
+                    // Check for overlap between exhibition's date range and filter date range
+                    const exStart = new Date(ex.startDate)
+                    exStart.setHours(0, 0, 0, 0)
+                    const exEnd = new Date(ex.endDate)
+                    exEnd.setHours(0, 0, 0, 0)
+                    
+                    return exStart <= rangeEnd && exEnd >= rangeStart
+                }
+            })
+            .filter(ex => {
+                // Apply search filter if search term exists
+                if (!searchTerm.trim()) return true;
+                
+                return fuzzyMatch(ex.title, searchTerm) ||
+                       fuzzyMatch(ex.desc, searchTerm) ||
+                       fuzzyMatch(ex.venue, searchTerm) ||
+                       fuzzyMatch(ex.category, searchTerm);
+            })
+    }, [exhibitions, filters, dateRange, searchTerm])
 
     if (loading) return <p>Loading exhibitions...</p>
     if (error) return <p>Error loading exhibitions: {error}</p>
 
     return (
         <div>
-            <h1>What's happening in London?</h1>
+            <h1>no<span style={{color: 'grey'}}>fomo</span>.london</h1>
+            <SearchBar onSearch={setSearchTerm} />
             <p>Showing {filteredExhibitions.length} of {exhibitions.length} events</p>
             <div id='filters_container' style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', position: 'relative', padding: '20px', border: '0px' }}>
                 <Filter items={venues}
@@ -184,13 +246,13 @@ function App() {
                 />
             </div>
 
-            <div style={{ display: 'grid', gap: '20px', padding: '20px' }}>
+            <div style={{ display: 'grid', gap: '20px', padding: '20px', gridTemplateColumns: '1fr 1fr' }}>
                 {filteredExhibitions.sort((a, b) => {
                     const startDiff = new Date(a.startDate) - new Date(b.startDate);
                     if (startDiff !== 0) return startDiff;
                     return new Date(a.endDate) - new Date(b.endDate);
                 }).map((exhibition, index) =>
-                    <Exhibit key={index} data={exhibition} densityMode={''}/>
+                    <Exhibit key={index} data={exhibition} densityMode={'dense'}/>
                 )}
             </div>
         </div>

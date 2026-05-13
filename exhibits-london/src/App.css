@@ -225,3 +225,25 @@ background-color: #7a1f1f;
     max-height: 100px;
     width: fit-content;
 }
+p {
+    font-size: 13px;
+    line-height: 20px;
+}
+h3 {
+    font-size: 16px;
+    line-height: 22px;
+    margin: 0;
+    padding-bottom: 5px;
+}
+.exhibit {
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    gap: 25px;
+    flex-direction: row; 
+    align-items: center;
+}
+.notYetOpen {
+    background-color: #8080801f
+}

@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import './App.css'
 import { Exhibit } from "./Exhibit";
 import { Filter } from "./Filter";
-import { Slider } from "./Slider";
+import { CalendarDatePicker } from "./CalendarDatePicker";
 import { SearchBar } from "./SearchBar";
 
 // API endpoint - works with Azure Functions locally and when deployed
@@ -46,39 +46,17 @@ function App() {
         return [...new Set(exhibitions.map(ex => ex.paid))].sort()
     }, [exhibitions])
 
-    // Calculate date range (in days from today)
-    // const { minDays, maxDays } = useMemo(() => {
-    //     if (!exhibitions.length) return { minDays: 0, maxDays: 365 }
-        
-    //     const today = new Date()
-    //     today.setHours(0, 0, 0, 0)
-        
-    //     const daysFromToday = exhibitions.map(ex => {
-    //         const startDate = new Date(ex.startDate)
-    //         startDate.setHours(0, 0, 0, 0)
-    //         return Math.floor((startDate - today) / (1000 * 60 * 60 * 24))
-    //     })
-        
-    //     return {
-    //         minDays: Math.min(...daysFromToday),
-    //         maxDays: Math.max(...daysFromToday)
-    //     }
-    // }, [exhibitions])
-    const minDays = 0
-    const maxDays = 365
+    // Date range state - using actual Date objects [startDate, endDate]
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const defaultEnd = new Date(today);
+    defaultEnd.setDate(defaultEnd.getDate() + 31);
 
-    // Date range state - start with wide range to show all exhibitions initially
-    const [dateRange, setDateRange] = useState([0, 31])
-    
+    const [dateRange, setDateRange] = useState([today, defaultEnd])
+    const [calendarText, setCalendarText] = useState('This month')
+
     // Search term state
     const [searchTerm, setSearchTerm] = useState('')
-
-    // Initialize date range when data loads
-    useEffect(() => {
-        if (exhibitions.length > 0) {
-            setDateRange([minDays, 31])
-        }
-    }, [minDays, maxDays, exhibitions.length])
 
     // Single filters object to manage all filter states
     const [filters, setFilters] = useState({
@@ -104,7 +82,7 @@ function App() {
         if (filters.paid.length === 0) {
             setFilters(prev => ({ ...prev, paid }))
         }
-    }, [categories, filters.paid])
+    }, [paid, filters.paid])
 
     // Generic toggle handler for all filter types
     const handleFilterToggle = (filterType, value) => {
@@ -129,20 +107,27 @@ function App() {
         })
     }
 
-    // Fuzzy text matching function
-    const fuzzyMatch = (text, searchTerm) => {
-        if (!text || !searchTerm) return false;
+    // Fuzzy text matching function - returns a score from 0 to 1
+    const fuzzyMatchScore = (text, searchTerm) => {
+        if (!text || !searchTerm) return 0;
         const searchLower = searchTerm.toLowerCase().trim();
         const textLower = text.toLowerCase();
-        
-        // Direct substring match
-        if (textLower.includes(searchLower)) return true;
-        
+
+        // Perfect substring match gets highest score
+        if (textLower === searchLower) return 1.0;
+
+        // Direct substring match gets high score
+        if (textLower.includes(searchLower)) {
+            // Bonus for match at start of string
+            if (textLower.startsWith(searchLower)) return 0.95;
+            return 0.9;
+        }
+
         // Fuzzy match - allow for typos and character variations
         const searchChars = searchLower.split('');
         let textIndex = 0;
         let matchedChars = 0;
-        
+
         for (let char of searchChars) {
             while (textIndex < textLower.length) {
                 if (textLower[textIndex] === char) {
@@ -153,31 +138,48 @@ function App() {
                 textIndex++;
             }
         }
-        
-        // Match if at least 70% of characters found in order
-        return matchedChars / searchChars.length >= 0.7;
+
+        // Return percentage of matched characters
+        const matchPercentage = matchedChars / searchChars.length;
+
+        // Only return score if at least 70% matched
+        return matchPercentage >= 0.7 ? matchPercentage : 0;
     };
-    
+
+    // Calculate search relevance score for an exhibition
+    // Field weights: venue (100) > title (50) > category (30) > description (20) > speakers (20)
+    const calculateSearchScore = useCallback((exhibition, searchTerm) => {
+        if (!searchTerm.trim()) return 0;
+
+        const venueScore = fuzzyMatchScore(exhibition.venue, searchTerm) * 100;
+        const titleScore = fuzzyMatchScore(exhibition.title, searchTerm) * 50;
+        const categoryScore = fuzzyMatchScore(exhibition.category, searchTerm) * 30;
+        const descScore = fuzzyMatchScore(exhibition.desc, searchTerm) * 20;
+        const speakersScore = exhibition.speakers ? fuzzyMatchScore(exhibition.speakers, searchTerm) * 20 : 0;
+
+        return venueScore + titleScore + categoryScore + descScore + speakersScore;
+    }, []);
+
     // Filter exhibitions based on all selected filters
     const filteredExhibitions = useMemo(() => {
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        
-        const rangeStart = new Date(today)
-        rangeStart.setDate(rangeStart.getDate() + dateRange[0])
-        
-        const rangeEnd = new Date(today)
-        rangeEnd.setDate(rangeEnd.getDate() + dateRange[1])
-        
+        const rangeStart = dateRange[0] ? new Date(dateRange[0]) : null;
+        const rangeEnd = dateRange[1] ? new Date(dateRange[1]) : null;
+
+        if (rangeStart) rangeStart.setHours(0, 0, 0, 0);
+        if (rangeEnd) rangeEnd.setHours(23, 59, 59, 999);
+
         return exhibitions
             .filter(ex => filters.venues.includes(ex.venue))
             .filter(ex => filters.categories.includes(ex.category))
             .filter(ex => filters.paid.includes(ex.paid))
             .filter(ex => {
+                // Skip date filtering if no date range selected
+                if (!rangeStart || !rangeEnd) return true;
+
                 if (ex.dates && ex.dates.length > 0) {
                     // Check if any date in ex.dates falls within the range
                     return ex.dates.some(dateStr => {
-                        const date = new Date(dateStr)
+                        const date = new Date(dateStr + ' 2026')
                         date.setHours(0, 0, 0, 0)
                         return date >= rangeStart && date <= rangeEnd
                     })
@@ -186,28 +188,36 @@ function App() {
                     const exStart = new Date(ex.startDate)
                     exStart.setHours(0, 0, 0, 0)
                     const exEnd = new Date(ex.endDate)
-                    exEnd.setHours(0, 0, 0, 0)
-                    
+                    exEnd.setHours(23, 59, 59, 999)
+
                     return exStart <= rangeEnd && exEnd >= rangeStart
                 }
             })
             .filter(ex => {
                 // Apply search filter if search term exists
                 if (!searchTerm.trim()) return true;
-                
-                return fuzzyMatch(ex.title, searchTerm) ||
-                       fuzzyMatch(ex.desc, searchTerm) ||
-                       fuzzyMatch(ex.venue, searchTerm) ||
-                       fuzzyMatch(ex.category, searchTerm);
+
+                // Include if search score is greater than 0
+                return calculateSearchScore(ex, searchTerm) > 0;
             })
-    }, [exhibitions, filters, dateRange, searchTerm])
+    }, [exhibitions, filters, dateRange, searchTerm, calculateSearchScore])
 
     if (loading) return <p>Loading exhibitions...</p>
     if (error) return <p>Error loading exhibitions: {error}</p>
 
+    const toggleCalendar = () => {
+        const calendar = document.querySelector('.calendar-date-picker')
+        if (!calendar) return;
+        if (calendar.style.display === 'flex') {
+            calendar.style.display = 'none';
+        } else {
+            calendar.style.display = 'flex';
+        }
+    }
+
     return (
         <div>
-            <h1>no<span style={{color: 'grey'}}>fomo</span>.london</h1>
+            <h1>no<span style={{ color: 'grey' }}>fomo</span>.london</h1>
             <SearchBar onSearch={setSearchTerm} />
             <p>Showing {filteredExhibitions.length} of {exhibitions.length} events</p>
             <div id='filters_container' style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', position: 'relative', padding: '20px', border: '0px' }}>
@@ -231,28 +241,48 @@ function App() {
                     label="Paid"
                     itemLabel="paid"
                 />
-                <Slider
-                    min={minDays}
-                    max={maxDays}
+
+                <div id='calendarToggle'
+                    onClick={toggleCalendar}>
+                    <button
+                        style={{
+                            padding: '10px 60px',
+                            fontSize: '16px',
+                            cursor: 'pointer',
+                            backgroundColor: '#f0f0f0',
+                            border: '1px solid #ccc',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        <img src='/assets/icon_calendar.svg' style={{ width: '20px', marginRight: '10px', verticalAlign: 'middle' }} />
+                        {calendarText}
+                    </button>
+                </div>
+                <CalendarDatePicker
                     value={dateRange}
                     onChange={setDateRange}
-                    label="Date Range"
-                    formatValue={(days) => {
-                        const date = new Date()
-                        date.setDate(date.getDate() + days)
-                        return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-                    }}
-                    step={1}
+                    onPresetChange={setCalendarText}
                 />
             </div>
 
-            <div style={{ display: 'grid', gap: '20px', padding: '20px', gridTemplateColumns: '1fr 1fr' }}>
+            <div
+                id='exhibits_container'
+                key={`${JSON.stringify(filters)}-${searchTerm}-${dateRange[0]?.getTime()}-${dateRange[1]?.getTime()}`}
+            >
                 {filteredExhibitions.sort((a, b) => {
+                    // If search term exists, sort by search relevance score
+                    if (searchTerm.trim()) {
+                        const scoreA = calculateSearchScore(a, searchTerm);
+                        const scoreB = calculateSearchScore(b, searchTerm);
+                        if (scoreA !== scoreB) return scoreB - scoreA; // Higher score first
+                    }
+
+                    // Default sort by date
                     const startDiff = new Date(a.startDate) - new Date(b.startDate);
                     if (startDiff !== 0) return startDiff;
                     return new Date(a.endDate) - new Date(b.endDate);
                 }).map((exhibition, index) =>
-                    <Exhibit key={index} data={exhibition} densityMode={'dense'}/>
+                    <Exhibit key={index} data={exhibition} densityMode={'dense'} />
                 )}
             </div>
         </div>

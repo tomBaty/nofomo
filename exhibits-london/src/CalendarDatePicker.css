@@ -1,0 +1,231 @@
+.calendar-date-picker {
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    width: fit-content;
+}
+
+.calendar-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.calendar-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.preset-button {
+    padding: 8px 16px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.preset-button:hover {
+    background: #4A90E2;
+    color: white;
+    border-color: #4A90E2;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(74, 144, 226, 0.2);
+}
+
+.preset-button:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.calendar-navigation {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.calendar-nav-button {
+    background: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.calendar-nav-button:hover {
+    background: #e0e0e0;
+    transform: scale(1.1);
+}
+
+.calendar-nav-button:active {
+    transform: scale(0.95);
+}
+
+.calendar-nav-button:disabled {
+    background: #f9f9f9;
+    color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.calendar-nav-button:disabled:hover {
+    background: #f9f9f9;
+    transform: none;
+}
+
+.calendar-months {
+    display: flex;
+    gap: 30px;
+}
+
+.calendar-month {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.calendar-month-header {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    color: #333;
+    padding: 10px 0;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 40px);
+    gap: 4px;
+}
+
+.calendar-weekday {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    text-align: center;
+    padding: 8px 0;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 40px);
+    gap: 4px;
+}
+
+.calendar-day {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.calendar-day:not(.empty):hover {
+    background: #f0f0f0;
+    transform: scale(1.1);
+}
+
+.calendar-day.empty {
+    cursor: default;
+}
+
+.calendar-day.disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    background: transparent !important;
+}
+
+.calendar-day.disabled:hover {
+    background: transparent !important;
+    transform: none !important;
+}
+
+.calendar-day.today {
+    font-weight: 700;
+    color: #4A90E2;
+}
+
+.calendar-day.in-range {
+    background: #E3F2FD;
+    border-radius: 0;
+}
+
+.calendar-day.start-date,
+.calendar-day.end-date {
+    background: #4A90E2;
+    color: white;
+    font-weight: 600;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.calendar-day.start-date:hover,
+.calendar-day.end-date:hover {
+    background: #357ABD;
+    transform: scale(1.1);
+}
+
+/* Round the edges of range */
+.calendar-day.start-date:not(.end-date) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.calendar-day.end-date:not(.start-date) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* When start and end are the same */
+.calendar-day.start-date.end-date {
+    border-radius: 50%;
+}
+
+/* Animation for selection */
+.calendar-day:active {
+    transform: scale(0.9);
+}
+
+@media (max-width: 768px) {
+    .calendar-months {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .calendar-date-picker {
+        width: 100%;
+    }
+
+    .calendar-presets {
+        justify-content: center;
+    }
+
+    .preset-button {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+}

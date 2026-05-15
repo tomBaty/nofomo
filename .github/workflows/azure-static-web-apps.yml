@@ -28,6 +28,8 @@ jobs:
           app_location: "./exhibits-london"
           api_location: "./api"
           output_location: "dist"
+          skip_api_build: false
+          api_build_command: "npm install"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

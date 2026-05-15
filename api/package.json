@@ -6,7 +6,9 @@
   "scripts": {
     "start": "func start"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@azure/functions": "^4.0.0"
+  },
   "devDependencies": {
     "@azure/functions": "^4.0.0"
   }

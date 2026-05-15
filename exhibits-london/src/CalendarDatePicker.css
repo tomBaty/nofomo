@@ -1,6 +1,6 @@
 .calendar-date-picker {
     display: none;
-    flex-direction: column;
+    flex-direction: row;
     gap: 15px;
     padding: 20px;
     background: white;
@@ -19,8 +19,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #e0e0e0;
+    height: fit-content;
 }
 
 .preset-button {
@@ -34,6 +33,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
+    max-height: 35px;
 }
 
 .preset-button:hover {
@@ -218,6 +218,7 @@
     
     .calendar-date-picker {
         width: 100%;
+        flex-direction: column-reverse;
     }
 
     .calendar-presets {

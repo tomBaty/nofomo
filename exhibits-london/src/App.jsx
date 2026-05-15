@@ -12,6 +12,19 @@ function App() {
     const [exhibitions, setExhibitions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [expandedExhibit, setExpandedExhibit] = useState(null);
+
+    // Close modal on Escape key
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && expandedExhibit !== null) {
+                setExpandedExhibit(null);
+            }
+        };
+        
+        window.addEventListener('keydown', handleEscape);
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, [expandedExhibit]);
 
     // Fetch exhibitions from API
     useEffect(() => {
@@ -219,8 +232,8 @@ function App() {
         <div>
             <h1>no<span style={{ color: 'grey' }}>fomo</span>.london</h1>
             <SearchBar onSearch={setSearchTerm} />
-            <p>Showing {filteredExhibitions.length} of {exhibitions.length} events</p>
-            <div id='filters_container' style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', position: 'relative', padding: '20px', border: '0px' }}>
+            {/* <p>Showing {filteredExhibitions.length} of {exhibitions.length} events</p> */}
+            <div id='filters_container' style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', position: 'relative', padding: '20px', border: '0px' }}>
                 <Filter items={venues}
                     selectedItems={filters.venues}
                     onToggle={(value) => handleFilterToggle('venues', value)}
@@ -282,7 +295,14 @@ function App() {
                     if (startDiff !== 0) return startDiff;
                     return new Date(a.endDate) - new Date(b.endDate);
                 }).map((exhibition, index) =>
-                    <Exhibit key={index} data={exhibition} densityMode={'dense'} />
+                    <Exhibit 
+                        key={index} 
+                        data={exhibition} 
+                        densityMode={'dense'}
+                        isExpanded={expandedExhibit === index}
+                        onExpand={() => setExpandedExhibit(index)}
+                        onCollapse={() => setExpandedExhibit(null)}
+                    />
                 )}
             </div>
         </div>

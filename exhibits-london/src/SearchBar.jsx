@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './SearchBar.css';
 
 export function SearchBar({ onSearch }) {
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(window.innerWidth < 768);
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleButtonClick = () => {
@@ -38,7 +38,7 @@ export function SearchBar({ onSearch }) {
                 <input
                     type="text"
                     className="search-input"
-                    placeholder="Search exhibitions, venues, categories..."
+                    placeholder="Search exhibitions, venues, themes..."
                     value={searchTerm}
                     onChange={handleInputChange}
                     onKeyPress={handleKeyPress}

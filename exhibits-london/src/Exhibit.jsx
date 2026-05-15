@@ -1,7 +1,44 @@
 
 
 
-export function Exhibit({ data, densityMode }) {
+import { useEffect, useRef, useState } from 'react';
+
+export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse }) {
+    const cardRef = useRef(null);
+    const [cardPosition, setCardPosition] = useState(null);
+    const [isAnimating, setIsAnimating] = useState(false);
+
+    // Capture card position before expanding
+    const handleExpand = () => {
+        if (cardRef.current) {
+            const rect = cardRef.current.getBoundingClientRect();
+            setCardPosition({
+                top: rect.top,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height
+            });
+            setIsAnimating(true);
+            onExpand();
+            
+            // Reset animating state after animation completes
+            setTimeout(() => setIsAnimating(false), 400);
+        }
+    };
+
+    // Prevent body scroll when modal is open
+    useEffect(() => {
+        if (isExpanded) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isExpanded]);
+
     let categoryToIconMap = {
         'Tate Modern': {
             'Exhibition': 'icon_painting.svg',
@@ -68,6 +105,17 @@ export function Exhibit({ data, densityMode }) {
         return `${day} ${month} ${year}`;
     }
     const formatMultipleDates = (dates) => {
+        if(dates.length === 1) {
+            return formatSingleDate(dates[0]);
+        }
+        const datesAreConsecutive  = dates.every((date, index) => {
+            if (index === 0) return true;
+            const diffInDays = (new Date(date).getTime() - new Date(dates[index - 1]).getTime()) / (1000 * 3600 * 24);
+            return diffInDays === 1;
+        })
+        if(datesAreConsecutive) {
+            return formatDateRange(dates[0] + ' 2026', dates[dates.length - 1] + ' 2026');
+        }
         const formattedDates = dates.map(date => formatSingleDate(date));
         return formattedDates.join(', ');
     }
@@ -134,23 +182,106 @@ export function Exhibit({ data, densityMode }) {
     }
 
     return (
-        <div className={'exhibit' + (densityMode ? ' dense' : '') + (new Date(data.startDate) > new Date() ? ' notYetOpen' : '')}>
-            <div class='card_icon_container'>
-                <img style={{width: '100%'}} src={'/assets/' + (categoryToIconMap[data.venue]?.[data.category] || 'icon_painting.svg')} alt={data.category} />
+        <>
+            <div 
+                ref={cardRef}
+                className={'exhibit' + (densityMode ? ' dense' : '') + (new Date(data.startDate) > new Date() ? ' notYetOpen' : '') + (isExpanded ? ' exhibit-expanded' : '')}
+                onClick={handleExpand}
+                style={{ cursor: 'pointer' }}
+            >
+                <div className='card_icon_container'>
+                    <img style={{width: '100%'}} src={'/assets/' + (categoryToIconMap[data.venue]?.[data.category] || 'icon_painting.svg')} alt={data.category} />
+                </div>
+                <div className='title_section'>
+                    {data.title.includes(':') && data.title.length > 30 ? <><h2 style={{fontWeight: 'bold', fontSize: '20px', marginBottom: 0}}>{data.title.split(':')[0]}</h2><h3>{data.title.split(':')[1]}</h3></> :
+                        <h2 style={{fontWeight: 'bold', fontSize: '20px'}}>{data.title}</h2>}
+                </div>
+                <div className='details_section'>
+                    <div className='labels'>{getLabels(data).map(label => <span key={label[0]} className='label' style={{backgroundColor: label[1]}}>{label[0]}</span>)}</div>
+                    <p><strong>{data.venue}</strong> · {formatDate(data)}</p>
+                    {data.speakers? <p><em>{data.speakers}</em></p> : null}
+                    <p>{data.desc}</p>
+                    <a href={data.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                        View Details →
+                    </a>
+                </div>
             </div>
-            <div class='card_content'>
-                {data.title.includes(':') && data.title.length > 30 ? <><h2 style={{fontWeight: 'bold', fontSize: '20px', marginBottom: 0}}>{data.title.split(':')[0]}</h2><h3>{data.title.split(':')[1]}</h3></> :
-                    <h2 style={{fontWeight: 'bold', fontSize: '20px'}}>{data.title}</h2>}
 
-                <div className='labels'>{getLabels(data).map(label => <span key={label[0]} className='label' style={{backgroundColor: label[1]}}>{label[0]}</span>)}</div>
-                <p><strong>{data.venue}</strong> · {formatDate(data)}</p>
-                {data.speakers? <p><em>{data.speakers}</em></p> : null}
-                <p>{data.desc}</p>
-                <a href={data.url} target="_blank" rel="noopener noreferrer">
-                    View Details →
-                </a>
-            </div>
-            
-        </div>
+            {isExpanded && cardPosition && (
+                <div 
+                    className={`exhibit-modal-overlay ${isAnimating ? 'animating' : ''}`}
+                    onClick={onCollapse}
+                    style={{
+                        '--card-top': `${cardPosition.top}px`,
+                        '--card-left': `${cardPosition.left}px`,
+                        '--card-width': `${cardPosition.width}px`,
+                        '--card-height': `${cardPosition.height}px`
+                    }}
+                >
+                    <div className='exhibit-modal-content' onClick={(e) => e.stopPropagation()}>
+                        <button className='modal-close-btn' onClick={onCollapse}>×</button>
+                        
+                        <div className='modal-header'>
+                            <div className='modal-icon-container'>
+                                <img src={'/assets/' + (categoryToIconMap[data.venue]?.[data.category] || 'icon_painting.svg')} alt={data.category} />
+                            </div>
+                            <div className='modal-title'>
+                                {data.title.includes(':') && data.title.length > 30 ? 
+                                    <><h2>{data.title.split(':')[0]}</h2><h3>{data.title.split(':')[1]}</h3></> :
+                                    <h2>{data.title}</h2>}
+                            </div>
+                        </div>
+
+                        <div className='modal-body'>
+                            <div className='labels'>{getLabels(data).map(label => <span key={label[0]} className='label' style={{backgroundColor: label[1]}}>{label[0]}</span>)}</div>
+                            
+                            <div className='modal-info-grid'>
+                                <div className='modal-info-item'>
+                                    <strong>Venue</strong>
+                                    <p>{data.venue}</p>
+                                </div>
+                                <div className='modal-info-item'>
+                                    <strong>Date</strong>
+                                    <p>{formatDate(data)}</p>
+                                </div>
+                                {data.category && (
+                                    <div className='modal-info-item'>
+                                        <strong>Category</strong>
+                                        <p>{data.category}</p>
+                                    </div>
+                                )}
+                                {data.speakers && (
+                                    <div className='modal-info-item'>
+                                        <strong>Speakers</strong>
+                                        <p><em>{data.speakers}</em></p>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className='modal-description'>
+                                <strong>Description</strong>
+                                <p>{data.desc}</p>
+                            </div>
+
+                            {data.priceInfo && (
+                                <div className='modal-price-info'>
+                                    <strong>Price Information</strong>
+                                    <p>{data.priceInfo}</p>
+                                </div>
+                            )}
+
+                            <a 
+                                href={data.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className='modal-cta-button'
+                            >
+                                View Full Details on Official Site →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     )
 }

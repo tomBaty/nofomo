@@ -234,6 +234,22 @@ export function CalendarDatePicker({ value, onChange, onPresetChange }) {
 
     return (
         <div className="calendar-date-picker">
+            <div className="calendar-navigation">
+                <button 
+                    className="calendar-nav-button" 
+                    onClick={goToPreviousMonth}
+                    disabled={!canGoPrevious()}
+                >
+                    ‹
+                </button>
+                <div className="calendar-months">
+                    {renderMonth(currentMonth)}
+                    {window.innerWidth >= 768 && renderMonth(nextMonth)}
+                </div>
+                <button className="calendar-nav-button" onClick={goToNextMonth}>
+                    ›
+                </button>
+            </div>
             <div className="calendar-presets">
                 <button className="preset-button" onClick={() => handlePresetClick('Today')}>
                     Today
@@ -255,22 +271,6 @@ export function CalendarDatePicker({ value, onChange, onPresetChange }) {
                 </button>
                 <button className="preset-button" onClick={() => handlePresetClick('All')}>
                     All
-                </button>
-            </div>
-            <div className="calendar-navigation">
-                <button 
-                    className="calendar-nav-button" 
-                    onClick={goToPreviousMonth}
-                    disabled={!canGoPrevious()}
-                >
-                    ‹
-                </button>
-                <div className="calendar-months">
-                    {renderMonth(currentMonth)}
-                    {renderMonth(nextMonth)}
-                </div>
-                <button className="calendar-nav-button" onClick={goToNextMonth}>
-                    ›
                 </button>
             </div>
         </div>

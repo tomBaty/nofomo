@@ -11,7 +11,7 @@ export function Filter({ items, selectedItems, onToggle, label, itemLabel }) {
     >
       <button 
         style={{
-          padding: '10px 60px',
+          padding: '10px 20px',
           fontSize: '16px',
           cursor: 'pointer',
           backgroundColor: '#f0f0f0',

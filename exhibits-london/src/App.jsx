@@ -13,6 +13,7 @@ function App() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [expandedExhibit, setExpandedExhibit] = useState(null);
+    const image_base_url = 'https://nofomodata.blob.core.windows.net/images/'
 
     // Close modal on Escape key
     useEffect(() => {
@@ -227,12 +228,32 @@ function App() {
             calendar.style.display = 'flex';
         }
     }
+    const toggleFilters = () => {
+        const filtersContainer = document.getElementById('filters_container');
+        if (!filtersContainer) return;
+        if (filtersContainer.style.display === 'flex') {
+            filtersContainer.style.display = 'none';
+        } else {
+            filtersContainer.style.display = 'flex';
+        }
+    }
 
     return (
         <div>
-            <h1>no<span style={{ color: 'grey' }}>fomo</span>.london</h1>
-            <SearchBar onSearch={setSearchTerm} />
-            {/* <p>Showing {filteredExhibitions.length} of {exhibitions.length} events</p> */}
+            <img src={image_base_url + 'headerlogo.png'} id='logo' />
+            <div id='navbar'>
+                <div id='filterToggle' onClick={toggleFilters}>
+                    <img src={image_base_url + 'icon_filter.svg'} style={{ width: '20px', verticalAlign: 'middle' }} />
+                </div>
+                <SearchBar onSearch={setSearchTerm} />
+                <div id='calendarToggle'
+                    onClick={toggleCalendar}>
+                    <button>
+                        <img src={image_base_url + 'icon_calendar.svg'} style={{ width: '20px', marginRight: '10px', verticalAlign: 'middle' }} />
+                        <p>{calendarText}</p>
+                    </button>
+                </div>
+            </div>
             <div id='filters_container' style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', position: 'relative', padding: '20px', border: '0px' }}>
                 <Filter items={venues}
                     selectedItems={filters.venues}
@@ -254,29 +275,13 @@ function App() {
                     label="Paid"
                     itemLabel="paid"
                 />
-
-                <div id='calendarToggle'
-                    onClick={toggleCalendar}>
-                    <button
-                        style={{
-                            padding: '10px 60px',
-                            fontSize: '16px',
-                            cursor: 'pointer',
-                            backgroundColor: '#f0f0f0',
-                            border: '1px solid #ccc',
-                            borderRadius: '4px'
-                        }}
-                    >
-                        <img src='/assets/icon_calendar.svg' style={{ width: '20px', marginRight: '10px', verticalAlign: 'middle' }} />
-                        {calendarText}
-                    </button>
-                </div>
-                <CalendarDatePicker
+                
+            </div>
+            <CalendarDatePicker
                     value={dateRange}
                     onChange={setDateRange}
                     onPresetChange={setCalendarText}
                 />
-            </div>
 
             <div
                 id='exhibits_container'

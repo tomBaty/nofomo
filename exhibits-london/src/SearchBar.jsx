@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './SearchBar.css';
 
 export function SearchBar({ onSearch }) {
-    const [isExpanded, setIsExpanded] = useState(window.innerWidth < 768);
+    const [isExpanded, setIsExpanded] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleButtonClick = () => {

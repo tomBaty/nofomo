@@ -1,9 +1,6 @@
 .search-bar-container {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 20px 0;
-    width: 100%;
+    width: fit-content;
 }
 
 .search-bar {
@@ -22,7 +19,7 @@
 
 .search-bar.expanded {
     width: 500px;
-    border-color: #4A90E2;
+    border-color: #E1251B;
     box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
 }
 
@@ -48,7 +45,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #4A90E2;
+    background: #E1251B;
     color: white;
     border: none;
     border-radius: 50px;
@@ -62,7 +59,7 @@
 }
 
 .search-button:hover {
-    background: #357ABD;
+    background: #e44742;
     transform: scale(1.05);
 }
 

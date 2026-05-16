@@ -7,6 +7,23 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
     const cardRef = useRef(null);
     const [cardPosition, setCardPosition] = useState(null);
     const [isAnimating, setIsAnimating] = useState(false);
+    const [isFavourite, setIsFavourite] = useState(JSON.parse(localStorage.getItem('favourites') || '[]').includes(data.title));
+    const image_base_url = 'https://nofomodata.blob.core.windows.net/images/'
+
+    const heartIcon = <svg className='favouriteIcon' width="28" height="25" viewBox="0 0 28 25" fill={isFavourite ? "#e1251b" : "#7E7E7E"} xmlns="http://www.w3.org/2000/svg">
+<path d="M6.84559 0.0220063C7.37272 -0.055768 8.4797 0.0880607 8.99553 0.21255C11.2084 0.746537 12.8351 2.16176 14.0098 4.0194C14.43 3.19101 15.2011 2.37573 15.9154 1.77395C17.7619 0.218672 20.2465 -0.336749 22.6176 0.223417C24.1047 0.58096 25.4333 1.3997 26.4046 2.55706C28.0336 4.52884 28.1327 6.53321 27.9145 8.9461C27.5771 12.6742 25.4736 14.9563 22.7983 17.3585C22.189 17.9027 21.5712 18.4377 20.9449 18.9629C20.614 19.2439 20.2958 19.5286 19.9532 19.798C19.8795 19.8785 19.769 19.9572 19.6847 20.0318C19.476 20.2163 19.2526 20.3904 19.043 20.573L16.5009 22.7729C15.7666 23.4173 15.0466 24.0792 14.3257 24.7379C14.2368 24.8192 14.1198 24.9406 14.019 25C13.9366 24.9771 11.5359 22.8018 11.2499 22.5532L9.63024 21.1521L6.43659 18.4341C5.71731 17.8231 5.01345 17.195 4.32565 16.5504C2.58566 14.9069 1.23158 13.3455 0.512698 11.0328C0.281028 10.2804 0.132425 9.50593 0.0694166 8.72264C0.0244148 8.13134 -0.00550477 7.51444 0.000849696 6.92209C0.0348576 3.75552 2.23147 0.940284 5.4115 0.223013C5.90738 0.111171 6.33648 0.058723 6.84559 0.0220063Z"/>
+</svg>
+
+    const toggleFavourite = () => {
+        var favourites = JSON.parse(localStorage.getItem('favourites') || '[]');
+        if(favourites.includes(data.title)) {
+            favourites = favourites.filter(title => title !== data.title);
+        } else {
+            favourites.push(data.title);
+        }
+        setIsFavourite(!isFavourite);
+        localStorage.setItem('favourites', JSON.stringify(favourites));
+    }
 
     // Capture card position before expanding
     const handleExpand = () => {
@@ -51,17 +68,17 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
         const iconRules = [
             { keywords: ['sculpture', 'sculpt', 'statue', 'sculptor'], icon: 'icon_sculpture.png' },
             
-            { keywords: ['dinosaur', 'fossil', 'prehistoric', 'dino'], icon: 'icon_dino.svg' },
-            { keywords: ['cinema', 'film', 'movie', 'screening'], icon: 'icon_cinema.svg' },
+            { keywords: ['dinosaur', 'fossil', 'prehistoric', 'dino'], icon: 'icon_dino.png' },
+            { keywords: ['cinema', 'film', 'movie', 'screening'], icon: 'icon_cinema.png' },
             { keywords: ['climate', 'environment', 'sustainability', 'ecology'], icon: 'icon_climate.png' },
             { keywords: ['photograph', 'photography', 'photo'], icon: 'icon_photo.png' },
             { keywords: ['vase', 'pottery', 'ceramic', 'porcelain'], icon: 'icon_vase.png' },
             { keywords: ['jazz'], icon: 'icon_jazz.png' },
-            { keywords: ['orchestra', 'classical', 'symphony'], icon: 'icon_cello.svg' },
+            { keywords: ['orchestra', 'classical', 'symphony'], icon: 'icon_cello.png' },
             { keywords: ['music', 'concert', 'cello', 'musical'], icon: 'icon_music.png' },
-            { keywords: ['drama', 'theatre', 'theater', 'play', 'performance', 'shakespeare'], icon: 'icon_drama.svg' },
-            { keywords: ['talk', 'lecture', 'speaker', 'discussion', 'seminar', 'conversation'], icon: 'icon_speaker.svg' },
-            { keywords: ['painting', 'painter', 'portrait', 'landscape', 'watercolor', 'art'], icon: 'icon_painting.svg' }
+            { keywords: ['drama', 'theatre', 'theater', 'play', 'performance', 'shakespeare'], icon: 'icon_drama.png' },
+            { keywords: ['talk', 'lecture', 'speaker', 'discussion', 'seminar', 'conversation'], icon: 'icon_speaker.png' },
+            { keywords: ['painting', 'painter', 'portrait', 'landscape', 'watercolor', 'art'], icon: 'icon_painting.png' }
         ];
 
         // Find the first matching icon rule
@@ -72,14 +89,14 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
         }
 
         return {
-            'Tate Modern': 'icon_painting.svg',
-            'Natural History Museum': 'icon_dino.svg',
-            'Barbican': 'icon_cinema.svg',
+            'Tate Modern': 'icon_painting.png',
+            'Natural History Museum': 'icon_dino.png',
+            'Barbican': 'icon_cinema.png',
             'British Museum': 'icon_vase.png',
-            'Tate Britain': 'icon_painting.svg',
+            'Tate Britain': 'icon_painting.png',
             'Royal Albert Hall': 'icon_music.png',
-            'National Gallery': 'icon_painting.svg',
-            'London School of Economics': 'icon_speaker.svg',
+            'National Gallery': 'icon_painting.png',
+            'London School of Economics': 'icon_speaker.png',
             'Science Museum': 'icon_photo.png',
             'Victoria and Albert Museum': 'icon_sculpture.png',
         }[data.venue]
@@ -213,11 +230,12 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                 style={{ cursor: 'pointer' }}
             >
                 <div className='card_icon_container'>
-                    <img style={{width: '100%'}} src={'/assets/' + selectIcon(data)} alt={data.category} />
+                    <img style={{width: '100%'}} src={image_base_url + selectIcon(data)} alt={data.category} />
                 </div>
                 <div className='title_section'>
                     {data.title.includes(':') && data.title.length > 30 ? <><h2 style={{fontWeight: 'bold', fontSize: '20px', marginBottom: 0}}>{data.title.split(':')[0]}</h2><h3>{data.title.split(':')[1]}</h3></> :
                         <h2 style={{fontWeight: 'bold', fontSize: '20px'}}>{data.title}</h2>}
+                        <div onClick={(e) => {e.stopPropagation(); toggleFavourite();}}>{heartIcon}</div>
                 </div>
                 <div className='details_section'>
                     <div className='labels'>{getLabels(data).map(label => <span key={label[0]} className='label' style={{backgroundColor: label[1]}}>{label[0]}</span>)}</div>
@@ -246,43 +264,40 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                         
                         <div className='modal-header'>
                             <div className='modal-icon-container'>
-                                <img src={'/assets/' + selectIcon(data)} alt={data.category} />
+                                <img src={image_base_url + selectIcon(data)} alt={data.category} />
                             </div>
                             <div className='modal-title'>
                                 {data.title.includes(':') && data.title.length > 30 ? 
                                     <><h2>{data.title.split(':')[0]}</h2><h3>{data.title.split(':')[1]}</h3></> :
                                     <h2>{data.title}</h2>}
+                                <p style={{textAlign: 'left', fontSize: '16px', marginTop: '10px'}}>{data.venue}</p>
+                                <div className='modal-date' style={{display: 'flex', alignItems: 'center', marginTop: '5px'}}>
+                                    <img src={image_base_url + 'icon_calendar.svg'} alt='Calendar Icon' style={{marginRight: '5px', width: '15px'}} />
+                                    <p style={{textAlign: 'left', fontSize: '16px'}}>{formatDate(data)}</p>
+                                </div>
+                                {data.url && (
+                            <a 
+                                href={data.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className='modal-cta-button'
+                            >
+                                View on official site 🡽
+                            </a>
+                            )}
                             </div>
                         </div>
 
                         <div className='modal-body'>
-                            <div className='labels'>{getLabels(data).map(label => <span key={label[0]} className='label' style={{backgroundColor: label[1]}}>{label[0]}</span>)}</div>
-                            
-                            <div className='modal-info-grid'>
-                                <div className='modal-info-item'>
-                                    <strong>Venue</strong>
-                                    <p>{data.venue}</p>
-                                </div>
-                                <div className='modal-info-item'>
-                                    <strong>Date</strong>
-                                    <p>{formatDate(data)}</p>
-                                </div>
-                                {data.category && (
-                                    <div className='modal-info-item'>
-                                        <strong>Category</strong>
-                                        <p>{data.category}</p>
-                                    </div>
-                                )}
+                            {/* <div className='labels'>{getLabels(data).map(label => <span key={label[0]} className='label' style={{backgroundColor: label[1]}}>{label[0]}</span>)}</div> */}
+
+                            <div className='modal-description'>
                                 {data.speakers && (
                                     <div className='modal-info-item'>
                                         <strong>Speakers</strong>
                                         <p><em>{data.speakers}</em></p>
                                     </div>
                                 )}
-                            </div>
-
-                            <div className='modal-description'>
-                                <strong>Description</strong>
                                 <p>{data.desc}</p>
                             </div>
 
@@ -293,14 +308,7 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                                 </div>
                             )}
 
-                            <a 
-                                href={data.url} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className='modal-cta-button'
-                            >
-                                View Full Details on Official Site →
-                            </a>
+                            
                         </div>
                     </div>
                 </div>

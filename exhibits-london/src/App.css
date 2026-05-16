@@ -192,8 +192,12 @@
 
 .title_section {
     text-align: left;
+    display: flex;
+    justify-content: space-between;
 }
-
+.favouriteIcon {
+    transition: fill 0.3s ease;
+}
 .details_section {
     text-align: left;
 }
@@ -230,7 +234,6 @@ background-color: #7a1f1f;
 }
 .dense .card_icon_container {
     min-width: unset;
-    max-height: 100px;
     width: fit-content;
 }
 p {
@@ -257,7 +260,7 @@ h3 {
 
 .exhibit:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 0px 2px rgba(74, 144, 226, 0.2);;
     border-color: #aaa;
 }
 
@@ -428,7 +431,6 @@ body:has(.exhibit-modal-overlay) #filters_container {
     max-height: 90vh;
     overflow: hidden;
     position: relative;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     animation: expandFromCard 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     transform-origin: top left;
 }
@@ -499,6 +501,8 @@ body:has(.exhibit-modal-overlay) #filters_container {
     margin: 0;
     font-size: 24px;
     color: #08060d;
+    text-align: left;
+    font-weight: 700;
 }
 
 .modal-title h3 {
@@ -508,7 +512,8 @@ body:has(.exhibit-modal-overlay) #filters_container {
 }
 
 .modal-body {
-    padding: 30px;
+    display: flex;
+    flex-direction: row;
     overflow-y: auto;
     max-height: calc(90vh - 150px);
     opacity: 0;
@@ -536,7 +541,11 @@ body:has(.exhibit-modal-overlay) #filters_container {
 
 .modal-description,
 .modal-price-info {
-    margin: 25px 0;
+    padding: 20px 40px;
+}
+.modal-price-info {
+    min-width: 180px;
+    background: #ededed;
 }
 
 .modal-description strong,
@@ -555,19 +564,19 @@ body:has(.exhibit-modal-overlay) #filters_container {
 
 .modal-cta-button {
     display: inline-block;
-    background: #aa3bff;
+    background: #E1251B;
     color: white;
-    padding: 12px 24px;
-    border-radius: 6px;
+    padding: 2px 12px;
+    border-radius: 50px;
     text-decoration: none;
     font-weight: 500;
-    margin-top: 20px;
-    transition: background 0.2s, transform 0.2s;
+    margin-top: 10px;
+    transition: box-shadow 0.4s;
+    font-size: 14px;
 }
 
 .modal-cta-button:hover {
-    background: #9129e6;
-    transform: translateY(-2px);
+    box-shadow: 0 4px 0px 2px rgba(74, 144, 226, 0.2);
 }
 
 /* Modal Animations */
@@ -683,41 +692,55 @@ body:has(.exhibit-modal-overlay) #filters_container {
     }
 }
 
-/* Dark Mode Support for Modal */
-@media (prefers-color-scheme: dark) {
-    .exhibit-modal-content {
-        background: #16171d;
-        color: #9ca3af;
-    }
+.modal-title { 
+    text-align: left;
+}
 
-    .modal-close-btn {
-        background: #2e303a;
-        color: #f3f4f6;
-    }
+#calendarToggle > button > p{
+    font-size: 16px;
+}
 
-    .modal-close-btn:hover {
-        background: #3e404a;
-    }
-
-    .exhibit-modal-content .modal-header {
-        border-bottom-color: #2e303a;
-    }
-
-    .modal-icon-container {
-        background-color: #2e303a;
-    }
-
-    .modal-title h2,
-    .modal-description strong,
-    .modal-price-info strong,
-    .modal-info-item strong {
-        color: #f3f4f6;
-    }
-
-    .modal-title h3,
-    .modal-description p,
-    .modal-price-info p,
-    .modal-info-item p {
-        color: #9ca3af;
-    }
+#calendarToggle > button {
+    padding: 10px 60px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: rgb(255 255 255);
+    border-radius: 50px;
+    border: 2px solid #E1251B;
+    height: 62px;
+    vertical-align: middle;
+    display: flex;
+    align-items: center;
+    transition: box-shadow 0.4s;
+}
+#calendarToggle > button:hover {
+    box-shadow: 0 4px 0px 2px rgba(74, 144, 226, 0.2);
+}
+#navbar {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: center;
+}
+#logo {
+    margin: 30px;
+    width: 40%;
+    pointer-events: none;
+}
+#filterToggle {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: rgb(255 255 255);
+    border-radius: 50px;
+    border: 2px solid #E1251B;
+    max-height: 62px;
+    vertical-align: middle;
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    transition: box-shadow 0.4s;
+}
+#filterToggle:hover {
+    box-shadow: 0 4px 0px 2px rgba(74, 144, 226, 0.2);
 }

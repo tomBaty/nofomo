@@ -39,28 +39,51 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
         };
     }, [isExpanded]);
 
-    let categoryToIconMap = {
-        'Tate Modern': {
-            'Exhibition': 'icon_painting.svg',
+    const selectIcon = (data) => {
+        // Combine all text fields to search
+        const searchText = [
+            data.title || '',
+            data.desc || '',
+            data.category || ''
+        ].join(' ').toLowerCase();
 
-        },
-        'London School Of Economics': {
-            'Talk': 'icon_speaker.svg'
-        },
-        'Globe Theatre': {
-            'Performance': 'icon_drama.svg'
-        },
-        'Barbican': {
-            'Exhibition': 'icon_painting.svg',
-            'Performance': 'icon_drama.svg',
-            'Cinema': 'icon_cinema.svg',
-            'Contemporary music': 'icon_cello.svg',
-            'Classical music': 'icon_cello.svg',
-        },
-        'Natural History Museum': {
-            'Exhibition': 'icon_dino.svg'
+        // Define icon keywords with priority order (more specific first)
+        const iconRules = [
+            { keywords: ['sculpture', 'sculpt', 'statue', 'sculptor'], icon: 'icon_sculpture.png' },
+            
+            { keywords: ['dinosaur', 'fossil', 'prehistoric', 'dino'], icon: 'icon_dino.svg' },
+            { keywords: ['cinema', 'film', 'movie', 'screening'], icon: 'icon_cinema.svg' },
+            { keywords: ['climate', 'environment', 'sustainability', 'ecology'], icon: 'icon_climate.png' },
+            { keywords: ['photograph', 'photography', 'photo'], icon: 'icon_photo.png' },
+            { keywords: ['vase', 'pottery', 'ceramic', 'porcelain'], icon: 'icon_vase.png' },
+            { keywords: ['jazz'], icon: 'icon_jazz.png' },
+            { keywords: ['orchestra', 'classical', 'symphony'], icon: 'icon_cello.svg' },
+            { keywords: ['music', 'concert', 'cello', 'musical'], icon: 'icon_music.png' },
+            { keywords: ['drama', 'theatre', 'theater', 'play', 'performance', 'shakespeare'], icon: 'icon_drama.svg' },
+            { keywords: ['talk', 'lecture', 'speaker', 'discussion', 'seminar', 'conversation'], icon: 'icon_speaker.svg' },
+            { keywords: ['painting', 'painter', 'portrait', 'landscape', 'watercolor', 'art'], icon: 'icon_painting.svg' }
+        ];
+
+        // Find the first matching icon rule
+        for (const rule of iconRules) {
+            if (rule.keywords.some(keyword => searchText.includes(keyword))) {
+                return rule.icon;
+            }
         }
-    }
+
+        return {
+            'Tate Modern': 'icon_painting.svg',
+            'Natural History Museum': 'icon_dino.svg',
+            'Barbican': 'icon_cinema.svg',
+            'British Museum': 'icon_vase.png',
+            'Tate Britain': 'icon_painting.svg',
+            'Royal Albert Hall': 'icon_music.png',
+            'National Gallery': 'icon_painting.svg',
+            'London School of Economics': 'icon_speaker.svg',
+            'Science Museum': 'icon_photo.png',
+            'Victoria and Albert Museum': 'icon_sculpture.png',
+        }[data.venue]
+    };
 
     const formatDateRange = (startDate, endDate) => {
         const start = new Date(startDate);
@@ -190,7 +213,7 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                 style={{ cursor: 'pointer' }}
             >
                 <div className='card_icon_container'>
-                    <img style={{width: '100%'}} src={'/assets/' + (categoryToIconMap[data.venue]?.[data.category] || 'icon_painting.svg')} alt={data.category} />
+                    <img style={{width: '100%'}} src={'/assets/' + selectIcon(data)} alt={data.category} />
                 </div>
                 <div className='title_section'>
                     {data.title.includes(':') && data.title.length > 30 ? <><h2 style={{fontWeight: 'bold', fontSize: '20px', marginBottom: 0}}>{data.title.split(':')[0]}</h2><h3>{data.title.split(':')[1]}</h3></> :
@@ -223,7 +246,7 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                         
                         <div className='modal-header'>
                             <div className='modal-icon-container'>
-                                <img src={'/assets/' + (categoryToIconMap[data.venue]?.[data.category] || 'icon_painting.svg')} alt={data.category} />
+                                <img src={'/assets/' + selectIcon(data)} alt={data.category} />
                             </div>
                             <div className='modal-title'>
                                 {data.title.includes(':') && data.title.length > 30 ? 

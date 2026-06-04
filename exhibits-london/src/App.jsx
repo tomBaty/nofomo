@@ -1,9 +1,11 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { startOfDay, endOfDay, addDays, isWithinInterval, parseISO } from 'date-fns';
 import './App.css'
 import { Exhibit } from "./Exhibit";
 import { Filter } from "./Filter";
 import { CalendarDatePicker } from "./CalendarDatePicker";
 import { SearchBar } from "./SearchBar";
+import { SkeletonLoader } from "./SkeletonLoader";
 
 // API endpoint - works with Azure Functions locally and when deployed
 const API_URL = '/api/exhibitions';
@@ -12,7 +14,9 @@ function App() {
     const [exhibitions, setExhibitions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [expandedExhibit, setExpandedExhibit] = useState(null);
+    const [expandedExhibit, setExpandedExhibit] = useState(null); // Now stores title instead of index
+    const [filteringByFavourites, setFilteringByFavourites] = useState(false);
+    const filtersInitialized = useRef(false);
     const image_base_url = 'https://nofomodata.blob.core.windows.net/images/'
 
     // Close modal on Escape key
@@ -26,6 +30,21 @@ function App() {
         window.addEventListener('keydown', handleEscape);
         return () => window.removeEventListener('keydown', handleEscape);
     }, [expandedExhibit]);
+
+    // Date range state - using actual Date objects [startDate, endDate]
+    const today = startOfDay(new Date());
+    const [dateRange, setDateRange] = useState([today, addDays(today, 31)])
+    const [calendarText, setCalendarText] = useState('This month')
+
+    // Search term state
+    const [searchTerm, setSearchTerm] = useState('')
+
+    // Single filters object to manage all filter states
+    const [filters, setFilters] = useState({
+        venues: [],
+        categories: [],
+        paid: []
+    })
 
     // Fetch exhibitions from API
     useEffect(() => {
@@ -44,73 +63,45 @@ function App() {
             });
     }, []);
 
-    // Get unique venues and categories
-    const venues = useMemo(() => {
-        if (!exhibitions.length) return []
-        return [...new Set(exhibitions.map(ex => ex.venue))].sort()
-    }, [exhibitions])
+    // Calculate all unique filter options in one pass
+    const filterOptions = useMemo(() => {
+        if (!exhibitions.length) return null;
+        
+        const fields = ['venue', 'category', 'paid'];
+        const options = {};
+        
+        fields.forEach(field => {
+            options[field] = [...new Set(exhibitions.map(ex => ex[field]))].sort();
+        });
+        
+        return options;
+    }, [exhibitions]);
 
-    const categories = useMemo(() => {
-        if (!exhibitions.length) return []
-        return [...new Set(exhibitions.map(ex => ex.category))].sort()
-    }, [exhibitions])
-
-    const paid = useMemo(() => {
-        if (!exhibitions.length) return []
-        return [...new Set(exhibitions.map(ex => ex.paid))].sort()
-    }, [exhibitions])
-
-    // Date range state - using actual Date objects [startDate, endDate]
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const defaultEnd = new Date(today);
-    defaultEnd.setDate(defaultEnd.getDate() + 31);
-
-    const [dateRange, setDateRange] = useState([today, defaultEnd])
-    const [calendarText, setCalendarText] = useState('This month')
-
-    // Search term state
-    const [searchTerm, setSearchTerm] = useState('')
-
-    // Single filters object to manage all filter states
-    const [filters, setFilters] = useState({
-        venues: [],
-        categories: [],
-        paid: []
-    })
-
-    // Initialize filters when data loads
+    // Initialize filters once when data loads
     useEffect(() => {
-        if (venues.length > 0 && filters.venues.length === 0) {
-            setFilters(prev => ({ ...prev, venues }))
+        if (filterOptions && !filtersInitialized.current) {
+            setFilters({
+                venues: filterOptions.venue,
+                categories: filterOptions.category,
+                paid: filterOptions.paid
+            });
+            filtersInitialized.current = true;
         }
-    }, [venues, filters.venues])
-
-    useEffect(() => {
-        if (categories.length > 0 && filters.categories.length === 0) {
-            setFilters(prev => ({ ...prev, categories }))
-        }
-    }, [categories, filters.categories])
-
-    useEffect(() => {
-        if (filters.paid.length === 0) {
-            setFilters(prev => ({ ...prev, paid }))
-        }
-    }, [paid, filters.paid])
+    }, [filterOptions])
 
     // Generic toggle handler for all filter types
     const handleFilterToggle = (filterType, value) => {
         setFilters(prev => {
             // Check if clicking the same single selected item - if so, reset to all
             if (prev[filterType].length === 1 && prev[filterType][0] === value) {
-                const allItemsMap = {
-                    venues: venues,
-                    categories: categories,
-                    paid: paid
-                }
+                const fieldMap = {
+                    venues: 'venue',
+                    categories: 'category',
+                    paid: 'paid'
+                };
                 return {
                     ...prev,
-                    [filterType]: allItemsMap[filterType]
+                    [filterType]: filterOptions[fieldMap[filterType]]
                 }
             }
             // Otherwise, select only this item
@@ -176,11 +167,15 @@ function App() {
 
     // Filter exhibitions based on all selected filters
     const filteredExhibitions = useMemo(() => {
-        const rangeStart = dateRange[0] ? new Date(dateRange[0]) : null;
-        const rangeEnd = dateRange[1] ? new Date(dateRange[1]) : null;
+        const rangeStart = dateRange[0] ? startOfDay(new Date(dateRange[0])) : null;
+        const rangeEnd = dateRange[1] ? endOfDay(new Date(dateRange[1])) : null;
 
-        if (rangeStart) rangeStart.setHours(0, 0, 0, 0);
-        if (rangeEnd) rangeEnd.setHours(23, 59, 59, 999);
+        if (filteringByFavourites) {
+            const favouritesFromLs = JSON.parse(localStorage.getItem('favourites') || '[]');
+            const filtered = exhibitions.filter(ex => favouritesFromLs.includes(ex.title));
+            console.log('Filtering by favourites:', { favouritesFromLs, filtered: filtered.length, exhibitions: exhibitions.length });
+            return filtered;
+        }
 
         return exhibitions
             .filter(ex => filters.venues.includes(ex.venue))
@@ -193,16 +188,14 @@ function App() {
                 if (ex.dates && ex.dates.length > 0) {
                     // Check if any date in ex.dates falls within the range
                     return ex.dates.some(dateStr => {
-                        const date = new Date(dateStr + ' 2026')
-                        date.setHours(0, 0, 0, 0)
-                        return date >= rangeStart && date <= rangeEnd
+                        const date = startOfDay(new Date(dateStr + ' 2026'))
+                        return isWithinInterval(date, { start: rangeStart, end: rangeEnd })
                     })
                 } else {
                     // Check for overlap between exhibition's date range and filter date range
-                    const exStart = new Date(ex.startDate)
-                    exStart.setHours(0, 0, 0, 0)
-                    const exEnd = new Date(ex.endDate)
-                    exEnd.setHours(23, 59, 59, 999)
+                    if(!ex.startDate || !ex.endDate) return true; // If no dates provided, include by default
+                    const exStart = startOfDay(parseISO(ex.startDate))
+                    const exEnd = endOfDay(parseISO(ex.endDate))
 
                     return exStart <= rangeEnd && exEnd >= rangeStart
                 }
@@ -214,10 +207,7 @@ function App() {
                 // Include if search score is greater than 0
                 return calculateSearchScore(ex, searchTerm) > 0;
             })
-    }, [exhibitions, filters, dateRange, searchTerm, calculateSearchScore])
-
-    if (loading) return <p>Loading exhibitions...</p>
-    if (error) return <p>Error loading exhibitions: {error}</p>
+    }, [exhibitions, filters, dateRange, searchTerm, calculateSearchScore, filteringByFavourites])
 
     const toggleCalendar = () => {
         const calendar = document.querySelector('.calendar-date-picker')
@@ -237,7 +227,11 @@ function App() {
             filtersContainer.style.display = 'flex';
         }
     }
-    const heartIcon = <svg class="favouriteIcon" width="28" height="25" viewBox="0 0 28 25" fill="#7E7E7E" xmlns="http://www.w3.org/2000/svg"><path d="M6.84559 0.0220063C7.37272 -0.055768 8.4797 0.0880607 8.99553 0.21255C11.2084 0.746537 12.8351 2.16176 14.0098 4.0194C14.43 3.19101 15.2011 2.37573 15.9154 1.77395C17.7619 0.218672 20.2465 -0.336749 22.6176 0.223417C24.1047 0.58096 25.4333 1.3997 26.4046 2.55706C28.0336 4.52884 28.1327 6.53321 27.9145 8.9461C27.5771 12.6742 25.4736 14.9563 22.7983 17.3585C22.189 17.9027 21.5712 18.4377 20.9449 18.9629C20.614 19.2439 20.2958 19.5286 19.9532 19.798C19.8795 19.8785 19.769 19.9572 19.6847 20.0318C19.476 20.2163 19.2526 20.3904 19.043 20.573L16.5009 22.7729C15.7666 23.4173 15.0466 24.0792 14.3257 24.7379C14.2368 24.8192 14.1198 24.9406 14.019 25C13.9366 24.9771 11.5359 22.8018 11.2499 22.5532L9.63024 21.1521L6.43659 18.4341C5.71731 17.8231 5.01345 17.195 4.32565 16.5504C2.58566 14.9069 1.23158 13.3455 0.512698 11.0328C0.281028 10.2804 0.132425 9.50593 0.0694166 8.72264C0.0244148 8.13134 -0.00550477 7.51444 0.000849696 6.92209C0.0348576 3.75552 2.23147 0.940284 5.4115 0.223013C5.90738 0.111171 6.33648 0.058723 6.84559 0.0220063Z"></path></svg>
+    const heartIcon = <svg class="favouriteIcon" width="28" height="25" viewBox="0 0 28 25" fill={filteringByFavourites? "#e1251b" : "#7E7E7E" } xmlns="http://www.w3.org/2000/svg"><path d="M6.84559 0.0220063C7.37272 -0.055768 8.4797 0.0880607 8.99553 0.21255C11.2084 0.746537 12.8351 2.16176 14.0098 4.0194C14.43 3.19101 15.2011 2.37573 15.9154 1.77395C17.7619 0.218672 20.2465 -0.336749 22.6176 0.223417C24.1047 0.58096 25.4333 1.3997 26.4046 2.55706C28.0336 4.52884 28.1327 6.53321 27.9145 8.9461C27.5771 12.6742 25.4736 14.9563 22.7983 17.3585C22.189 17.9027 21.5712 18.4377 20.9449 18.9629C20.614 19.2439 20.2958 19.5286 19.9532 19.798C19.8795 19.8785 19.769 19.9572 19.6847 20.0318C19.476 20.2163 19.2526 20.3904 19.043 20.573L16.5009 22.7729C15.7666 23.4173 15.0466 24.0792 14.3257 24.7379C14.2368 24.8192 14.1198 24.9406 14.019 25C13.9366 24.9771 11.5359 22.8018 11.2499 22.5532L9.63024 21.1521L6.43659 18.4341C5.71731 17.8231 5.01345 17.195 4.32565 16.5504C2.58566 14.9069 1.23158 13.3455 0.512698 11.0328C0.281028 10.2804 0.132425 9.50593 0.0694166 8.72264C0.0244148 8.13134 -0.00550477 7.51444 0.000849696 6.92209C0.0348576 3.75552 2.23147 0.940284 5.4115 0.223013C5.90738 0.111171 6.33648 0.058723 6.84559 0.0220063Z"></path></svg>
+
+    if (loading) return <SkeletonLoader />
+    if (error) return <p>Error loading exhibitions: {error}</p>
+    if (!filterOptions) return null;
 
     return (
         <div>
@@ -246,7 +240,7 @@ function App() {
                 <div id='filterToggle' onClick={toggleFilters}>
                     <img src={image_base_url + 'icon_filter.svg'} style={{ width: '20px', verticalAlign: 'middle' }} />
                 </div>
-                <div id='favouritesToggle' onClick={toggleFilters}>
+                <div id='favouritesToggle' onClick={() => setFilteringByFavourites(!filteringByFavourites)}>
                     {heartIcon}
                 </div>
                 <SearchBar onSearch={setSearchTerm} />
@@ -258,28 +252,28 @@ function App() {
                     </button>
                 </div>
             </div>
+
             <div id='filters_container' style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', position: 'relative', padding: '20px', border: '0px' }}>
-                <Filter items={venues}
+                <Filter items={filterOptions.venue}
                     selectedItems={filters.venues}
                     onToggle={(value) => handleFilterToggle('venues', value)}
                     label="Venues"
                     itemLabel="venues"
                 />
                 <Filter
-                    items={categories}
+                    items={filterOptions.category}
                     selectedItems={filters.categories}
                     onToggle={(value) => handleFilterToggle('categories', value)}
                     label="Categories"
                     itemLabel="categories"
                 />
                 <Filter
-                    items={paid}
+                    items={filterOptions.paid}
                     selectedItems={filters.paid}
                     onToggle={(value) => handleFilterToggle('paid', value)}
                     label="Paid"
                     itemLabel="paid"
                 />
-                
             </div>
             <CalendarDatePicker
                     value={dateRange}
@@ -289,7 +283,7 @@ function App() {
 
             <div
                 id='exhibits_container'
-                key={`${JSON.stringify(filters)}-${searchTerm}-${dateRange[0]?.getTime()}-${dateRange[1]?.getTime()}`}
+                key={`${JSON.stringify(filters)}-${searchTerm}-${dateRange[0]?.getTime()}-${dateRange[1]?.getTime()}-${filteringByFavourites}`}
             >
                 {filteredExhibitions.sort((a, b) => {
                     // If search term exists, sort by search relevance score
@@ -300,16 +294,18 @@ function App() {
                     }
 
                     // Default sort by date
-                    const startDiff = new Date(a.startDate) - new Date(b.startDate);
+                    if(!a.startDate || !a.endDate) return 1; // If a has no dates, sort it after b
+                    if(!b.startDate || !b.endDate) return -1; // If b has no dates, sort it after a
+                    const startDiff = parseISO((a.startDate || a.dates[0])) - parseISO((b.startDate || b.dates[0]));
                     if (startDiff !== 0) return startDiff;
-                    return new Date(a.endDate) - new Date(b.endDate);
-                }).map((exhibition, index) =>
+                    return parseISO((a.endDate || a.dates[a.dates.length - 1])) - parseISO((b.endDate || b.dates[b.dates.length - 1]));
+                }).map((exhibition) =>
                     <Exhibit 
-                        key={index} 
+                        key={exhibition.url || exhibition.title} 
                         data={exhibition} 
                         densityMode={'dense'}
-                        isExpanded={expandedExhibit === index}
-                        onExpand={() => setExpandedExhibit(index)}
+                        isExpanded={expandedExhibit === exhibition.title}
+                        onExpand={() => setExpandedExhibit(exhibition.title)}
                         onCollapse={() => setExpandedExhibit(null)}
                     />
                 )}

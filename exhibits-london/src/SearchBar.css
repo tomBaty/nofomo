@@ -27,11 +27,12 @@
     align-items: center;
     gap: 10px;
     display: flex;
+    font-weight: 600;
 }
-.exhibit:hover .endsSoonLabel {
+/* .exhibit:hover .endsSoonLabel {
     margin-top: 15px;
     margin-left: 0
-}
+} */
 
 .search-bar.expanded {
     width: 500px;

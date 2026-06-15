@@ -2,6 +2,7 @@
 
 Azure Static Web App with React frontend and Azure Functions API.
 
+Run on local with npm run dev.
 
 ## API Endpoints
 

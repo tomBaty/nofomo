@@ -627,6 +627,7 @@ body:has(.exhibit-modal-overlay) #filters_container {
     .modal-body {
         padding: 20px;
         max-height: calc(100vh - 150px);
+        flex-direction: column-reverse;
     }
 
     .modal-icon-container {

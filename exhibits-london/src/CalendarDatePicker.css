@@ -2,7 +2,7 @@
     display: none;
     flex-direction: row;
     gap: 15px;
-    padding: 20px;
+
     background: white;
     border-radius: 12px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -53,6 +53,7 @@
     display: flex;
     align-items: flex-start;
     gap: 10px;
+    padding: 20px;
 }
 
 .calendar-nav-button {
@@ -109,11 +110,14 @@
     text-align: center;
     color: #333;
     padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .calendar-weekdays {
     display: grid;
-    grid-template-columns: repeat(7, 40px);
+    grid-template-columns: repeat(7, 1fr);
     gap: 4px;
 }
 
@@ -127,12 +131,12 @@
 
 .calendar-grid {
     display: grid;
-    grid-template-columns: repeat(7, 40px);
+    grid-template-columns: repeat(7, 1fr);
     gap: 4px;
 }
 
 .calendar-day {
-    width: 40px;
+    width: 100%;
     height: 40px;
     display: flex;
     align-items: center;
@@ -214,19 +218,30 @@
     .calendar-months {
         flex-direction: column;
         gap: 20px;
+        width: 100%;
     }
     
     .calendar-date-picker {
         width: 100%;
         flex-direction: column-reverse;
+        gap: 0px;
     }
 
     .calendar-presets {
         justify-content: center;
+        padding: 20px 20px 0 20px;
     }
 
     .preset-button {
         font-size: 13px;
         padding: 6px 12px;
+    }
+}
+@media (min-width: 768px) {
+    .calendar-presets {
+        padding: 20px;
+    }
+    .calendar-weekdays, .calendar-grid {
+        grid-template-columns: repeat(7, 40px);
     }
 }

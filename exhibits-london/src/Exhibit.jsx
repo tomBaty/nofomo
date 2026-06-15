@@ -225,20 +225,20 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
     //     return labels
     // }
 
-    const getEndingInText = (endDate) => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const end = new Date(endDate);
-        end.setHours(0, 0, 0, 0);
-        const daysUntilEnd = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
-        if (daysUntilEnd == 0) {
-            return 'Ends today!';
-        } else if (daysUntilEnd == 1) {
-            return 'Ends tomorrow';
-        } else {
-            return `Ends in ${daysUntilEnd} days`;
-        }
-    }
+    // const getEndingInText = (endDate) => {
+    //     const today = new Date();
+    //     today.setHours(0, 0, 0, 0);
+    //     const end = new Date(endDate);
+    //     end.setHours(0, 0, 0, 0);
+    //     const daysUntilEnd = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+    //     if (daysUntilEnd == 0) {
+    //         return 'Ends today!';
+    //     } else if (daysUntilEnd == 1) {
+    //         return 'Ends tomorrow';
+    //     } else {
+    //         return `Ends in ${daysUntilEnd} days`;
+    //     }
+    // }
 
     const clockIcon = <svg width="20" height="20" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
 <circle cx="100" cy="100" r="91" stroke="white" stroke-width="18"/>
@@ -264,7 +264,13 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                     <p style={{display: 'flex'}}><img src={image_base_url + 'icon_calendar.svg'} alt='Calendar Icon' style={{ marginRight: '5px', width: '15px' }} />{formatDate(data)}</p>
                     
                     </div>
-                    <div onClick={(e) => { e.stopPropagation(); toggleFavourite(); }}>{heartIcon}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                        <div onClick={(e) => { e.stopPropagation(); toggleFavourite(); }}>{heartIcon}</div>
+                                        {data.endDate && new Date(data.endDate) < (new Date().getTime() + 7 * 24 * 60 * 60 * 1000) && (
+                    <div className='endsSoonLabel'>{clockIcon}</div>
+                )}
+                    </div>
+                    
                 </div>
                 <div className='details_section'>
                     {/* <div className='labels'>{getLabels(data).map(label => <span key={label[0]} className='label' style={{ backgroundColor: label[1] }}>{label[0]}</span>)}</div> */}
@@ -274,9 +280,7 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                         View Details →
                     </a>
                 </div>
-                {data.endDate && new Date(data.endDate) < (new Date().getTime() + 7 * 24 * 60 * 60 * 1000) && (
-                    <div className='endsSoonLabel'>{clockIcon} {getEndingInText(data.endDate)}</div>
-                )}
+
             </div>
             
             {isExpanded && (

@@ -14,24 +14,24 @@ export function CalendarDatePicker({ value, onChange, onPresetChange }) {
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
         const daysInMonth = lastDay.getDate();
-        
+
         // Get day of week for first day (0 = Sunday, 1 = Monday, etc.)
         const startDayOfWeek = firstDay.getDay();
         // Convert to Monday-first (0 = Monday, 6 = Sunday)
         const startDayMondayFirst = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;
-        
+
         const days = [];
-        
+
         // Add empty slots for days before month starts
         for (let i = 0; i < startDayMondayFirst; i++) {
             days.push(null);
         }
-        
+
         // Add all days in month
         for (let day = 1; day <= daysInMonth; day++) {
             days.push(new Date(year, month, day));
         }
-        
+
         return days;
     };
 
@@ -47,10 +47,10 @@ export function CalendarDatePicker({ value, onChange, onPresetChange }) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const firstOfCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        
+
         const newDate = new Date(currentMonth);
         newDate.setMonth(newDate.getMonth() - 1);
-        
+
         // Don't go before the current month
         if (newDate >= firstOfCurrentMonth) {
             setCurrentMonth(newDate);
@@ -62,7 +62,7 @@ export function CalendarDatePicker({ value, onChange, onPresetChange }) {
         newDate.setMonth(newDate.getMonth() + 1);
         setCurrentMonth(newDate);
     };
-    
+
     // Check if we can go to previous month
     const canGoPrevious = () => {
         const today = new Date();
@@ -75,7 +75,7 @@ export function CalendarDatePicker({ value, onChange, onPresetChange }) {
     // Handle date selection
     const handleDateClick = (date) => {
         if (!date) return;
-        
+
         // Don't allow selecting dates before today
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -94,6 +94,7 @@ export function CalendarDatePicker({ value, onChange, onPresetChange }) {
                 onChange([startDate, date]);
             }
             setIsSelectingEnd(false);
+            onPresetChange(startDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' }) + ' - ' + date.toLocaleString('en-GB', { day: 'numeric', month: 'short' }));
         }
     };
 
@@ -121,7 +122,7 @@ export function CalendarDatePicker({ value, onChange, onPresetChange }) {
         const today = new Date();
         return date.toDateString() === today.toDateString();
     };
-    
+
     // Check if date is in the past
     const isPastDate = (date) => {
         if (!date) return false;
@@ -133,14 +134,22 @@ export function CalendarDatePicker({ value, onChange, onPresetChange }) {
     };
 
     // Render a single month
-    const renderMonth = (monthDate) => {
+    const renderMonth = (monthDate, addButtons) => {
         const days = getDaysInMonth(monthDate);
         const monthName = monthDate.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
 
         return (
             <div className="calendar-month">
                 <div className="calendar-month-header">
+                    {addButtons && <button
+                        className="calendar-nav-button"
+                        onClick={goToPreviousMonth}
+                        disabled={!canGoPrevious()}
+                    >‹</button>}
                     {monthName}
+                    {addButtons && <button className="calendar-nav-button" onClick={goToNextMonth}>
+                        ›
+                    </button>}
                 </div>
                 <div className="calendar-weekdays">
                     <div className="calendar-weekday">Mon</div>
@@ -235,20 +244,18 @@ export function CalendarDatePicker({ value, onChange, onPresetChange }) {
     return (
         <div className="calendar-date-picker">
             <div className="calendar-navigation">
-                <button 
-                    className="calendar-nav-button" 
+                {window.innerWidth >= 768 && <button
+                    className="calendar-nav-button"
                     onClick={goToPreviousMonth}
                     disabled={!canGoPrevious()}
-                >
-                    ‹
-                </button>
+                >‹</button>}
                 <div className="calendar-months">
-                    {renderMonth(currentMonth)}
+                    {renderMonth(currentMonth, window.innerWidth <= 768)}
                     {window.innerWidth >= 768 && renderMonth(nextMonth)}
                 </div>
-                <button className="calendar-nav-button" onClick={goToNextMonth}>
-                    ›
-                </button>
+                {window.innerWidth >= 768 && <button className="calendar-nav-button" onClick={goToNextMonth}>
+                        ›
+                    </button>}
             </div>
             <div className="calendar-presets">
                 <button className="preset-button" onClick={() => handlePresetClick('Today')}>

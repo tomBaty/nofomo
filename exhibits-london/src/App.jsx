@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { startOfDay, endOfDay, addDays, isWithinInterval, parseISO } from 'date-fns';
 import './App.css'
 import { Exhibit } from "./Exhibit";
-import { Filter } from "./Filter";
 import { CalendarDatePicker } from "./CalendarDatePicker";
 import { NavBar } from "./NavBar";
 import { SkeletonLoader } from "./SkeletonLoader";
@@ -13,6 +12,7 @@ const API_URL = '/api/exhibitions';
 function App() {
     const [exhibitions, setExhibitions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [filtersExpanded, setFiltersExpanded] = useState(false);
     const [error, setError] = useState(null);
     const [expandedExhibit, setExpandedExhibit] = useState(null); // Now stores title instead of index
     const [filteringByFavourites, setFilteringByFavourites] = useState(false);
@@ -173,7 +173,6 @@ function App() {
         if (filteringByFavourites) {
             const favouritesFromLs = JSON.parse(localStorage.getItem('favourites') || '[]');
             const filtered = exhibitions.filter(ex => favouritesFromLs.includes(ex.title));
-            console.log('Filtering by favourites:', { favouritesFromLs, filtered: filtered.length, exhibitions: exhibitions.length });
             return filtered;
         }
 
@@ -193,7 +192,6 @@ function App() {
                     })
                 } else if (ex.dates && ex.dateRangeType == 'range' && ex.dates[0] !== null) {
                     // Check for overlap between exhibition's date range and filter date range
-                    console.log(ex.title)
                     if(!ex.dates) return true; // If no dates provided, include by default
                     const exStart = startOfDay(parseISO(ex.dates[0]))
                     const exEnd = endOfDay(parseISO(ex.dates[ex.dates.length - 1]))
@@ -222,13 +220,18 @@ function App() {
         }
     }
     const toggleFilters = () => {
-        const filtersContainer = document.getElementById('filters_container');
-        if (!filtersContainer) return;
-        if (filtersContainer.style.display === 'flex') {
-            filtersContainer.style.display = 'none';
-        } else {
-            filtersContainer.style.display = 'flex';
-        }
+        setFiltersExpanded(prev => !prev);
+    }
+
+    const handleCheckboxToggle = (filterType, value) => {
+        setFilters(prev => {
+            const current = prev[filterType];
+            if (current.includes(value)) {
+                return { ...prev, [filterType]: current.filter(v => v !== value) };
+            } else {
+                return { ...prev, [filterType]: [...current, value] };
+            }
+        });
     }
 
     if (loading) return <SkeletonLoader />
@@ -247,27 +250,46 @@ function App() {
                 onSearch={setSearchTerm}
             />
 
-            <div id='filters_container' style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', position: 'relative', padding: '20px', border: '0px' }}>
-                <Filter items={filterOptions.venue}
-                    selectedItems={filters.venues}
-                    onToggle={(value) => handleFilterToggle('venues', value)}
-                    label="Venues"
-                    itemLabel="venues"
-                />
-                <Filter
-                    items={filterOptions.category}
-                    selectedItems={filters.categories}
-                    onToggle={(value) => handleFilterToggle('categories', value)}
-                    label="Categories"
-                    itemLabel="categories"
-                />
-                <Filter
-                    items={filterOptions.paid}
-                    selectedItems={filters.paid}
-                    onToggle={(value) => handleFilterToggle('paid', value)}
-                    label="Paid"
-                    itemLabel="paid"
-                />
+            {/* Filter sidebar backdrop */}
+            <div
+                className={`filter-sidebar-backdrop${filtersExpanded ? ' visible' : ''}`}
+                onClick={() => setFiltersExpanded(false)}
+            />
+
+            {/* Filter sidebar */}
+            <div className={`filter-sidebar${filtersExpanded ? ' open' : ''}`}>
+                <div className='filter-sidebar-header'>
+                    <h3>Filters</h3>
+                    <button className='filter-sidebar-close' onClick={() => setFiltersExpanded(false)}>×</button>
+                </div>
+
+                <div className='filter-section'>
+                    <h4>Venue</h4>
+                    {filterOptions.venue.map(venue => (
+                        <label key={venue} className='filter-checkbox-label'>
+                            <input
+                                type='checkbox'
+                                checked={filters.venues.includes(venue)}
+                                onChange={() => handleCheckboxToggle('venues', venue)}
+                            />
+                            {venue}
+                        </label>
+                    ))}
+                </div>
+
+                <div className='filter-section'>
+                    <h4>Entry</h4>
+                    {filterOptions.paid.map(option => (
+                        <label key={option} className='filter-checkbox-label'>
+                            <input
+                                type='checkbox'
+                                checked={filters.paid.includes(option)}
+                                onChange={() => handleCheckboxToggle('paid', option)}
+                            />
+                            {option.charAt(0).toUpperCase() + option.slice(1)}
+                        </label>
+                    ))}
+                </div>
             </div>
             <CalendarDatePicker
                     value={dateRange}

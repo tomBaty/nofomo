@@ -5,9 +5,14 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 
 export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse }) {
     const cardRef = useRef(null);
-    // const [cardPosition, setCardPosition] = useState(null);
-    // const [isAnimating, setIsAnimating] = useState(false);
     const [isFavourite, setIsFavourite] = useState(JSON.parse(localStorage.getItem('favourites') || '[]').includes(data.title));
+    const [priceExpanded, setPriceExpanded] = useState(false);
+
+    const getMinPrice = (text) => {
+        const matches = [...text.matchAll(/£\s?(\d+(?:\.\d{1,2})?)/g)];
+        const prices = matches.map(m => parseFloat(m[1])).filter(p => p >= 1);
+        return prices.length > 0 ? Math.min(...prices) : null;
+    };
     const image_base_url = 'https://nofomodata.blob.core.windows.net/images/'
 
     const heartIcon = useMemo(() => <svg className='favouriteIcon' width="28" height="25" viewBox="0 0 28 25" fill={isFavourite ? "#e1251b" : "#7E7E7E"} xmlns="http://www.w3.org/2000/svg">
@@ -28,18 +33,7 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
     // Capture card position before expanding
     const handleExpand = () => {
         if (cardRef.current) {
-            // const rect = cardRef.current.getBoundingClientRect();
-            // setCardPosition({
-            //     top: rect.top,
-            //     left: rect.left,
-            //     width: rect.width,
-            //     height: rect.height
-            // });
-            // setIsAnimating(true);
             onExpand();
-
-            // Reset animating state after animation completes
-            // setTimeout(() => setIsAnimating(false), 400);
         }
     };
 
@@ -55,52 +49,6 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
             document.body.style.overflow = 'unset';
         };
     }, [isExpanded]);
-
-    const selectIcon = (data) => {
-        // Combine all text fields to search
-        const searchText = [
-            data.title || '',
-            data.description || '',
-            data.category || ''
-        ].join(' ').toLowerCase().split(' ');
-
-        // Define icon keywords with priority order (more specific first)
-        const iconRules = [
-            { keywords: ['sculpture', 'sculpt', 'statue', 'sculptor'], icon: 'icon_sculpture.png' },
-            { keywords: ['dinosaur', 'fossil', 'prehistoric', 'dino'], icon: 'icon_dino.png' },
-            { keywords: ['cinema', 'film', 'movie', 'screening'], icon: 'icon_cinema.png' },
-            { keywords: ['climate', 'environment', 'sustainability', 'ecology'], icon: 'icon_climate.png' },
-            { keywords: ['photograph', 'photography', 'photo'], icon: 'icon_photo.png' },
-            { keywords: ['vase', 'pottery', 'ceramic', 'porcelain'], icon: 'icon_vase.png' },
-            { keywords: ['jazz'], icon: 'icon_jazz.png' },
-            { keywords: ['orchestra', 'classical', 'symphony'], icon: 'icon_cello.png' },
-            { keywords: ['music', 'concert', 'cello', 'musical'], icon: 'icon_music.png' },
-            { keywords: ['drama', 'theatre', 'theater', 'play', 'performance', 'shakespeare'], icon: 'icon_drama.png' },
-            { keywords: ['talk', 'lecture', 'speaker', 'discussion', 'seminar', 'conversation'], icon: 'icon_speaker.png' },
-            { keywords: ['painting', 'painter', 'portrait', 'landscape', 'watercolor', 'art'], icon: 'icon_painting.png' }
-        ];
-
-        // Find the first matching icon rule
-        for (const rule of iconRules) {
-            if (rule.keywords.some(keyword => searchText.includes(keyword))) {
-                return rule.icon;
-            }
-        }
-
-        return {
-            'Tate Modern': 'icon_painting.png',
-            'Natural History Museum': 'icon_dino.png',
-            'Barbican': 'icon_cinema.png',
-            'British Museum': 'icon_vase.png',
-            'Tate Britain': 'icon_painting.png',
-            'Royal Albert Hall': 'icon_music.png',
-            'National Gallery': 'icon_painting.png',
-            'London School of Economics': 'icon_speaker.png',
-            'Science Museum': 'icon_photo.png',
-            'Victoria and Albert Museum': 'icon_sculpture.png',
-            'Courtauld Gallery': 'icon_painting.png',
-        }[data.venue] || 'icon_painting.png';
-    };
 
     const formatDateRange = (startDate, endDate) => {
         const start = new Date(startDate);
@@ -158,7 +106,7 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
             return formatDateRange(dates[0] + ' 2026', dates[dates.length - 1] + ' 2026');
         }
 
-        if(dates.length <= 4) {
+        if (dates.length <= 4) {
             return dates.map(date => formatSingleDate(date)).join(', ')
         }
         return 'Various dates ' + formatSingleDate(dates[0]) + ' - ' + formatSingleDate(dates[dates.length - 1]);
@@ -174,76 +122,10 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
         }
     }
 
-    // const getSmallestPoundPriceInText = (text) => {
-    //     const poundRegex = /£\s?(\d+)/g;
-    //     let match;
-    //     let minPrice = Infinity;
-    //     while ((match = poundRegex.exec(text)) !== null) {
-    //         const price = parseInt(match[1], 10);
-    //         if (price < minPrice && price >= 5) { // Ignore very low prices which are likely to be errors
-    //             minPrice = price;
-    //         }
-    //     }
-    //     return minPrice === Infinity ? `Either free or price not released` : `from £${minPrice}`;
-    // }
-
-    // const getLabels = (data) => {
-    //     var labels = [];
-    //     if (data.paid === 'free') {
-    //         labels.push(['Free entry', 'green']);
-    //     } else {
-    //         const priceLabel = getSmallestPoundPriceInText(data.priceInfo);
-    //         if (priceLabel !== 'Either free or price not released') {
-    //             labels.push([priceLabel, 'orange']);
-    //         }
-    //     }
-
-    //     if (data.dates && data.dates.length > 0) {
-    //         return labels
-    //     }
-
-    //     const today = new Date();
-    //     today.setHours(0, 0, 0, 0); // Reset time for accurate day comparison
-    //     const startDate = new Date(data.startDate);
-    //     startDate.setHours(0, 0, 0, 0);
-    //     const endDate = new Date(data.endDate);
-    //     endDate.setHours(0, 0, 0, 0);
-
-    //     const daysUntilEnd = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
-    //     const daysUntilStart = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
-
-    //     // Ending soon: event is ongoing or ending within 14 days
-    //     if (endDate > today && daysUntilEnd <= 14 && startDate.toDateString() !== endDate.toDateString()) {
-    //         labels.push(['Ending soon', 'red']);
-    //     }
-
-    //     // Opening soon: event hasn't started yet and starts within 30 days
-    //     if (startDate > today && daysUntilStart <= 30 && startDate.toDateString() !== endDate.toDateString()) {
-    //         labels.push(['Opening soon', 'blue']);
-    //     }
-
-    //     return labels
-    // }
-
-    // const getEndingInText = (endDate) => {
-    //     const today = new Date();
-    //     today.setHours(0, 0, 0, 0);
-    //     const end = new Date(endDate);
-    //     end.setHours(0, 0, 0, 0);
-    //     const daysUntilEnd = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
-    //     if (daysUntilEnd == 0) {
-    //         return 'Ends today!';
-    //     } else if (daysUntilEnd == 1) {
-    //         return 'Ends tomorrow';
-    //     } else {
-    //         return `Ends in ${daysUntilEnd} days`;
-    //     }
-    // }
-
     const clockIcon = <svg width="20" height="20" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-<circle cx="100" cy="100" r="91" stroke="white" stroke-width="18"/>
-<path d="M99.5 44V102L128 123.5" stroke="white" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+        <circle cx="100" cy="100" r="91" stroke="white" stroke-width="18" />
+        <path d="M99.5 44V102L128 123.5" stroke="white" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
 
     return (
         <>
@@ -251,7 +133,6 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                 ref={cardRef}
                 className={'exhibit' + (densityMode ? ' dense' : '') + (new Date(data.startDate) > new Date() ? ' notYetOpen' : '') + (isExpanded ? ' exhibit-expanded' : '')}
                 onClick={handleExpand}
-                style={{ cursor: 'pointer' }}
             >
                 <div className='card_icon_container'>
                     <img style={{ width: '100%' }} src={image_base_url + data.icon} alt={data.category} />
@@ -259,21 +140,20 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                 <div className='title_section'>
                     <div>
                         {data.title.includes(':') && data.title.length > 30 ? <><h2 style={{ fontWeight: 'bold', fontSize: '20px', marginBottom: 0 }}>{data.title.split(':')[0]}</h2><h3>{data.title.split(':')[1]}</h3></> :
-                        <h2 style={{ fontWeight: 'bold', fontSize: '20px' }}>{data.title}</h2>}
-                        <p style={{display: 'flex'}}><img src={image_base_url + 'icon_location_red.svg'} alt='Location Icon' style={{ marginRight: '10px', width: '10px' }} />{data.venue}</p>
-                    <p style={{display: 'flex'}}><img src={image_base_url + 'icon_calendar.svg'} alt='Calendar Icon' style={{ marginRight: '5px', width: '15px' }} />{formatDate(data)}</p>
-                    
+                            <h2 style={{ fontWeight: 'bold', fontSize: '20px' }}>{data.title}</h2>}
+                        <p style={{ display: 'flex' }}><img src={image_base_url + 'icon_location_red.svg'} alt='Location Icon' style={{ marginRight: '10px', width: '10px' }} />{data.venue}</p>
+                        <p style={{ display: 'flex' }}><img src={image_base_url + 'icon_calendar.svg'} alt='Calendar Icon' style={{ marginRight: '5px', width: '15px' }} />{formatDate(data)}</p>
+
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
                         <div onClick={(e) => { e.stopPropagation(); toggleFavourite(); }}>{heartIcon}</div>
-                                        {data.endDate && new Date(data.endDate) < (new Date().getTime() + 7 * 24 * 60 * 60 * 1000) && (
-                    <div className='endsSoonLabel'>{clockIcon}</div>
-                )}
+                        {data.dates && new Date(data.dates[data.dates.length - 1]) < (new Date().getTime() + 7 * 24 * 60 * 60 * 1000) && (
+                            <div className='endsSoonLabel'>{clockIcon}</div>
+                        )}
                     </div>
-                    
+
                 </div>
                 <div className='details_section'>
-                    {/* <div className='labels'>{getLabels(data).map(label => <span key={label[0]} className='label' style={{ backgroundColor: label[1] }}>{label[0]}</span>)}</div> */}
                     {data.speakers ? <p><em>{data.speakers}</em></p> : null}
                     <p>{data.shortDescription}</p>
                     <a href={data.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
@@ -282,7 +162,7 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                 </div>
 
             </div>
-            
+
             {isExpanded && (
                 <div
                     className={`exhibit-modal-overlay `}
@@ -292,9 +172,6 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                         <button className='modal-close-btn' onClick={onCollapse}>×</button>
 
                         <div className='modal-header'>
-                            <div className='modal-icon-container'>
-                                <img src={image_base_url + selectIcon(data)} alt={data.category} />
-                            </div>
                             <div className='modal-title'>
                                 {data.title.includes(':') && data.title.length > 30 ?
                                     <><h2>{data.title.split(':')[0]}</h2><h3>{data.title.split(':')[1]}</h3></> :
@@ -304,20 +181,42 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                                     <img src={image_base_url + 'icon_calendar.svg'} alt='Calendar Icon' style={{ marginRight: '5px', width: '15px' }} />
                                     <p style={{ textAlign: 'left', fontSize: '16px' }}>{formatDate(data)}</p>
                                 </div>
-                                {data.url && (
-                                    <a
-                                        href={data.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className='modal-cta-button'
-                                    >
-                                        View on official site 🡽
-                                    </a>
-                                )}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+                                    {data.url && (
+                                        <a
+                                            href={data.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className='modal-cta-button'
+                                        >
+                                            View on official site 🡽
+                                        </a>
+                                    )}
+                                    <div className='modal-fav-button' onClick={(e) => { e.stopPropagation(); toggleFavourite(); }}>{heartIcon} Favourite</div>
+                                </div>
+
                             </div>
                         </div>
 
                         <div className='modal-body'>
+                            {data.priceInfo && data.priceInfo.split('\n').length > 1 ? (
+                                <div className='modal-price-info'>
+                                    <div className='price-info-summary'>
+                                        <strong>
+                                            {(() => { const min = getMinPrice(data.priceInfo); return min ? `Entry from £${min}` : 'Price Information'; })()}
+                                        </strong>
+                                        <button className='price-see-more-btn' onClick={(e) => { e.stopPropagation(); setPriceExpanded(v => !v); }}>
+                                            {priceExpanded ? 'See less' : 'See more'}
+                                        </button>
+                                    </div>
+                                    <div className={`price-info-detail${priceExpanded ? ' expanded' : ''}`}>
+                                        <ul>{data.priceInfo.split('\n').map((line, index) => (
+                                            <li key={index}>{line}</li>
+                                        ))}</ul>
+                                    </div>
+                                </div>
+                            ) : (<div className='modal-price-info'><p>{data.paid.toLowerCase() === 'free' ? 'Free entry' : data.priceInfo}</p></div>)}
+
                             <div className='modal-description'>
                                 {data.speakers && (
                                     <div className='modal-info-item'>
@@ -327,13 +226,6 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                                 )}
                                 <p style={{ whiteSpace: 'pre-wrap' }}>{data.description}</p>
                             </div>
-
-                            {data.priceInfo && (
-                                <div className='modal-price-info'>
-                                    <strong>Price Information</strong>
-                                    <p>{data.priceInfo}</p>
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>

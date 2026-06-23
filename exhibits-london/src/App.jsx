@@ -185,19 +185,22 @@ function App() {
                 // Skip date filtering if no date range selected
                 if (!rangeStart || !rangeEnd) return true;
 
-                if (ex.dates && ex.dates.length > 0) {
+                if (ex.dateRangeType == 'only' && ex.dates.length > 0) {
                     // Check if any date in ex.dates falls within the range
-                    return ex.dates.some(dateStr => {
-                        const date = startOfDay(new Date(dateStr + ' 2026'))
-                        return isWithinInterval(date, { start: rangeStart, end: rangeEnd })
+                    return ex.dates.some(d => {
+                        // why is 2026 hard coded
+                        return isWithinInterval(startOfDay(new Date(d)), { start: rangeStart, end: rangeEnd })
                     })
-                } else {
+                } else if (ex.dates && ex.dateRangeType == 'range' && ex.dates[0] !== null) {
                     // Check for overlap between exhibition's date range and filter date range
-                    if(!ex.startDate || !ex.endDate) return true; // If no dates provided, include by default
-                    const exStart = startOfDay(parseISO(ex.startDate))
-                    const exEnd = endOfDay(parseISO(ex.endDate))
+                    console.log(ex.title)
+                    if(!ex.dates) return true; // If no dates provided, include by default
+                    const exStart = startOfDay(parseISO(ex.dates[0]))
+                    const exEnd = endOfDay(parseISO(ex.dates[ex.dates.length - 1]))
 
                     return exStart <= rangeEnd && exEnd >= rangeStart
+                } else {
+                    return false
                 }
             })
             .filter(ex => {
@@ -285,11 +288,11 @@ function App() {
                     }
 
                     // Default sort by date
-                    if(!a.startDate || !a.endDate) return 1; // If a has no dates, sort it after b
-                    if(!b.startDate || !b.endDate) return -1; // If b has no dates, sort it after a
-                    const startDiff = parseISO((a.startDate || a.dates[0])) - parseISO((b.startDate || b.dates[0]));
+                    // if(!a.startDate || !a.endDate) return 1; // If a has no dates, sort it after b
+                    // if(!b.startDate || !b.endDate) return -1; // If b has no dates, sort it after a
+                    const startDiff = parseISO(a.dates[0]) - parseISO(b.dates[0]);
                     if (startDiff !== 0) return startDiff;
-                    return parseISO((a.endDate || a.dates[a.dates.length - 1])) - parseISO((b.endDate || b.dates[b.dates.length - 1]));
+                    return parseISO(a.dates[a.dates.length - 1]) - parseISO(b.dates[b.dates.length - 1]);
                 }).map((exhibition) =>
                     <Exhibit 
                         key={exhibition.url || exhibition.title} 

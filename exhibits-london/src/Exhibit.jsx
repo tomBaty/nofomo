@@ -60,7 +60,7 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
         // Combine all text fields to search
         const searchText = [
             data.title || '',
-            data.desc || '',
+            data.description || '',
             data.category || ''
         ].join(' ').toLowerCase().split(' ');
 
@@ -165,12 +165,12 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
     }
 
     const formatDate = (data) => {
-        if (data.dates && data.dates.length > 0) {
+        if (data.dateRangeType == 'only' && data.dates.length > 0) {
             return formatMultipleDates(data.dates);
-        } else if (new Date(data.startDate).toDateString() === new Date(data.endDate).toDateString()) {
-            return formatSingleDate(data.startDate);
+        } else if (data.dateRangeType == 'only' && data.dates.length === 1) {
+            return formatSingleDate(data.dates[0]);
         } else {
-            return formatDateRange(data.startDate, data.endDate);
+            return formatDateRange(data.dates[0], data.dates[1]);
         }
     }
 
@@ -254,7 +254,7 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                 style={{ cursor: 'pointer' }}
             >
                 <div className='card_icon_container'>
-                    <img style={{ width: '100%' }} src={image_base_url + selectIcon(data)} alt={data.category} />
+                    <img style={{ width: '100%' }} src={image_base_url + data.icon} alt={data.category} />
                 </div>
                 <div className='title_section'>
                     <div>
@@ -275,7 +275,7 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                 <div className='details_section'>
                     {/* <div className='labels'>{getLabels(data).map(label => <span key={label[0]} className='label' style={{ backgroundColor: label[1] }}>{label[0]}</span>)}</div> */}
                     {data.speakers ? <p><em>{data.speakers}</em></p> : null}
-                    <p>{data.desc}</p>
+                    <p>{data.shortDescription}</p>
                     <a href={data.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
                         View Details →
                     </a>
@@ -325,7 +325,7 @@ export function Exhibit({ data, densityMode, isExpanded, onExpand, onCollapse })
                                         <p><em>{data.speakers}</em></p>
                                     </div>
                                 )}
-                                <p>{data.desc}</p>
+                                <p style={{ whiteSpace: 'pre-wrap' }}>{data.description}</p>
                             </div>
 
                             {data.priceInfo && (

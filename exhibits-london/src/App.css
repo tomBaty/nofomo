@@ -433,7 +433,7 @@ body:has(.exhibit-modal-overlay) #filters_container {
 .exhibit-modal-content {
     background: white;
     border-radius: 12px;
-    max-width: 700px;
+    max-width: 1000px;
     width: 100%;
     max-height: 90vh;
     overflow: hidden;
@@ -548,6 +548,7 @@ body:has(.exhibit-modal-overlay) #filters_container {
 .modal-description,
 .modal-price-info {
     padding: 20px 40px;
+    height: fit-content;
 }
 .modal-price-info {
     min-width: 180px;
@@ -566,6 +567,8 @@ body:has(.exhibit-modal-overlay) #filters_container {
 .modal-price-info p {
     line-height: 1.6;
     color: #6b6375;
+    white-space: pre-wrap;
+    text-align: left;
 }
 
 .modal-cta-button {

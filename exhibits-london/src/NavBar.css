@@ -1,4 +1,7 @@
 @media (max-width: 600px) {
+    .search-bar-container {
+        display: none;
+    }
     #filterToggle {
         border-radius: 50px 0 0 50px;
     }

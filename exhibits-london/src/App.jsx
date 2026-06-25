@@ -8,7 +8,7 @@ import { SkeletonLoader } from "./SkeletonLoader";
 import { IMAGE_BASE_URL } from "./constants";
 
 // API endpoint - works with Azure Functions locally and when deployed
-const API_URL = '/api/exhibitions';
+const API_URL = '/api/exhibitions?startDate=' + startOfDay(new Date()).toISOString().split('T')[0]
 
 // Fuzzy text matching function - returns a score from 0 to 1
 const fuzzyMatchScore = (text, searchTerm) => {

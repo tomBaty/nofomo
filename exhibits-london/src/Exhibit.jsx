@@ -6,7 +6,7 @@ import { parseISO } from 'date-fns';
 import { IMAGE_BASE_URL } from './constants';
 
 const getMinPrice = (text) => {
-    const matches = [...text.matchAll(/£\s?(\d+(?:\.\d{1,2})?)/g)];
+    const matches = [...text.matchAll(/£\s?(\d+(?:\.\d{1,2})?)(?! donation)/g)];
     const prices = matches.map(m => parseFloat(m[1])).filter(p => p >= 1);
     return prices.length > 0 ? Math.min(...prices) : null;
 };
@@ -117,7 +117,7 @@ export const Exhibit = memo(function Exhibit({ data, isExpanded, isFavourite, on
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
                         <div onClick={(e) => { e.stopPropagation(); onFavouriteToggle(data.title); }}>{heartIcon}</div>
-                        {(data.dates && data.dates[data.dates.length-1] !== null) && parseISO(data.dates[data.dates.length - 1]).getTime() < (Date.now() + 7 * 24 * 60 * 60 * 1000) && (
+                        {(data.dates && data.dates[data.dates.length - 1] !== null) && parseISO(data.dates[data.dates.length - 1]).getTime() < (Date.now() + 7 * 24 * 60 * 60 * 1000) && (
                             <div className='endsSoonLabel'>{clockIcon}</div>
                         )}
                     </div>
@@ -194,7 +194,11 @@ export const Exhibit = memo(function Exhibit({ data, isExpanded, isFavourite, on
                                         <p><em>{data.speakers}</em></p>
                                     </div>
                                 )}
-                                <p style={{ whiteSpace: 'pre-wrap' }}>{data.description.replace(/([a-zA-Z])\.([A-Z])/g, '$1. $2')}</p>
+                                {data.descriptionHTML ? (
+                                    <div dangerouslySetInnerHTML={{ __html: data.descriptionHTML }} />
+                                ) : (
+                                    <p style={{ whiteSpace: 'pre-wrap' }}>{data.description.replace(/([a-zA-Z])\.([A-Z])/g, '$1. $2')}</p>
+                                )}
                             </div>
                         </div>
                     </div>

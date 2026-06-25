@@ -77,7 +77,7 @@ app.http('exhibitions', {
             if (startDate) {
                 const startDateObj = new Date(startDate);
                 filteredExhibitions = filteredExhibitions.filter(ex => {
-                    const endDate = new Date(ex.endDate);
+                    const endDate = new Date(ex.dates[ex.dates.length - 1]);
                     return endDate >= startDateObj;
                 });
             }
@@ -87,7 +87,7 @@ app.http('exhibitions', {
             if (endDate) {
                 const endDateObj = new Date(endDate);
                 filteredExhibitions = filteredExhibitions.filter(ex => {
-                    const startDate = new Date(ex.startDate);
+                    const startDate = new Date(ex.dates[0]);
                     return startDate <= endDateObj;
                 });
             }

@@ -329,7 +329,7 @@ body:has(.exhibit-modal-overlay) .search-bar-container {
     display: flex;
     flex-direction: row;
     overflow-y: auto;
-    max-height: calc(90vh - 150px);
+    max-height: calc(90vh - 200px);
     /* opacity: 0; */
     /* animation: fadeInDelayed 0.3s ease-out 0.25s forwards; */
 }
@@ -353,11 +353,36 @@ body:has(.exhibit-modal-overlay) .search-bar-container {
     color: #6b6375;
 }
 
+.modal-description p {
+    margin-bottom: 15px;
+}
+
+blockquote {
+    margin: 0;
+    font-style: italic;
+}
+blockquote strong {
+    font-weight: 600;
+}
+blockquote + div {
+    text-align: right;
+    font-size: 16px;
+}
+div:has(>blockquote) {
+    padding: 1rem;
+    background: #ececec;
+}
+.modal-description h2 {
+    color: #393939;
+    font-size: 18px;
+}
+
 .modal-description,
 .modal-price-info {
     padding: 20px;
     height: stretch;
     text-align: left;
+    overflow-y: scroll;
 }
 .modal-price-info {
     min-width: 180px;
@@ -380,10 +405,8 @@ body:has(.exhibit-modal-overlay) .search-bar-container {
     overflow: hidden;
 }
 
-.modal-description strong,
-.modal-price-info strong {
-    display: block;
-    color: #08060d;
+.modal-description strong, .modal-price-info strong {
+    color: #595959;
     font-size: 16px;
 }
 
@@ -471,13 +494,18 @@ body:has(.exhibit-modal-overlay) .search-bar-container {
     }
 
     .modal-body {
-        max-height: calc(100vh - 200px);
+        max-height: calc(100vh - 165px);
         flex-direction: column;
+        overflow-y: scroll;
     }
 
     .modal-price-info {
         padding: 16px 20px;
         min-width: unset;
+    }
+    .modal-description, .modal-price-info {
+        overflow-y: visible;
+        width: stretch;
     }
 
     .price-see-more-btn {

@@ -19,6 +19,8 @@
     "@azure/static-web-apps-cli": "^2.0.9"
   },
   "dependencies": {
-    "date-fns": "^4.2.1"
+    "date-fns": "^4.2.1",
+    "mapbox-gl": "^3.25.0",
+    "react-map-gl": "^8.1.1"
   }
 }

@@ -61,7 +61,7 @@ h3 {
 .exhibit {
     border: 1px solid #ccc;
     padding: 15px;
-    border-radius: 8px;
+    border-radius: 0 24px 24px 24px;
     display: grid;
     grid-template-columns: auto 1fr;
     grid-template-rows: auto auto;
@@ -70,11 +70,28 @@ h3 {
     transition: all 0.2s ease;
     cursor: pointer;
 }
+/* @media (min-width: 600px) {
+    .exhibit {
+        display: flex;
+    }
+    .exhibit.expanded {
+
+    }
+} */
 
 .exhibit:hover {
     /* transform: translateY(-2px); */
     box-shadow: 0 4px 0px 2px rgba(74, 144, 226, 0.2);;
     border-color: #aaa;
+}
+.title_section_title {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 5px;
+    line-height: 12px;
+}
+.title_section > div {
+    width: 100%;
 }
 
 /* Fade out other exhibits when one is expanded */
@@ -82,6 +99,12 @@ h3 {
 #exhibits_container:has(.exhibit-expanded) > .exhibit:not(.exhibit-expanded) {
     /* animation: fadeOutPush 0.3s ease-out forwards; */
     pointer-events: none;
+}
+
+.title_section h3 {
+    line-height: 18px;
+    margin-top: 2px;
+    margin-bottom: 2px;
 }
 
 @keyframes fadeOutPush {
@@ -94,6 +117,7 @@ h3 {
 .card_icon_container {
     grid-column: 1;
     grid-row: 1 / -1;
+    border-bottom-left-radius: 14px;
 }
 
 .title_section {
@@ -703,7 +727,7 @@ body {
 h1, h2 {
     color: #08060d;
 }
-#filterToggle, #favouritesToggle {
+#filterToggle, #mapToggle {
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
@@ -717,6 +741,6 @@ h1, h2 {
     width: fit-content;
     transition: box-shadow 0.4s;
 }
-#filterToggle:hover, #favouritesToggle:hover {
+#filterToggle:hover, #mapToggle:hover {
     box-shadow: 0 4px 0px 2px rgba(74, 144, 226, 0.2);
 }

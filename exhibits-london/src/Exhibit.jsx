@@ -32,14 +32,14 @@ export const Exhibit = memo(function Exhibit({ data, isExpanded, isFavourite, on
 
         const startDay = start.getDate();
         const endDay = end.getDate();
-        const startMonth = start.toLocaleString('en-GB', { month: 'long' });
-        const endMonth = end.toLocaleString('en-GB', { month: 'long' });
+        const startMonth = start.toLocaleString('en-GB', { month: 'short' });
+        const endMonth = end.toLocaleString('en-GB', { month: 'short' });
         const startYear = start.getFullYear();
         const endYear = end.getFullYear();
 
         // If exhibition has already started, show "Current"
         if (start <= today) {
-            return `Current - ${endDay} ${endMonth} ${endYear}`;
+            return `Ends ${endDay} ${endMonth}`;
         }
 
         if (startYear !== endYear) {
@@ -97,6 +97,14 @@ export const Exhibit = memo(function Exhibit({ data, isExpanded, isFavourite, on
         }
     }
 
+    const formatTitle = (title) => {
+        if (title.includes(':') && title.length > 30) {
+            return [<h2 style={{ fontWeight: 'bold', fontSize: '20px', marginBottom: 0 }}>{data.title.split(':')[0]}</h2>, <h3>{data.title.split(':')[1]}</h3>]
+        } else if (title.includes('|') && title.length > 30) {
+            return [<h2 style={{ fontWeight: 'bold', fontSize: '20px', marginBottom: 0 }}>{data.title.split('|')[0]}</h2>, <h3>{data.title.split('|')[1]}</h3>]
+        }
+        return [<h2 style={{ fontWeight: 'bold', fontSize: '20px' }}>{data.title}</h2>]
+    }
 
     return (
         <>
@@ -109,19 +117,21 @@ export const Exhibit = memo(function Exhibit({ data, isExpanded, isFavourite, on
                 </div>
                 <div className='title_section'>
                     <div>
-                        {data.title.includes(':') && data.title.length > 30 ? <><h2 style={{ fontWeight: 'bold', fontSize: '20px', marginBottom: 0 }}>{data.title.split(':')[0]}</h2><h3>{data.title.split(':')[1]}</h3></> :
-                            <h2 style={{ fontWeight: 'bold', fontSize: '20px' }}>{data.title}</h2>}
-                        <p style={{ display: 'flex' }}><img src={IMAGE_BASE_URL + 'icon_location_red.svg'} alt='Location Icon' style={{ marginRight: '10px', width: '10px' }} />{data.venue}</p>
-                        <p style={{ display: 'flex' }}><img src={IMAGE_BASE_URL + 'icon_calendar.svg'} alt='Calendar Icon' style={{ marginRight: '5px', width: '15px' }} />{formatDate(data)}</p>
-
+                        <div className='title_section_title'>
+                            {formatTitle(data.title)[0]}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                {(data.dates && data.dates[data.dates.length - 1] !== null) && parseISO(data.dates[data.dates.length - 1]).getTime() < (Date.now() + 7 * 24 * 60 * 60 * 1000) && (
+                                    <div className='endsSoonLabel'>{clockIcon}</div>
+                                )}
+                                <div onClick={(e) => { e.stopPropagation(); onFavouriteToggle(data.title); }}>{heartIcon}</div>
+                            </div>
+                        </div>
+                        {formatTitle(data.title)[1]}
+                        <div style={{ display: 'inline-flex', flexDirection: 'row', columnGap: '15px' }}>
+                            <p style={{ display: 'flex' }}><img src={IMAGE_BASE_URL + 'icon_location_red.svg'} alt='Location Icon' style={{ marginRight: '5px', width: '9px', marginTop: '2px' }} />{data.venue}</p>
+                            <p style={{ display: 'flex' }}><img src={IMAGE_BASE_URL + 'icon_calendar.svg'} alt='Calendar Icon' style={{ marginRight: '5px', width: '15px' }} />{formatDate(data)}</p>
+                        </div>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-                        <div onClick={(e) => { e.stopPropagation(); onFavouriteToggle(data.title); }}>{heartIcon}</div>
-                        {(data.dates && data.dates[data.dates.length - 1] !== null) && parseISO(data.dates[data.dates.length - 1]).getTime() < (Date.now() + 7 * 24 * 60 * 60 * 1000) && (
-                            <div className='endsSoonLabel'>{clockIcon}</div>
-                        )}
-                    </div>
-
                 </div>
                 <div className='details_section'>
                     {data.speakers ? <p><em>{data.speakers}</em></p> : null}
@@ -131,7 +141,7 @@ export const Exhibit = memo(function Exhibit({ data, isExpanded, isFavourite, on
                     </a>
                 </div>
 
-            </div>
+            </div >
 
             {isExpanded && (
                 <div
@@ -169,7 +179,7 @@ export const Exhibit = memo(function Exhibit({ data, isExpanded, isFavourite, on
                         </div>
 
                         <div className='modal-body'>
-                            {data.priceInfo && data.priceInfo.split('\n').length > 1 ? (
+                            {data.priceInfo && data.priceInfo.split('\n').filter(line => line.trim() !== '').length > 1 ? (
                                 <div className='modal-price-info'>
                                     <div className='price-info-summary'>
                                         <strong>
@@ -180,7 +190,7 @@ export const Exhibit = memo(function Exhibit({ data, isExpanded, isFavourite, on
                                         </button>
                                     </div>
                                     <div className={`price-info-detail${priceExpanded ? ' expanded' : ''}`}>
-                                        <ul>{data.priceInfo.split('\n').map((line, index) => (
+                                        <ul>{data.priceInfo.split('\n').filter(line => line.trim() !== '').map((line, index) => (
                                             <li key={index}>{line}</li>
                                         ))}</ul>
                                     </div>
@@ -203,7 +213,8 @@ export const Exhibit = memo(function Exhibit({ data, isExpanded, isFavourite, on
                         </div>
                     </div>
                 </div>
-            )}
+            )
+            }
         </>
     )
 })

@@ -11,10 +11,12 @@
   },
   "dependencies": {
     "@apollo/client": "^4.1.9",
+    "date-fns": "^4.2.1",
     "graphql": "^16.14.0",
+    "mapbox-gl": "^3.25.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "date-fns": "^4.2.1"
+    "react-map-gl": "^8.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

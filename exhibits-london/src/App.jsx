@@ -6,6 +6,8 @@ import { CalendarDatePicker } from "./CalendarDatePicker";
 import { NavBar } from "./NavBar";
 import { SkeletonLoader } from "./SkeletonLoader";
 import { IMAGE_BASE_URL } from "./constants";
+import { VenueMap } from "./VenueMap";
+import venues from "./venue_information.json"
 
 // API endpoint - works with Azure Functions locally and when deployed
 const API_URL = '/api/exhibitions?startDate=' + startOfDay(new Date()).toISOString().split('T')[0]
@@ -45,12 +47,14 @@ const fuzzyMatchScore = (text, searchTerm) => {
 function App() {
     const [exhibitions, setExhibitions] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filtersExpanded, setFiltersExpanded] = useState(false);
     const [error, setError] = useState(null);
+    const [filtersExpanded, setFiltersExpanded] = useState(false);
+    const [mapExpanded, setMapExpanded] = useState(false);
     const [expandedExhibit, setExpandedExhibit] = useState(null);
     const [filteringByFavourites, setFilteringByFavourites] = useState(false);
     const [favourites, setFavourites] = useState(() => JSON.parse(localStorage.getItem('favourites') || '[]'));
     const filtersInitialized = useRef(false);
+    const mapInitialized = useRef(false);
 
     // Close modal on Escape key
     useEffect(() => {
@@ -220,6 +224,9 @@ function App() {
     const toggleFilters = () => {
         setFiltersExpanded(prev => !prev);
     }
+    const toggleMap = () => {
+        setMapExpanded(prev => !prev);
+    }
 
     const handleCheckboxToggle = (filterType, value) => {
         setFilters(prev => {
@@ -241,6 +248,7 @@ function App() {
             <img src={IMAGE_BASE_URL + 'headerlogo.png'} id='logo' />
             <NavBar
                 onToggleFilters={toggleFilters}
+                onToggleMap={toggleMap}
                 onToggleCalendar={toggleCalendar}
                 calendarText={calendarText}
                 onSearch={setSearchTerm}
@@ -317,6 +325,12 @@ function App() {
                 onChange={setDateRange}
                 onPresetChange={setCalendarText}
             />
+
+            {mapExpanded && mapInitialized && (
+                <div className="map-container">
+                    <VenueMap venues={venues} />
+                </div>
+            )}
 
             <div
                 id='exhibits_container'

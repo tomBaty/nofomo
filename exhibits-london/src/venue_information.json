@@ -1,0 +1,338 @@
+[
+    {
+        "name": "Barbican",
+        "coordinates": [51.5203, -0.0937],
+        "address": "Silk Street, London EC2Y 8DS",
+        "category": "Arts Centre",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 20],
+            [10, 20],
+            [10, 20],
+            [10, 20],
+            [10, 20],
+            [10, 20],
+            [10, 20]
+        ]
+    },
+    {
+        "name": "British Museum",
+        "coordinates": [51.5194, -0.1270],
+        "address": "Great Russell Street, London WC1B 3DG",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 20.5],
+            [10, 17]
+        ]
+    },
+    {
+        "name": "Courtauld",
+        "coordinates": [51.5115, -0.1170],
+        "address": "Somerset House, Strand, London WC2R 0RN",
+        "category": "Gallery",
+        "entryPrice": 12,
+        "openHours": [
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18]
+        ]
+    },
+    {
+        "name": "Globe",
+        "coordinates": [51.5081, -0.0972],
+        "address": "21 New Globe Walk, Bankside, London SE1 9DT",
+        "category": "Theatre",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17]
+        ]
+    },
+    {
+        "name": "Japan House",
+        "coordinates": [51.5001, -0.1939],
+        "address": "101-111 Kensington High Street, London W8 5SA",
+        "category": "Gallery",
+        "entryPrice": 0,
+        "openHours": [
+            [12, 18],
+            [10, 20],
+            [10, 20],
+            [10, 20],
+            [10, 20],
+            [10, 20],
+            [10, 20]
+        ]
+    },
+    {
+        "name": "LSE",
+        "coordinates": [51.5145, -0.1167],
+        "address": "Houghton Street, London WC2A 2AE",
+        "category": "Talks",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17]
+        ]
+    },
+    {
+        "name": "National Gallery",
+        "coordinates": [51.5089, -0.1283],
+        "address": "Trafalgar Square, London WC2N 5DN",
+        "category": "Gallery",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 21],
+            [10, 18]
+        ]
+    },
+    {
+        "name": "National Portrait Gallery",
+        "coordinates": [51.5092, -0.1281],
+        "address": "St Martin's Place, London WC2H 0HE",
+        "category": "Gallery",
+        "entryPrice": 0,
+        "openHours": [
+            [10.5, 18],
+            [10.5, 18],
+            [10.5, 18],
+            [10.5, 18],
+            [10.5, 18],
+            [10.5, 21],
+            [10.5, 21]
+        ]
+    },
+    {
+        "name": "Natural History Museum",
+        "coordinates": [51.4967, -0.1764],
+        "address": "Cromwell Road, London SW7 5BD",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 17.83],
+            [10, 17.83],
+            [10, 17.83],
+            [10, 17.83],
+            [10, 17.83],
+            [10, 17.83],
+            [10, 17.83]
+        ]
+    },
+    {
+        "name": "Science Museum",
+        "coordinates": [51.4978, -0.1745],
+        "address": "Exhibition Road, South Kensington, London SW7 2DD",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18]
+        ]
+    },
+    {
+        "name": "Tate Britain",
+        "coordinates": [51.4910, -0.1278],
+        "address": "Millbank, London SW1P 4RG",
+        "category": "Gallery",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18]
+        ]
+    },
+    {
+        "name": "Tate Modern",
+        "coordinates": [51.5076, -0.0994],
+        "address": "Bankside, London SE1 9TG",
+        "category": "Gallery",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 21],
+            [10, 21]
+        ]
+    },
+    {
+        "name": "Design Museum",
+        "coordinates": [51.4998, -0.2014],
+        "address": "224-238 Kensington High Street, London W8 6AG",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18]
+        ]
+    },
+    {
+        "name": "Imperial War Museum",
+        "coordinates": [51.4957, -0.1090],
+        "address": "Lambeth Road, London SE1 6HZ",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18]
+        ]
+    },
+    {
+        "name": "King's Gallery",
+        "coordinates": [51.5014, -0.1419],
+        "address": "Buckingham Palace, London SW1A 1AA",
+        "category": "Gallery",
+        "entryPrice": 22,
+        "openHours": [
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5]
+        ]
+    },
+    {
+        "name": "Mall Galleries",
+        "coordinates": [51.5067, -0.1300],
+        "address": "The Mall, London SW1Y 5BD",
+        "category": "Gallery",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17]
+        ]
+    },
+    {
+        "name": "Royal Academy",
+        "coordinates": [51.5092, -0.1397],
+        "address": "Burlington House, Piccadilly, London W1J 0BD",
+        "category": "Gallery",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 18],
+            [0, 0],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 21],
+            [10, 21]
+        ]
+    },
+    {
+        "name": "Serpentine Galleries",
+        "coordinates": [51.5047, -0.1751],
+        "address": "Kensington Gardens, London W2 3XA",
+        "category": "Gallery",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 19],
+            [12, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 19]
+        ]
+    },
+    {
+        "name": "South Bank Centre",
+        "coordinates": [51.5053, -0.1163],
+        "address": "Belvedere Road, London SE1 8XX",
+        "category": "Arts Centre",
+        "entryPrice": 0,
+        "openHours": [
+            [11, 19],
+            [0, 0],
+            [11, 19],
+            [11, 19],
+            [11, 21],
+            [11, 19],
+            [11, 19]
+        ]
+    },
+    {
+        "name": "Wallace Collection",
+        "coordinates": [51.5156, -0.1529],
+        "address": "Hertford House, Manchester Square, London W1U 3BN",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17]
+        ]
+    },
+    {
+        "name": "Whitechapel Gallery",
+        "coordinates": [51.5154, -0.0715],
+        "address": "77-82 Whitechapel High Street, London E1 7QX",
+        "category": "Gallery",
+        "entryPrice": 0,
+        "openHours": [
+            [11, 18],
+            [0, 0],
+            [11, 18],
+            [11, 18],
+            [11, 21],
+            [11, 18],
+            [11, 18]
+        ]
+    }
+]

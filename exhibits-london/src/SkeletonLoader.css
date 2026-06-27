@@ -49,24 +49,32 @@
 
 .skeleton-exhibits {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(530px, 1fr));
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
     padding: 20px;
+}
+@media (max-width: 600px) {
+    .skeleton-exhibits {
+        grid-template-columns: 1fr;
+    }
 }
 
 .skeleton-exhibit-card {
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: row;
 }
 
 .skeleton-exhibit-image {
-    width: 100%;
+    width: 140px;
     height: 152px;
 }
 
 .skeleton-exhibit-content {
     padding: 15px;
+    width: 100%;
 }
 
 .skeleton-title {

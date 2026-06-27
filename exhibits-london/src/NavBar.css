@@ -2,7 +2,7 @@
     .search-bar-container {
         display: none;
     }
-    #filterToggle {
+    #filterToggle, #mapToggle {
         border-radius: 50px 0 0 50px;
     }
     #navbar {

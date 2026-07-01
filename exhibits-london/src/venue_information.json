@@ -33,7 +33,7 @@
     },
     {
         "name": "Courtauld",
-        "coordinates": [51.5115, -0.1170],
+        "coordinates": [51.51165886516919, -0.11774356481111975],
         "address": "Somerset House, Strand, London WC2R 0RN",
         "category": "Gallery",
         "entryPrice": 12,
@@ -288,8 +288,8 @@
         ]
     },
     {
-        "name": "South Bank Centre",
-        "coordinates": [51.5053, -0.1163],
+        "name": "Southbank Centre",
+        "coordinates": [51.50578715785221, -0.11674763180281776],
         "address": "Belvedere Road, London SE1 8XX",
         "category": "Arts Centre",
         "entryPrice": 0,
@@ -333,6 +333,422 @@
             [11, 21],
             [11, 18],
             [11, 18]
+        ]
+    },
+    {
+        "name": "Cartoon Museum",
+        "coordinates": [51.5177, -0.1406],
+        "address": "63 Wells Street, London W1A 3AE",
+        "category": "Museum",
+        "entryPrice": 8,
+        "openHours": [
+            [10.5, 17.5],
+            [0, 0],
+            [10.5, 17.5],
+            [10.5, 17.5],
+            [10.5, 17.5],
+            [10.5, 17.5],
+            [10.5, 17.5]
+        ]
+    },
+    {
+        "name": "Dulwich Picture Gallery",
+        "coordinates": [51.4488, -0.0841],
+        "address": "Gallery Road, London SE21 7AD",
+        "category": "Gallery",
+        "entryPrice": 16,
+        "openHours": [
+            [10, 18],
+            [0, 0],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 18]
+        ]
+    },
+    {
+        "name": "Estorick Collection",
+        "coordinates": [51.5442, -0.0954],
+        "address": "39a Canonbury Square, London N1 2AN",
+        "category": "Gallery",
+        "entryPrice": 8,
+        "openHours": [
+            [12, 17],
+            [0, 0],
+            [0, 0],
+            [11, 18],
+            [11, 18],
+            [11, 18],
+            [11, 18]
+        ]
+    },
+    {
+        "name": "Foundling Museum",
+        "coordinates": [51.5233, -0.1193],
+        "address": "40 Brunswick Square, London WC1N 1AZ",
+        "category": "Museum",
+        "entryPrice": 12.5,
+        "openHours": [
+            [10, 17],
+            [0, 0],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17]
+        ]
+    },
+    {
+        "name": "Garden Museum",
+        "coordinates": [51.4956, -0.1205],
+        "address": "Lambeth Palace Road, London SE1 7LB",
+        "category": "Museum",
+        "entryPrice": 12,
+        "openHours": [
+            [10.5, 17],
+            [10.5, 17],
+            [10.5, 17],
+            [10.5, 17],
+            [10.5, 17],
+            [10.5, 17],
+            [10.5, 17]
+        ]
+    },
+    {
+        "name": "Guildhall Art Gallery",
+        "coordinates": [51.5158, -0.0924],
+        "address": "Guildhall Yard, London EC2V 5AE",
+        "category": "Gallery",
+        "entryPrice": 0,
+        "openHours": [
+            [12, 16],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17]
+        ]
+    },
+    {
+        "name": "Hayward Gallery",
+        "coordinates": [51.50622184503297, -0.11531962513132923],
+        "address": "Belvedere Road, London SE1 8XX",
+        "category": "Gallery",
+        "entryPrice": 16,
+        "openHours": [
+            [11, 19],
+            [11, 19],
+            [0, 0],
+            [11, 19],
+            [11, 19],
+            [11, 21],
+            [11, 21]
+        ]
+    },
+    {
+        "name": "Horniman Museum",
+        "coordinates": [51.4414, -0.0561],
+        "address": "100 London Road, Forest Hill, London SE23 3PQ",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5]
+        ]
+    },
+    {
+        "name": "Kensington Palace",
+        "coordinates": [51.5051, -0.1873],
+        "address": "Kensington Gardens, London W8 4PX",
+        "category": "Museum",
+        "entryPrice": 27,
+        "openHours": [
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18]
+        ]
+    },
+    {
+        "name": "Kew Gardens",
+        "coordinates": [51.4787, -0.2957],
+        "address": "Royal Botanic Gardens, Kew, Richmond TW9 3AE",
+        "category": "Gardens",
+        "entryPrice": 22,
+        "openHours": [
+            [10, 19],
+            [10, 19],
+            [10, 19],
+            [10, 19],
+            [10, 19],
+            [10, 19],
+            [10, 19]
+        ]
+    },
+    {
+        "name": "Leighton House Museum",
+        "coordinates": [51.4983, -0.2035],
+        "address": "12 Holland Park Road, London W14 8LZ",
+        "category": "Museum",
+        "entryPrice": 10,
+        "openHours": [
+            [10, 17.5],
+            [10, 17.5],
+            [0, 0],
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5]
+        ]
+    },
+    {
+        "name": "London Museum Docklands",
+        "coordinates": [51.50754062770585, -0.023812848440276604],
+        "address": "West India Quay, Canary Wharf, London E14 4AL",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18]
+        ]
+    },
+    {
+        "name": "Museum of the Home",
+        "coordinates": [51.5296, -0.0763],
+        "address": "136 Kingsland Road, London E2 8EA",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 17],
+            [0, 0],
+            [0, 0],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17]
+        ]
+    },
+    {
+        "name": "National Army Museum",
+        "coordinates": [51.4871, -0.1616],
+        "address": "Royal Hospital Road, Chelsea, London SW3 4HT",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5],
+            [10, 17.5]
+        ]
+    },
+    {
+        "name": "National Maritime Museum",
+        "coordinates": [51.4818, -0.0047],
+        "address": "Romney Road, Greenwich, London SE10 9NF",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17]
+        ]
+    },
+    {
+        "name": "Petrie Museum",
+        "coordinates": [51.5232, -0.1321],
+        "address": "Malet Place, London WC1E 6BT",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [0, 0],
+            [0, 0],
+            [11, 17],
+            [11, 17],
+            [11, 17],
+            [11, 17],
+            [11, 17]
+        ]
+    },
+    {
+        "name": "RAF Museum",
+        "coordinates": [51.5986, -0.2286],
+        "address": "Grahame Park Way, London NW9 5LL",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17]
+        ]
+    },
+    {
+        "name": "Sir John Soane's Museum",
+        "coordinates": [51.5167, -0.1199],
+        "address": "13 Lincoln's Inn Fields, London WC2A 3BP",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 17],
+            [0, 0],
+            [0, 0],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17]
+        ]
+    },
+    {
+        "name": "Somerset House",
+        "coordinates": [51.5113, -0.1167],
+        "address": "Strand, London WC2R 1LA",
+        "category": "Arts Centre",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18]
+        ]
+    },
+    {
+        "name": "The Photographer's Gallery",
+        "coordinates": [51.5136, -0.1390],
+        "address": "16-18 Ramillies Street, London W1F 7LW",
+        "category": "Gallery",
+        "entryPrice": 5,
+        "openHours": [
+            [11, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 20],
+            [10, 18],
+            [10, 18]
+        ]
+    },
+    {
+        "name": "Two Temple Place",
+        "coordinates": [51.5107, -0.1135],
+        "address": "2 Temple Place, London WC2R 3BD",
+        "category": "Gallery",
+        "entryPrice": 0,
+        "openHours": [
+            [11, 16.5],
+            [10, 16.5],
+            [10, 16.5],
+            [10, 16.5],
+            [10, 16.5],
+            [10, 16.5],
+            [10, 16.5]
+        ]
+    },
+    {
+        "name": "V&A East Museum",
+        "coordinates": [51.5417, -0.0138],
+        "address": "14 Victory Park Road, London E20 1GJ",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18],
+            [10, 18]
+        ]
+    },
+    {
+        "name": "V&A South Kensington",
+        "coordinates": [51.4966, -0.1722],
+        "address": "Cromwell Road, London SW7 2RL",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 17.75],
+            [10, 17.75],
+            [10, 17.75],
+            [10, 17.75],
+            [10, 17.75],
+            [10, 22],
+            [10, 17.75]
+        ]
+    },
+    {
+        "name": "Wellcome Collection",
+        "coordinates": [51.5257, -0.1332],
+        "address": "183 Euston Road, London NW1 2BE",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [11, 18],
+            [0, 0],
+            [10, 18],
+            [10, 18],
+            [10, 21],
+            [10, 18],
+            [10, 18]
+        ]
+    },
+    {
+        "name": "William Morris Gallery",
+        "coordinates": [51.59120351828314, -0.02051889733014103],
+        "address": "Lloyd Park, Forest Road, Walthamstow, London E17 4PP",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 17],
+            [0, 0],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17],
+            [10, 17]
+        ]
+    },
+    {
+        "name": "Young V&A",
+        "coordinates": [51.5286, -0.0529],
+        "address": "Cambridge Heath Road, London E2 9PA",
+        "category": "Museum",
+        "entryPrice": 0,
+        "openHours": [
+            [10, 17.75],
+            [10, 17.75],
+            [10, 17.75],
+            [10, 17.75],
+            [10, 17.75],
+            [10, 17.75],
+            [10, 17.75]
         ]
     }
 ]

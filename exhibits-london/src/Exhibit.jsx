@@ -11,12 +11,18 @@ const getMinPrice = (text) => {
     return prices.length > 0 ? Math.min(...prices) : null;
 };
 
-const clockIcon = <svg width="20" height="20" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+const clockIcon = <svg width="16" height="16" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="100" cy="100" r="91" stroke="white" strokeWidth="18" />
     <path d="M99.5 44V102L128 123.5" stroke="white" strokeWidth="15" strokeLinecap="round" strokeLinejoin="round" />
 </svg>;
 
-export const Exhibit = memo(function Exhibit({ data, isExpanded, isFavourite, onExpand, onCollapse, onFavouriteToggle }) {
+const openInNewTabIcon = <svg viewBox="0 0 164 164" fill="none" xmlns="http://www.w3.org/2000/svg" height="16" width="16">
+<path d="M158 55.5V13C158 9.13401 154.866 6 151 6H106.5" stroke="white" stroke-width="23" stroke-linejoin="round"></path>
+<path d="M158 73V151C158 154.866 154.866 158 151 158H13C9.13401 158 6 154.866 6 151V13C6 9.13401 9.13401 6 13 6H86" stroke="white" stroke-width="24" stroke-linejoin="round"></path>
+<path d="M154.5 9C154.5 9 111.532 51.968 84 79.5" stroke="white" stroke-width="14"></path>
+</svg>
+
+export const Exhibit = memo(function Exhibit({ data, isExpanded, isFavourite, isVisited, onExpand, onCollapse, onFavouriteToggle, onVisitToggle }) {
     const [priceExpanded, setPriceExpanded] = useState(false);
 
     const heartIcon = useMemo(() => <svg className='favouriteIcon' width="28" height="25" viewBox="0 0 28 25" fill={isFavourite ? "#e1251b" : "#7E7E7E"} xmlns="http://www.w3.org/2000/svg">
@@ -123,7 +129,8 @@ export const Exhibit = memo(function Exhibit({ data, isExpanded, isFavourite, on
                                 {(data.dates && data.dates[data.dates.length - 1] !== null) && parseISO(data.dates[data.dates.length - 1]).getTime() < (Date.now() + 7 * 24 * 60 * 60 * 1000) && (
                                     <div className='endsSoonLabel'>{clockIcon}</div>
                                 )}
-                                <div onClick={(e) => { e.stopPropagation(); onFavouriteToggle(data.title); }}>{heartIcon}</div>
+                                <div onClick={(e) => { e.stopPropagation(); onFavouriteToggle(data.title); }} style={{ alignSelf: 'start' }}>{heartIcon}</div>
+                                {/* <div onClick={(e) => { e.stopPropagation(); onVisitToggle(data.title); }} style={{ alignSelf: 'start' }}>{heartIcon}</div> */}
                             </div>
                         </div>
                         {formatTitle(data.title)[1]}
@@ -169,10 +176,11 @@ export const Exhibit = memo(function Exhibit({ data, isExpanded, isFavourite, on
                                             rel="noopener noreferrer"
                                             className='modal-cta-button'
                                         >
-                                            View on official site 🡽
+                                            View on official site {openInNewTabIcon}
                                         </a>
                                     )}
-                                    <div className='modal-fav-button' onClick={(e) => { e.stopPropagation(); onFavouriteToggle(data.title); }}>{heartIcon} Favourite</div>
+                                    <div className='modal-fav-button' onClick={(e) => { e.stopPropagation(); onFavouriteToggle(data.title); }}>{heartIcon} {isFavourite ? 'Favourited' : 'Add to Favourites'}</div>
+                                    <div className='modal-fav-button' onClick={(e) => { e.stopPropagation(); onVisitToggle(data.title); }}>{heartIcon} {isVisited ? 'Visited' : 'Mark as Visited'}</div>
                                 </div>
 
                             </div>

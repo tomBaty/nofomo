@@ -7,6 +7,12 @@
     width: 80px;
     display: block;
 }
+[alt="Exhibition"]:not([src*="icon"]) {
+    width: 120px;
+}
+.card_icon_container:has(>[alt="Exhibition"]:not([src*="icon"])) {
+    padding: 0;
+}
 
 .title_section {
     text-align: left;
@@ -14,7 +20,10 @@
     justify-content: space-between;
 }
 .favouriteIcon {
-    transition: fill 0.3s ease;
+    transition: fill 0.2s ease;
+}
+.favouriteIcon:active {
+    transform: scale(0.92);
 }
 .modal-fav-button > .favouriteIcon {
     width: 16px !important;
@@ -450,32 +459,52 @@ div:has(>blockquote) {
 .modal-fav-button {
     background-color: #e4e4e4;
     color: #383838;
-    padding: 2px 12px;
+    padding: 6px 18px;
     border-radius: 50px;
     font-weight: 500;
-    transition: box-shadow 0.4s;
+    transition: box-shadow 0.4s, transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 14px;
     align-items: center;
     gap: 6px;
     display: flex;
     flex-wrap: wrap;
     line-height: 25px;
+    user-select: none;
+    cursor: pointer;
+    height: 26px;
+    width: 140px;
+}
+.modal-fav-button:active {
+    transform: scale(0.92);
 }
 
 .modal-cta-button {
     display: inline-block;
     background: #E1251B;
     color: white;
-    padding: 2px 12px;
+    padding: 6px 18px;
     border-radius: 50px;
     text-decoration: none;
     font-weight: 500;
     transition: box-shadow 0.4s;
     font-size: 14px;
+    display: flex;
+    align-items: center;
+    height: 26px;
+}
+.modal-cta-button > p {
+    color: white;
+    font-size: 13px;
+}
+.modal-cta-button > svg {
+    margin-left: 8px;
 }
 
 .modal-cta-button:hover {
     box-shadow: 0 4px 0px 2px rgba(74, 144, 226, 0.2);
+}
+.modal-fav-button:hover {
+    box-shadow: 0 4px 0px 2px rgba(26, 50, 78, 0.3);
 }
 
 /* Modal Animations */
@@ -743,4 +772,7 @@ h1, h2 {
 }
 #filterToggle:hover, #mapToggle:hover {
     box-shadow: 0 4px 0px 2px rgba(74, 144, 226, 0.2);
+}
+#filterToggle:active, #mapToggle:active {
+    transform: scale(0.92);
 }

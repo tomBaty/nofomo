@@ -19,7 +19,7 @@
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/api/*", "/assets/*", "/*.{js,css,png,jpg,jpeg,gif,svg,ico,woff,woff2,ttf,eot,json,webp}"]
+    "exclude": ["/api/*", "/assets/*", "/about/*", "/*.{js,css,png,jpg,jpeg,gif,svg,ico,woff,woff2,ttf,eot,json,webp}"]
   },
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",

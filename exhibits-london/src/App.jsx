@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef, useReducer } from "react";
 import { startOfDay, endOfDay, addDays, isWithinInterval, parseISO } from 'date-fns';
 import './App.css'
 import { Exhibit } from "./Exhibit";
@@ -44,6 +44,16 @@ const fuzzyMatchScore = (text, searchTerm) => {
     return matchPercentage >= 0.7 ? matchPercentage : 0;
 };
 
+// const changeFilters = (state, action) => {
+//     if(action.type == 'toggle_filter') {
+//         if(state[action.filterType].includes(action.filter)){
+//             state[action.filterType].splice(action.filter)
+//         } else {
+//             state[action.filterType].append(action.filter)
+//         }
+//     }
+// }
+
 function App() {
     const [exhibitions, setExhibitions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -53,6 +63,7 @@ function App() {
     const [expandedExhibit, setExpandedExhibit] = useState(null);
     const [filteringByFavourites, setFilteringByFavourites] = useState(false);
     const [favourites, setFavourites] = useState(() => JSON.parse(localStorage.getItem('favourites') || '[]'));
+    const [visited, setVisited] = useState(() => JSON.parse(localStorage.getItem('visited') || '[]'));
     const filtersInitialized = useRef(false);
     const mapInitialized = useRef(false);
 
@@ -83,6 +94,11 @@ function App() {
     const [searchTerm, setSearchTerm] = useState('')
 
     // Single filters object to manage all filter states
+    // const [filters, setFilters] = useReducer({
+    //     venues: [],
+    //     categories: [],
+    //     paid: []
+    // }, changeFilters)
     const [filters, setFilters] = useState({
         venues: [],
         categories: [],
@@ -133,6 +149,7 @@ function App() {
     }, [filterOptions])
 
     const favouritesSet = useMemo(() => new Set(favourites), [favourites]);
+    const visitedSet = useMemo(() => new Set(visited), [visited]);
 
     const handleFavouriteToggle = useCallback((title) => {
         setFavourites(prev => {
@@ -140,6 +157,15 @@ function App() {
                 ? prev.filter(t => t !== title)
                 : [...prev, title];
             localStorage.setItem('favourites', JSON.stringify(updated));
+            return updated;
+        });
+    }, []);
+    const handleVisitToggle = useCallback((title) => {
+        setVisited(prev => {
+            const updated = prev.includes(title)
+                ? prev.filter(t => t !== title)
+                : [...prev, title];
+            localStorage.setItem('visited', JSON.stringify(updated));
             return updated;
         });
     }, []);
@@ -204,8 +230,8 @@ function App() {
         }
 
         return [...filtered].sort((a, b) => {
-            if(a.dates[0] === null && b.dates[0] !== null) return 1;
-            if(a.dates[0] !== null && b.dates[0] === null) return -1;
+            if (a.dates[0] === null && b.dates[0] !== null) return 1;
+            if (a.dates[0] !== null && b.dates[0] === null) return -1;
             const startDiff = parseISO(a.dates[0]) - parseISO(b.dates[0]);
             if (startDiff !== 0) return startDiff;
             return parseISO(a.dates[a.dates.length - 1]) - parseISO(b.dates[b.dates.length - 1]);
@@ -246,6 +272,7 @@ function App() {
     return (
         <div>
             <img src={IMAGE_BASE_URL + 'headerlogo.png'} id='logo' />
+            <a href="/about/index.html" id="about-link">About</a>
             <NavBar
                 onToggleFilters={toggleFilters}
                 onToggleMap={toggleMap}
@@ -292,13 +319,13 @@ function App() {
                         </label>
                     ))}
                     {filters.venues.length > 0 ? (
-                        <a  className='filter-checkbox-label'
+                        <a className='filter-checkbox-label'
                             onClick={() => setFilters(prev => {
                                 return { ...prev, venues: [] }
                             })}
                         >Remove All</a>
                     ) : (
-                        <a  className='filter-checkbox-label'
+                        <a className='filter-checkbox-label'
                             onClick={() => setFilters(prev => {
                                 return { ...prev, venues: [...filterOptions.venue] }
                             })}
@@ -341,9 +368,11 @@ function App() {
                         data={exhibition}
                         isExpanded={expandedExhibit === exhibition.title}
                         isFavourite={favouritesSet.has(exhibition.title)}
+                        isVisited={visitedSet.has(exhibition.title)}
                         onExpand={handleExpandExhibit}
                         onCollapse={handleCollapseExhibit}
                         onFavouriteToggle={handleFavouriteToggle}
+                        onVisitToggle={handleVisitToggle}
                     />
                 )}
             </div>

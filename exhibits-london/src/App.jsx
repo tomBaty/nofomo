@@ -272,7 +272,6 @@ function App() {
     return (
         <div>
             <img src={IMAGE_BASE_URL + 'headerlogo.png'} id='logo' />
-            <a href="/about/index.html" id="about-link">About</a>
             <NavBar
                 onToggleFilters={toggleFilters}
                 onToggleMap={toggleMap}

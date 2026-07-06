@@ -2,9 +2,6 @@
     .search-bar-container {
         display: none;
     }
-    #filterToggle, #mapToggle {
-        border-radius: 50px 0 0 50px;
-    }
     #navbar {
         gap: 0;
         padding: 0 20px 0 20px;
@@ -13,13 +10,36 @@
         border-radius: 0px;
         border-left: 0px;
     }
-    #calendarToggle > button {
-        border-radius: 0px 50px 50px 0px;
-        border-left: 0px;
-        padding: 0 20px 0 20px;
-        width: 100%;
-    }
     #calendarToggle {
         flex: 1;
     }
+}
+#navbar {
+    flex-wrap: wrap;
+}
+
+.circleButton {
+    padding: 6px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: rgb(255 255 255);
+    border-radius: 50px;
+    border: 2px solid #E1251B;
+    max-height: 62px;
+    vertical-align: middle;
+    display: flex;
+    width: fit-content;
+    transition: box-shadow 0.4s;
+    gap: 10px;
+    height: 24px;
+    align-items: center;
+}
+#profileButton > img {
+    border-radius: 50%;
+}
+.circleButton:hover {
+    box-shadow: 0 4px 0px 2px rgba(74, 144, 226, 0.2);
+}
+.circleButton:active {
+    transform: scale(0.92);
 }

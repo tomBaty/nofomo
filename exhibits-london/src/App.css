@@ -192,6 +192,9 @@ h3 {
     .card_icon_container img {
         width: 40px;
     }
+    [alt="Exhibition"]:not([src*="icon"]) {
+        width: 50px !important;
+    }
         
     .card_icon_container {
         grid-column: 1;
@@ -617,26 +620,6 @@ div:has(>blockquote) {
     text-align: left;
 }
 
-#calendarToggle > button > p{
-    font-size: 16px;
-}
-
-#calendarToggle > button {
-    padding: 10px 60px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: rgb(255 255 255);
-    border-radius: 50px;
-    border: 2px solid #E1251B;
-    height: 62px;
-    vertical-align: middle;
-    display: flex;
-    align-items: center;
-    transition: box-shadow 0.4s;
-}
-#calendarToggle > button:hover {
-    box-shadow: 0 4px 0px 2px rgba(74, 144, 226, 0.2);
-}
 #navbar {
     display: flex;
     flex-direction: row;
@@ -734,6 +717,7 @@ div:has(>blockquote) {
     color: #08060d;
     cursor: pointer;
     user-select: none;
+    text-align: left;
 }
 .filter-checkbox-label input[type='checkbox'] {
     width: 18px;
@@ -741,6 +725,7 @@ div:has(>blockquote) {
     accent-color: #E1251B;
     cursor: pointer;
     flex-shrink: 0;
+    align-self: flex-start;
 }
 #logo {
     margin: 30px;
@@ -755,24 +740,4 @@ body {
 }
 h1, h2 {
     color: #08060d;
-}
-#filterToggle, #mapToggle {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: rgb(255 255 255);
-    border-radius: 50px;
-    border: 2px solid #E1251B;
-    max-height: 62px;
-    vertical-align: middle;
-    display: flex;
-    align-items: center;
-    width: fit-content;
-    transition: box-shadow 0.4s;
-}
-#filterToggle:hover, #mapToggle:hover {
-    box-shadow: 0 4px 0px 2px rgba(74, 144, 226, 0.2);
-}
-#filterToggle:active, #mapToggle:active {
-    transform: scale(0.92);
 }

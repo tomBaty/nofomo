@@ -64,8 +64,23 @@ function App() {
     const [filteringByFavourites, setFilteringByFavourites] = useState(false);
     const [favourites, setFavourites] = useState(() => JSON.parse(localStorage.getItem('favourites') || '[]'));
     const [visited, setVisited] = useState(() => JSON.parse(localStorage.getItem('visited') || '[]'));
+    const [userProfile, setUserProfile] = useState(() => {
+        const stored = localStorage.getItem("googleUserProfile");
+        if (!stored) return null;
+
+        const parsed = JSON.parse(stored);
+
+        if (!parsed.idToken) {
+            localStorage.removeItem("googleUserProfile");
+            return null;
+        }
+
+        return parsed;
+    });
     const filtersInitialized = useRef(false);
     const mapInitialized = useRef(false);
+    const favouritesSyncTimeout = useRef(null);
+    const visitedSyncTimeout = useRef(null);
 
     // Close modal on Escape key
     useEffect(() => {
@@ -151,24 +166,56 @@ function App() {
     const favouritesSet = useMemo(() => new Set(favourites), [favourites]);
     const visitedSet = useMemo(() => new Set(visited), [visited]);
 
+    // Push a favourites/visited update to the API, debounced so rapid toggles
+    // (e.g. clicking through several exhibits quickly) collapse into a single
+    // request carrying the latest state, rather than one request per click.
+    const syncUserData = useCallback((action, payload, timeoutRef) => {
+        if (!userProfile?.idToken) {
+            console.warn(`Skipping ${action} sync: not signed in`);
+            return;
+        }
+
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(() => {
+            fetch('/api/user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${userProfile.idToken}`
+                },
+                body: JSON.stringify({ action, ...payload })
+            }).catch(err => console.error('Failed to sync ' + action + ':', err));
+        }, 800);
+    }, [userProfile]);
+
+    // Clear any pending sync timers on unmount
+    useEffect(() => {
+        return () => {
+            clearTimeout(favouritesSyncTimeout.current);
+            clearTimeout(visitedSyncTimeout.current);
+        };
+    }, []);
+
     const handleFavouriteToggle = useCallback((title) => {
         setFavourites(prev => {
             const updated = prev.includes(title)
                 ? prev.filter(t => t !== title)
                 : [...prev, title];
             localStorage.setItem('favourites', JSON.stringify(updated));
+            syncUserData('updateFavourites', { favourites: updated }, favouritesSyncTimeout);
             return updated;
         });
-    }, []);
+    }, [syncUserData]);
     const handleVisitToggle = useCallback((title) => {
         setVisited(prev => {
             const updated = prev.includes(title)
                 ? prev.filter(t => t !== title)
                 : [...prev, title];
             localStorage.setItem('visited', JSON.stringify(updated));
+            syncUserData('updateVisited', { visited: updated }, visitedSyncTimeout);
             return updated;
         });
-    }, []);
+    }, [syncUserData]);
 
     const handleExpandExhibit = useCallback((title) => setExpandedExhibit(title), []);
     const handleCollapseExhibit = useCallback(() => setExpandedExhibit(null), []);
@@ -278,6 +325,10 @@ function App() {
                 onToggleCalendar={toggleCalendar}
                 calendarText={calendarText}
                 onSearch={setSearchTerm}
+                userProfile={userProfile}
+                setUserProfile={setUserProfile}
+                setFavourites={setFavourites}
+                setVisited={setVisited}
             />
 
             {/* Filter sidebar backdrop */}

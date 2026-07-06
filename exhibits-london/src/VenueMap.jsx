@@ -34,9 +34,7 @@ export function VenueMap({ venues = [] }) {
     return (
         <div className="exhibition-map">
             <Map
-            // hardcoded - since this runs client side, users can see it on the site anyways.
-            // also prevents the issues with env variables beign injected in github actions.
-                mapboxAccessToken={{MAPBOX_TOKEN}}
+                mapboxAccessToken={MAPBOX_TOKEN}
                 initialViewState={{
                     longitude: -0.1278,
                     latitude: 51.5074,

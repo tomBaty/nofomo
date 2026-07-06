@@ -1,26 +1,40 @@
 import { useEffect } from 'react';
 
-export function GoogleSignIn({ setUserProfile, userProfile }) {
+export function GoogleSignIn({ setUserProfile, userProfile, setFavourites, setVisited }) {
     useEffect(() => {
-        function decodeJWT(token) {
-            let base64Url = token.split(".")[1];
-            let base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-            let jsonPayload = decodeURIComponent(
-                atob(base64)
-                    .split("")
-                    .map(function (c) {
-                        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-                    })
-                    .join("")
-            );
-            return JSON.parse(jsonPayload);
-        }
+        let handleCredentialResponse = async (response) => {
+            try {
+                // Send the raw Google ID token to internal API where it can be verified, and any user data in storage fetched
+                const res = await fetch('/api/user', {
+                    headers: {
+                        Authorization: `Bearer ${response.credential}`
+                    }
+                });
 
-        let handleCredentialResponse = (response) => {
-            const decoded = decodeJWT(response.credential);
-            setUserProfile(decoded);
-            localStorage.setItem("googleUserProfile", JSON.stringify(decoded));
-            console.log(decoded);
+                if (!res.ok) {
+                    throw new Error(`Sign-in verification failed with status ${res.status}`);
+                }
+
+                const data = await res.json();
+                // Keep the raw ID token around so we can authenticate follow-up
+                // calls (e.g. syncing favourites/visited) without asking the
+                // user to sign in again. Note: Google ID tokens expire after
+                // ~1 hour, so sync calls made after that will need a fresh sign-in.
+                const profileWithToken = { ...data, idToken: response.credential };
+                setUserProfile(profileWithToken);
+                localStorage.setItem("googleUserProfile", JSON.stringify(profileWithToken));
+
+                if(profileWithToken.userData?.favourites) {
+                    localStorage.setItem("favourites", JSON.stringify(profileWithToken.userData.favourites));
+                    setFavourites(profileWithToken.userData.favourites);
+                }
+                if(profileWithToken.userData?.visited) {
+                    localStorage.setItem("visited", JSON.stringify(profileWithToken.userData.visited));
+                    setVisited(profileWithToken.userData.visited);
+                }
+            } catch (error) {
+                console.error('Google sign-in failed:', error);
+            }
         }
         google.accounts.id.initialize({
             client_id: "797883913821-9qtpse6mbboe6rh4b62rjhlj47mjddqb.apps.googleusercontent.com",

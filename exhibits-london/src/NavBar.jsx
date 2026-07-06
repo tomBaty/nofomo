@@ -3,11 +3,8 @@ import { SearchBar } from './SearchBar';
 import { GoogleSignIn } from './GoogleSignIn';
 import './NavBar.css';
 import { IMAGE_BASE_URL } from './constants';
-import { useState } from 'react';
 
-export function NavBar({ onToggleFilters, onToggleMap, onToggleCalendar, calendarText, onSearch }) {
-    const [userProfile, setUserProfile] = useState(localStorage.getItem("googleUserProfile") ? JSON.parse(localStorage.getItem("googleUserProfile")) : null);
-
+export function NavBar({ onToggleFilters, onToggleMap, onToggleCalendar, calendarText, onSearch, userProfile, setUserProfile, setFavourites, setVisited }) {
     return (
         <div id='navbar'>
             <div className='circleButton' id='filterToggle' onClick={onToggleFilters}>
@@ -19,14 +16,6 @@ export function NavBar({ onToggleFilters, onToggleMap, onToggleCalendar, calenda
                 <p>View Map</p>
             </div>
 
-            {userProfile ?
-                <div className='circleButton' id='profileButton' href='/login'>
-                    <img src={userProfile.picture} style={{ width: '20px', verticalAlign: 'middle' }} />
-                    <p>{userProfile.given_name}</p>
-                </div> :
-                <GoogleSignIn setUserProfile={setUserProfile} userProfile={userProfile} />
-            }
-
             {/* <SearchBar onSearch={onSearch} /> */}
             <div className='circleButton' onClick={onToggleCalendar}>
                 <img src={IMAGE_BASE_URL + 'icon_calendar.svg'} style={{ width: '20px', marginRight: '10px', verticalAlign: 'middle' }} />
@@ -37,6 +26,13 @@ export function NavBar({ onToggleFilters, onToggleMap, onToggleCalendar, calenda
                     <p>About the site</p>
                 </div>
             </a>
+            {userProfile ?
+                <div className='circleButton' id='profileButton' href='/login'>
+                    <img src={userProfile.profile.picture} style={{ width: '20px', verticalAlign: 'middle' }} />
+                    <p>{userProfile.profile.given_name}</p>
+                </div> :
+                <GoogleSignIn setUserProfile={setUserProfile} userProfile={userProfile} setFavourites={setFavourites} setVisited={setVisited} />
+            }
         </div>
     )
 

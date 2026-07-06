@@ -10,6 +10,7 @@ build/
 .env.local
 .env.production
 *.local
+api/local.settings.json
 
 # IDE
 .vscode/

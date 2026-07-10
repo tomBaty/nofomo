@@ -1,0 +1,180 @@
+.preferences-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgb(0 0 0 / 86%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.preferences-panel {
+    border-radius: 16px;
+    width: 100%;
+    max-width: 720px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+.preferences-panel > h2 {
+    color: white;
+    text-align: center;
+}
+
+.preferences-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+}
+
+.preferences-header h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 1.5rem;
+}
+
+.preferences-skip {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.preferences-skip:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.preferences-intro {
+    color: #aaa;
+    margin-bottom: 1.25rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.preferences-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+    width: 450px;
+    justify-content: center;
+    align-content: start;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.preference-category {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+}
+
+.preference-sub-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(-8px);
+    transition: max-height 0.35s ease, opacity 0.25s ease, transform 0.25s ease;
+    width: 100%;
+}
+
+.preference-sub-list.open {
+    max-height: 500px;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.preference-pill {
+    border: none;
+    border-radius: 999px;
+    padding: 0.55rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.15);
+    height: 40px;
+    font-weight: 600;
+    animation: pill-in 0.25s ease both;
+}
+
+@keyframes pill-in {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.preference-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.preference-pill.selected {
+    box-shadow: inset 0 0 0 2px #fff;
+    font-weight: 600;
+}
+
+.preference-pill.sub-preference {
+    font-size: 0.85rem;
+    padding: 0.45rem 0.85rem;
+}
+
+.preference-pill.sub-preference.pinned {
+    opacity: 0.85;
+}
+
+.preference-pill.sub-preference.pinned::after {
+    content: '×';
+    margin-left: 0.4rem;
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+.preferences-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.preferences-save {
+    background: #fff;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 999px;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.preferences-save:hover {
+    background: #e0e0e0;
+}
+
+.preferences-count {
+    color: #888;
+    font-size: 0.85rem;
+    align-self: center;
+    margin-right: auto;
+}

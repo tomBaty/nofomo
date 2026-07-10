@@ -8,6 +8,7 @@ import { SkeletonLoader } from "./SkeletonLoader";
 import { IMAGE_BASE_URL } from "./constants";
 import { VenueMap } from "./VenueMap";
 import venues from "./venue_information.json"
+import { SetPreferences } from "./SetPreferences";
 
 // API endpoint - works with Azure Functions locally and when deployed
 const API_URL = '/api/exhibitions?startDate=' + startOfDay(new Date()).toISOString().split('T')[0]
@@ -64,6 +65,7 @@ function App() {
     const [filteringByFavourites, setFilteringByFavourites] = useState(false);
     const [favourites, setFavourites] = useState(() => JSON.parse(localStorage.getItem('favourites') || '[]'));
     const [visited, setVisited] = useState(() => JSON.parse(localStorage.getItem('visited') || '[]'));
+    const [showPreferences, setShowPreferences] = useState(true)
     const [userProfile, setUserProfile] = useState(() => {
         const stored = localStorage.getItem("googleUserProfile");
         if (!stored) return null;
@@ -81,6 +83,7 @@ function App() {
     const mapInitialized = useRef(false);
     const favouritesSyncTimeout = useRef(null);
     const visitedSyncTimeout = useRef(null);
+    const prefSyncTimeout = useRef(null);
 
     // Close modal on Escape key
     useEffect(() => {
@@ -193,6 +196,7 @@ function App() {
         return () => {
             clearTimeout(favouritesSyncTimeout.current);
             clearTimeout(visitedSyncTimeout.current);
+            clearTimeout(prefSyncTimeout.current);
         };
     }, []);
 
@@ -261,29 +265,34 @@ function App() {
                     return false
                 }
             })
-            .filter(ex => {
-                if (!searchTerm.trim()) return true;
-                return calculateSearchScore(ex, searchTerm) > 0;
-            });
+        // .filter(ex => {
+        //     if (!searchTerm.trim()) return true;
+        //     return calculateSearchScore(ex, searchTerm) > 0;
+        // });
 
-        if (searchTerm.trim()) {
-            const scores = new Map(filtered.map(ex => [ex.title, calculateSearchScore(ex, searchTerm)]));
-            return [...filtered].sort((a, b) => {
-                const scoreA = scores.get(a.title);
-                const scoreB = scores.get(b.title);
-                if (scoreA !== scoreB) return scoreB - scoreA;
-                return parseISO(a.dates[0]) - parseISO(b.dates[0]);
-            });
-        }
+        // if (searchTerm.trim()) {
+        //     const scores = new Map(filtered.map(ex => [ex.title, calculateSearchScore(ex, searchTerm)]));
+        //     return [...filtered].sort((a, b) => {
+        //         const scoreA = scores.get(a.title);
+        //         const scoreB = scores.get(b.title);
+        //         if (scoreA !== scoreB) return scoreB - scoreA;
+        //         return parseISO(a.dates[0]) - parseISO(b.dates[0]);
+        //     });
+        // }
 
         return [...filtered].sort((a, b) => {
+            const aVisited = visitedSet.has(a.title);
+            const bVisited = visitedSet.has(b.title);
+            if (aVisited && !bVisited) return -1;
+            if (!aVisited && bVisited) return 1;
+
             if (a.dates[0] === null && b.dates[0] !== null) return 1;
             if (a.dates[0] !== null && b.dates[0] === null) return -1;
             const startDiff = parseISO(a.dates[0]) - parseISO(b.dates[0]);
             if (startDiff !== 0) return startDiff;
             return parseISO(a.dates[a.dates.length - 1]) - parseISO(b.dates[b.dates.length - 1]);
         });
-    }, [exhibitions, filters, dateRange, searchTerm, calculateSearchScore, filteringByFavourites, favouritesSet])
+    }, [exhibitions, filters, dateRange, visitedSet, /* searchTerm, calculateSearchScore, */filteringByFavourites, favouritesSet])
 
     const toggleCalendar = () => {
         const calendar = document.querySelector('.calendar-date-picker')
@@ -426,7 +435,19 @@ function App() {
                     />
                 )}
             </div>
+            {showPreferences && (
+                <SetPreferences
+                    onSkip={() => setShowPreferences(false)}
+                    onSave={(prefs) => {
+                        localStorage.setItem('preferences', JSON.stringify(prefs));
+                        syncUserData('updatePreferences', { preferences: prefs }, prefSyncTimeout);
+                        setShowPreferences(false);
+                    }}
+                />
+            )}
         </div>
+
+
     )
 }
 

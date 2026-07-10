@@ -105,9 +105,9 @@ async function fetchUserFromBlob(context, userId) {
     }
 }
 
-const SUPPORTED_USER_UPDATE_ACTIONS = ['updateFavourites', 'updateVisited'];
+const SUPPORTED_USER_UPDATE_ACTIONS = ['updateFavourites', 'updateVisited', 'updatePreferences'];
 
-async function updateUserInBlob(context, userId, action, { favourites, visited }) {
+async function updateUserInBlob(context, userId, action, { favourites, visited, preferences }) {
     // Load any existing record for this user, defaulting to an empty one if
     // this is the user's first update (i.e. their file doesn't exist yet)
     let userData;
@@ -122,6 +122,8 @@ async function updateUserInBlob(context, userId, action, { favourites, visited }
         userData.favourites = favourites;
     } else if (action === 'updateVisited') {
         userData.visited = visited;
+    } else if (action === 'updatePreferences') {
+        userData.preferences = preferences;
     }
 
     await _blob_write_json('users', userId + '.json', userData);
@@ -211,7 +213,7 @@ app.http('updateUser', {
             };
         }
 
-        const { action, favourites, visited } = body || {};
+        const { action, favourites, visited, preferences } = body || {};
 
         if (!SUPPORTED_USER_UPDATE_ACTIONS.includes(action)) {
             return {
@@ -235,7 +237,7 @@ app.http('updateUser', {
         }
 
         try {
-            const userData = await updateUserInBlob(context, userid, action, { favourites, visited });
+            const userData = await updateUserInBlob(context, userid, action, { favourites, visited, preferences });
             return {
                 status: 200,
                 headers: {

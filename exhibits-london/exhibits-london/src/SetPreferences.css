@@ -1,0 +1,63 @@
+.preferences-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+    width: 450px;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.preference-pill {
+    border: none;
+    border-radius: 999px;
+    padding: 0.55rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.15);
+    height: 40px;
+    font-weight: 600;
+    animation: pill-in 0.25s ease both;
+    white-space: nowrap;
+}
+
+@keyframes pill-in {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.preference-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.preference-pill.selected {
+    box-shadow: inset 0 0 0 2px #fff;
+    font-weight: 600;
+}
+
+.preference-pill.sub-preference {
+    font-size: 0.85rem;
+    padding: 0.45rem 0.85rem;
+}
+
+.preference-pill.sub-preference.pinned {
+    opacity: 0.85;
+}
+
+.preference-pill.sub-preference.pinned::after {
+    content: '×';
+    margin-left: 0.4rem;
+    font-size: 0.75rem;
+    opacity: 0.7;
+}

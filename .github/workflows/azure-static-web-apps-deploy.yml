@@ -59,3 +59,5 @@ jobs:
           app_location: "./exhibits-london"
           api_location: "./api"
           output_location: "dist"
+          skip_app_build: true
+          skip_api_build: true

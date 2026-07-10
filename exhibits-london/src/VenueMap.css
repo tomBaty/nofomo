@@ -36,6 +36,7 @@
     border-radius: 999px;
     cursor: pointer;
     padding: 0;
+    margin-bottom: 6px;
 }
 
 .map-marker::after {

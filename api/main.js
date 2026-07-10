@@ -136,6 +136,7 @@ app.http('user', {
     route: 'user',
     handler: async (request, context) => {
         const authHeader = request.headers.get('Authorization');
+        context.log('Authorization header present:', !!authHeader);
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return {
                 status: 401,
@@ -143,16 +144,18 @@ app.http('user', {
             };
         }
         const idToken = authHeader.slice('Bearer '.length);
+        context.log('ID token length:', idToken?.length);
 
         // Verify the Google ID token server-side before trusting any of its contents
         let userid, payload;
         try {
             ({ userid, payload } = await verifyGoogleUser(idToken));
+            context.log('Token verified for user:', userid);
         } catch (error) {
-            context.error('Error verifying Google token:', error);
+            context.error('Error verifying Google token:', error.message || error);
             return {
                 status: 401,
-                jsonBody: { error: 'Invalid Google token' }
+                jsonBody: { error: 'Invalid Google token', details: error.message || String(error) }
             };
         }
 

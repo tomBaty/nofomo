@@ -414,23 +414,32 @@ div:has(>blockquote) {
 }
 
 .modal-description,
-.modal-price-info {
+.modal-price-info, .modal-venue-info {
     padding: 20px;
     height: stretch;
     text-align: left;
     overflow-y: scroll;
 }
-.modal-price-info {
+.modal-price-info, .modal-venue-info {
     min-width: 180px;
     width: 35%;
     background: #ededed;
 }
+.modal-venue-info {
+    background: rgb(211, 211, 211);
+}
 
-.price-info-summary {
+.price-info-summary, .venue-info-summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
+}
+.venue-info-detail table {
+    width: 100%;
+}
+.venue-info-detail table > tr > td:nth-child(2) {
+    text-align: right;
 }
 
 .price-see-more-btn {
@@ -441,42 +450,45 @@ div:has(>blockquote) {
     overflow: hidden;
 }
 
-.modal-description strong, .modal-price-info strong {
+.modal-description strong, .modal-price-info strong, .modal-venue-info strong {
     color: #595959;
     font-size: 16px;
 }
 
 .modal-description p,
 .modal-price-info li,
-.modal-price-info ul {
+.modal-price-info ul,
+.modal-venue-info li,
+.modal-venue-info ul {
     line-height: 1.6;
     color: #6b6375;
     white-space: pre-wrap;
     text-align: left;
 }
 
-.modal-price-info > ul {
+.modal-price-info > ul, .modal-venue-info > ul {
     padding-inline-start: 20px;
 }
 
 .modal-fav-button {
-    background-color: #e4e4e4;
     color: #383838;
-    padding: 6px 18px;
-    border-radius: 50px;
-    font-weight: 500;
-    transition: box-shadow 0.4s, transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 14px;
-    align-items: center;
-    gap: 6px;
-    display: flex;
-    flex-wrap: wrap;
-    line-height: 25px;
     user-select: none;
     cursor: pointer;
+    background-color: #e4e4e4;
+    border-radius: 50px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
     height: 26px;
-    width: 140px;
+    padding: 6px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 25px;
+    transition: box-shadow .4s,transform .1s cubic-bezier(.4,0,.2,1);
+    display: flex;
 }
+
 .modal-fav-button:active {
     transform: scale(0.92);
 }
@@ -555,16 +567,20 @@ div:has(>blockquote) {
         overflow-y: scroll;
     }
 
-    .modal-price-info {
+    .modal-price-info, .modal-venue-info {
         padding: 16px 20px;
         min-width: unset;
     }
-    .modal-description, .modal-price-info {
+    .modal-description, .modal-price-info, .modal-venue-info {
         overflow-y: visible;
         width: stretch;
     }
 
-    .price-see-more-btn {
+    .modal-description {
+        padding-bottom: 100px;
+    }
+
+    .price-see-more-btn, .venue-see-more-btn {
         display: inline-block;
         background: none;
         border: none;
@@ -577,10 +593,23 @@ div:has(>blockquote) {
         flex-shrink: 0;
     }
 
-    .price-info-detail {
+    .price-info-detail, .venue-info-detail {
         display: grid;
         grid-template-rows: 0fr;
         transition: grid-template-rows 0.35s ease;
+    }
+
+    .venue-info-detail > ul {
+        overflow: hidden;
+        margin: 0;
+    }
+
+    .venue-info-detail.expanded {
+        grid-template-rows: 1fr;
+    }
+
+    .venue-info-detail.expanded > ul {
+        margin-top: 10px;
     }
 
     .price-info-detail > ul {
@@ -604,6 +633,7 @@ div:has(>blockquote) {
 
     .modal-title h2 {
         font-size: 20px;
+        text-align: left;
     }
 
     .modal-title h3 {

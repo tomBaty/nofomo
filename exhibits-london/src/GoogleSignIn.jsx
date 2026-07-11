@@ -4,6 +4,15 @@ export function GoogleSignIn({ setUserProfile, userProfile, setFavourites, setVi
     useEffect(() => {
         let handleCredentialResponse = async (response) => {
             try {
+                // Diagnostic: inspect the JWT header without leaking the full token
+                try {
+                    const [headerB64] = response.credential.split('.');
+                    const header = JSON.parse(atob(headerB64.replace(/-/g, '+').replace(/_/g, '/')));
+                    console.log('Google credential JWT header:', header);
+                } catch (e) {
+                    console.log('Credential is not a standard JWT:', response.credential?.slice(0, 20));
+                }
+
                 // Send the raw Google ID token to internal API where it can be verified, and any user data in storage fetched
                 const res = await fetch('/api/user', {
                     headers: {

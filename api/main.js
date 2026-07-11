@@ -146,6 +146,15 @@ app.http('user', {
         const idToken = authHeader.slice('Bearer '.length);
         context.log('ID token length:', idToken?.length);
 
+        // Diagnostic: log the received JWT header (safe, no signature/payload)
+        try {
+            const [headerB64] = idToken.split('.');
+            const header = JSON.parse(Buffer.from(headerB64.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString());
+            context.log('Received JWT header:', header);
+        } catch (e) {
+            context.log('Received token is not a standard JWT:', idToken?.slice(0, 30));
+        }
+
         // Verify the Google ID token server-side before trusting any of its contents
         let userid, payload;
         try {

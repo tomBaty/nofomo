@@ -21,10 +21,9 @@ const CATEGORY_COLORS = {
 const PREFERENCES = {
     'Art': [
         'Old Masters',
-        'Contemporary Art',
-        'Impressionism',
+        '1800s',
         '1900s',
-        'Victorian & Pre-Raphaelite'
+        'Modern'
     ],
     'Sculpture': [
         'Classical',
@@ -32,18 +31,14 @@ const PREFERENCES = {
     ],
     'Photography': [
         'Portraits',
-        'Street Photography',
-        'Landscape',
-        'Documentary',
-        'Fashion Photography',
-        'Fine Art Photography'
+        'Street',
+        'Documentary'
     ],
     'History': [
         'America',
         'Africa',
         'Europe',
-        'Rome',
-        'Egypt',
+        'Ancient',
         'Medieval',
         'Renaissance',
         'Imperialism',
@@ -55,38 +50,37 @@ const PREFERENCES = {
         'Medicine',
         'Technology',
         'Natural History',
-        'Palaeontology',
         'Physics'
     ],
-    'Music': [
-        'Classical',
-        'Jazz',
-        'Rock & Pop',
-        'Opera',
-        'Folk',
-        'Electronic'
-    ],
+    // 'Music': [
+    //     'Classical',
+    //     'Jazz',
+    //     'Rock & Pop',
+    //     'Opera',
+    //     'Folk',
+    //     'Electronic'
+    // ],
     'Theatre': [
         'Shakespeare',
-        'Contemporary Drama',
-        'Musical Theatre',
+        'Modern',
+        'Musicals',
         'Comedy'
     ],
-    'Dance': [
-        'Ballet',
-        'Contemporary Dance',
-        'Folk Dance'
-    ],
+    // 'Dance': [
+    //     'Ballet',
+    //     'Contemporary Dance',
+    //     'Folk Dance'
+    // ],
     'Film': [
-        'Cinema History',
+        'Blockbuster',
+        'Arthouse',
+        'IMAX',
         'Documentary',
-        'Animation',
-        'Experimental'
+        'Animation'
     ],
     'Literature': [
         'Poetry',
         'Fiction',
-        'Drama',
         'Classics'
     ],
     'Military': [
@@ -97,11 +91,11 @@ const PREFERENCES = {
         'Aviation'
     ],
     'Architecture': [
-        'Modern Architecture',
-        'Gothic',
-        'Brutalism',
-        'Victorian',
-        'Islamic Architecture'
+        'Ancient',
+        '1800s',
+        '1900s',
+        'Modern',
+        'Islamic'
     ],
     'Other': [
         'Fashion',
@@ -109,13 +103,7 @@ const PREFERENCES = {
         'Crafts',
         'Food & Drink'
     ],
-    'Royals': [
-        'Tudors',
-        'Stuarts',
-        'Victorians',
-        'Windsors',
-        'Coronations'
-    ]
+    'Royals': []
 };
 
 export function SetPreferences({ onSkip, onSave }) {

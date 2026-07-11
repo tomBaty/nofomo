@@ -14,9 +14,12 @@ export function GoogleSignIn({ setUserProfile, userProfile, setFavourites, setVi
                 }
 
                 // Send the raw Google ID token to internal API where it can be verified, and any user data in storage fetched
+                // Use a custom header instead of Authorization because Azure Static Web Apps uses
+                // Authorization for its own EasyAuth session token (HS256), which would overwrite
+                // the Google ID token (RS256) and cause verification to fail.
                 const res = await fetch('/api/user', {
                     headers: {
-                        Authorization: `Bearer ${response.credential}`
+                        'X-Google-ID-Token': response.credential
                     }
                 });
 

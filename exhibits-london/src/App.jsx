@@ -184,7 +184,7 @@ function App() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${userProfile.idToken}`
+                    'X-Google-ID-Token': userProfile.idToken
                 },
                 body: JSON.stringify({ action, ...payload })
             }).catch(err => console.error('Failed to sync ' + action + ':', err));
@@ -283,8 +283,8 @@ function App() {
         return [...filtered].sort((a, b) => {
             const aVisited = visitedSet.has(a.title);
             const bVisited = visitedSet.has(b.title);
-            if (aVisited && !bVisited) return -1;
-            if (!aVisited && bVisited) return 1;
+            if (aVisited && !bVisited) return 1;
+            if (!aVisited && bVisited) return -1;
 
             if (a.dates[0] === null && b.dates[0] !== null) return 1;
             if (a.dates[0] !== null && b.dates[0] === null) return -1;

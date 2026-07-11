@@ -24,9 +24,9 @@
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
-    "Access-Control-Allow-Headers": "authorization, content-type",
+    "Access-Control-Allow-Headers": "authorization, content-type, x-google-id-token",
     "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
-    "Content-Security-Policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval' https:; img-src 'self' data: https:; font-src 'self' data:;"
+    "Content-Security-Policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval' https:; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self' blob:;"
   },
   "mimeTypes": {
     ".json": "application/json",

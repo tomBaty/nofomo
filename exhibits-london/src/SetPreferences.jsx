@@ -171,13 +171,13 @@ export function SetPreferences({ onSkip, onSave }) {
 
                 <div className="preferences-grid">
                     {allPills.map(({ category, value, isTopLevel, pinned }) => {
-                        const isSelected = selected.has(value);
+                        const isSelected = selected.has(isTopLevel ? value : `${category}-${value}`);
                         return (
                             <button
-                                key={value}
+                                key={isTopLevel ? value : `${category}-${value}`}
                                 className={`preference-pill${isTopLevel ? '' : ' sub-preference'}${isSelected ? ' selected' : ''}${pinned ? ' pinned' : ''}`}
                                 style={{ backgroundColor: CATEGORY_COLORS[category] }}
-                                onClick={() => togglePreference(category, value, isTopLevel)}
+                                onClick={() => togglePreference(category, isTopLevel ? value : `${category}-${value}`, isTopLevel)}
                             >
                                 {value}
                             </button>

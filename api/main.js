@@ -3,6 +3,22 @@ const { app } = require("@azure/functions");
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client();
 
+function getGoogleIdToken(request) {
+    // Prefer the custom header because Azure Static Web Apps uses Authorization
+    // for its own EasyAuth session token, which would collide with the Google ID token.
+    const customHeader = request.headers.get('X-Google-ID-Token');
+    if (customHeader) {
+        return customHeader;
+    }
+
+    const authHeader = request.headers.get('Authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        return authHeader.slice('Bearer '.length);
+    }
+
+    return null;
+}
+
 async function verifyGoogleUser(token) {
     const ticket = await client.verifyIdToken({
         idToken: token,
@@ -135,16 +151,15 @@ app.http('user', {
     authLevel: 'anonymous',
     route: 'user',
     handler: async (request, context) => {
-        const authHeader = request.headers.get('Authorization');
-        context.log('Authorization header present:', !!authHeader);
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        const idToken = getGoogleIdToken(request);
+        context.log('ID token present:', !!idToken);
+        context.log('ID token length:', idToken?.length);
+        if (!idToken) {
             return {
                 status: 401,
-                jsonBody: { error: 'Missing or invalid Authorization header' }
+                jsonBody: { error: 'Missing or invalid X-Google-ID-Token header' }
             };
         }
-        const idToken = authHeader.slice('Bearer '.length);
-        context.log('ID token length:', idToken?.length);
 
         // Diagnostic: log the received JWT header (safe, no signature/payload)
         try {
@@ -194,14 +209,13 @@ app.http('updateUser', {
     authLevel: 'anonymous',
     route: 'user',
     handler: async (request, context) => {
-        const authHeader = request.headers.get('Authorization');
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        const idToken = getGoogleIdToken(request);
+        if (!idToken) {
             return {
                 status: 401,
-                jsonBody: { error: 'Missing or invalid Authorization header' }
+                jsonBody: { error: 'Missing or invalid X-Google-ID-Token header' }
             };
         }
-        const idToken = authHeader.slice('Bearer '.length);
 
         // Verify the Google ID token server-side before trusting who is making the update
         let userid;

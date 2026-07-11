@@ -1,10 +1,6 @@
 {
   "routes": [
     {
-      "route": "/login",
-      "rewrite": "/.auth/login/google"
-    },
-    {
       "route": "/api/*",
       "allowedRoles": ["anonymous"]
     },
@@ -23,12 +19,13 @@
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/login", "/api/*", "/assets/*", "/about/*", "/*.{js,css,png,jpg,jpeg,gif,svg,ico,woff,woff2,ttf,eot,json,webp}"]
+    "exclude": ["/api/*", "/assets/*", "/about/*", "/*.{js,css,png,jpg,jpeg,gif,svg,ico,woff,woff2,ttf,eot,json,webp}"]
   },
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
-    "Content-Security-Policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval' https:; img-src 'self' data: https:; font-src 'self' data:;"
+    "Access-Control-Allow-Headers": "authorization, content-type, x-google-id-token",
+    "Content-Security-Policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval' https:; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self' blob:;"
   },
   "mimeTypes": {
     ".json": "application/json",

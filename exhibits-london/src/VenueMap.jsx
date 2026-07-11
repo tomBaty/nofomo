@@ -8,7 +8,6 @@ const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 
 export function VenueMap({ venues = [] }) {
     const [selectedVenue, setSelectedVenue] = useState(null);
-    console.log("Mapbox token present:", MAPBOX_TOKEN);
 
     const validVenues = useMemo(() => {
         return venues.filter(

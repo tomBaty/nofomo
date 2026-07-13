@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef, useReducer } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { startOfDay, endOfDay, addDays, isWithinInterval, parseISO } from 'date-fns';
 import './App.css'
 import { Exhibit } from "./Exhibit";
@@ -8,64 +8,55 @@ import { SkeletonLoader } from "./SkeletonLoader";
 import { IMAGE_BASE_URL } from "./constants";
 import { VenueMap } from "./VenueMap";
 import venues from "./venue_information.json"
-import { SetPreferences } from "./SetPreferences";
+import { SetPreferences } from "./SetPreferences.tsx";
+import { FilterMenu } from "./FilterMenu.tsx";
+import { ErrorBoundary } from "./ErrorBoundary";
 
-// API endpoint - works with Azure Functions locally and when deployed
+// API endpoint to fetch exhibitions starting from today
 const API_URL = '/api/exhibitions?startDate=' + startOfDay(new Date()).toISOString().split('T')[0]
 
-// Fuzzy text matching function - returns a score from 0 to 1
-const fuzzyMatchScore = (text, searchTerm) => {
-    if (!text || !searchTerm) return 0;
-    const searchLower = searchTerm.toLowerCase().trim();
-    const textLower = text.toLowerCase();
-
-    if (textLower === searchLower) return 1.0;
-
-    if (textLower.includes(searchLower)) {
-        if (textLower.startsWith(searchLower)) return 0.95;
-        return 0.9;
-    }
-
-    const searchChars = searchLower.split('');
-    let textIndex = 0;
-    let matchedChars = 0;
-
-    for (let char of searchChars) {
-        while (textIndex < textLower.length) {
-            if (textLower[textIndex] === char) {
-                matchedChars++;
-                textIndex++;
-                break;
-            }
-            textIndex++;
-        }
-    }
-
-    const matchPercentage = matchedChars / searchChars.length;
-    return matchPercentage >= 0.7 ? matchPercentage : 0;
-};
-
-// const changeFilters = (state, action) => {
-//     if(action.type == 'toggle_filter') {
-//         if(state[action.filterType].includes(action.filter)){
-//             state[action.filterType].splice(action.filter)
-//         } else {
-//             state[action.filterType].append(action.filter)
-//         }
-//     }
-// }
-
-function App() {
+/**
+ * Custom hook to fetch exhibitions from the internal API.
+ * Returns the exhibitions data, loading state, and any error encountered during fetch.
+ * @returns {{ exhibitions: Array, loading: boolean, error: string|null }}
+ */
+const useExhibitions = () => {
     const [exhibitions, setExhibitions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [filtersExpanded, setFiltersExpanded] = useState(false);
-    const [mapExpanded, setMapExpanded] = useState(false);
-    const [expandedExhibit, setExpandedExhibit] = useState(null);
-    const [filteringByFavourites, setFilteringByFavourites] = useState(false);
-    const [favourites, setFavourites] = useState(() => JSON.parse(localStorage.getItem('favourites') || '[]'));
-    const [visited, setVisited] = useState(() => JSON.parse(localStorage.getItem('visited') || '[]'));
-    const [showPreferences, setShowPreferences] = useState(true)
+
+    useEffect(() => {
+        let cancelled = false;
+
+        fetch(API_URL)
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to fetch exhibitions');
+                return res.json();
+            })
+            .then(data => {
+                if (!cancelled) {
+                    setExhibitions(data);
+                    setLoading(false);
+                }
+            })
+            .catch(err => {
+                if (!cancelled) {
+                    setError(err.message);
+                    setLoading(false);
+                }
+            });
+
+        return () => { cancelled = true; };
+    }, []);
+
+    return { exhibitions, loading, error };
+};
+
+/**
+ * Custom hook to handle user authentication state using Google Sign-In.
+ * @returns 
+ */
+const useAuth = () => {
     const [userProfile, setUserProfile] = useState(() => {
         const stored = localStorage.getItem("googleUserProfile");
         if (!stored) return null;
@@ -79,92 +70,98 @@ function App() {
 
         return parsed;
     });
-    const filtersInitialized = useRef(false);
-    const mapInitialized = useRef(false);
+    return { userProfile, setUserProfile };
+}
+
+const getExhibitParam = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('exhibit');
+};
+
+const setExhibitParam = (identifier) => {
+    const url = new URL(window.location.href);
+    if (identifier) {
+        url.searchParams.set('exhibit', identifier);
+    } else {
+        url.searchParams.delete('exhibit');
+    }
+    window.history.pushState({}, '', url);
+};
+
+function App() {
+    const { exhibitions, loading, error } = useExhibitions();
+    const [filtersExpanded, setFiltersExpanded] = useState(false);
+    const [mapExpanded, setMapExpanded] = useState(false);
+    const [calendarExpanded, setCalendarExpanded] = useState(false);
+    const [expandedExhibit, setExpandedExhibit] = useState(null);
+
+    const [filteringByFavourites, setFilteringByFavourites] = useState(false);
+
+    const [favourites, setFavourites] = useState(() => JSON.parse(localStorage.getItem('favourites') || '[]'));
+    const [visited, setVisited] = useState(() => JSON.parse(localStorage.getItem('visited') || '[]'));
+    const [preferences, setPreferences] = useState(() => JSON.parse(localStorage.getItem('preferences') || '[]'));
+    const [showPreferences, setShowPreferences] = useState(preferences.length === 0);
+    const { userProfile, setUserProfile } = useAuth();
+
     const favouritesSyncTimeout = useRef(null);
     const visitedSyncTimeout = useRef(null);
     const prefSyncTimeout = useRef(null);
 
     // Close modal on Escape key
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            setExpandedExhibit(null);
+        }
+        setExhibitParam(null);
+    });
+
+    // check for exhibit URL parameter
     useEffect(() => {
-        const handleEscape = (e) => {
-            if (e.key === 'Escape' && expandedExhibit !== null) {
+        if (exhibitions.length === 0) return
+
+        const openExhibitId = getExhibitParam();
+        if (!openExhibitId) return;
+
+        const exhibit = exhibitions.find(ex => ex.id == openExhibitId);
+        if (exhibit) {
+            setExpandedExhibit(exhibit.id);
+            document.body.classList.add('modal-open');
+        }
+    }, [exhibitions]);
+
+    useEffect(() => {
+        const handlePopState = () => {
+            const openExhibitId = getExhibitParam();
+            if (!openExhibitId) {
                 setExpandedExhibit(null);
+                document.body.classList.remove('modal-open');
+                return;
+            }
+
+            const exhibit = exhibitions.find(ex => ex.id === openExhibitId);
+            if (exhibit) {
+                setExpandedExhibit(exhibit.id);
+                document.body.classList.add('modal-open');
             }
         };
 
-        window.addEventListener('keydown', handleEscape);
-        return () => window.removeEventListener('keydown', handleEscape);
-    }, [expandedExhibit]);
-
-    // Prevent body scroll when modal is open
-    useEffect(() => {
-        document.body.style.overflow = expandedExhibit ? 'hidden' : 'unset';
-        return () => { document.body.style.overflow = 'unset'; };
-    }, [expandedExhibit]);
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, [exhibitions]);
 
     // Date range state - using actual Date objects [startDate, endDate]
     const today = startOfDay(new Date());
     const [dateRange, setDateRange] = useState([today, addDays(today, 31)])
     const [calendarText, setCalendarText] = useState('This month')
 
-    // Search term state
-    const [searchTerm, setSearchTerm] = useState('')
-
-    // Single filters object to manage all filter states
-    // const [filters, setFilters] = useReducer({
-    //     venues: [],
-    //     categories: [],
-    //     paid: []
-    // }, changeFilters)
     const [filters, setFilters] = useState({
         venues: [],
         categories: [],
         paid: []
     })
 
-    // Fetch exhibitions from API
-    useEffect(() => {
-        fetch(API_URL)
-            .then(res => {
-                if (!res.ok) throw new Error('Failed to fetch exhibitions');
-                return res.json();
-            })
-            .then(data => {
-                setExhibitions(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                setError(err.message);
-                setLoading(false);
-            });
-    }, []);
-
     // Calculate all unique filter options in one pass
-    const filterOptions = useMemo(() => {
-        if (!exhibitions.length) return null;
 
-        const fields = ['venue', 'category', 'paid'];
-        const options = {};
-
-        fields.forEach(field => {
-            options[field] = [...new Set(exhibitions.map(ex => ex[field]))].sort();
-        });
-
-        return options;
-    }, [exhibitions]);
-
-    // Initialize filters once when data loads
-    useEffect(() => {
-        if (filterOptions && !filtersInitialized.current) {
-            setFilters({
-                venues: filterOptions.venue,
-                categories: filterOptions.category,
-                paid: filterOptions.paid
-            });
-            filtersInitialized.current = true;
-        }
-    }, [filterOptions])
 
     const favouritesSet = useMemo(() => new Set(favourites), [favourites]);
     const visitedSet = useMemo(() => new Set(visited), [visited]);
@@ -221,21 +218,18 @@ function App() {
         });
     }, [syncUserData]);
 
-    const handleExpandExhibit = useCallback((title) => setExpandedExhibit(title), []);
-    const handleCollapseExhibit = useCallback(() => setExpandedExhibit(null), []);
-
-    // Calculate search relevance score for an exhibition
-    // Field weights: venue (100) > title (50) > category (30) > description (20) > speakers (20)
-    const calculateSearchScore = useCallback((exhibition, searchTerm) => {
-        if (!searchTerm.trim()) return 0;
-
-        const venueScore = fuzzyMatchScore(exhibition.venue, searchTerm) * 100;
-        const titleScore = fuzzyMatchScore(exhibition.title, searchTerm) * 50;
-        const categoryScore = fuzzyMatchScore(exhibition.category, searchTerm) * 30;
-        const descScore = fuzzyMatchScore(exhibition.desc, searchTerm) * 20;
-        const speakersScore = exhibition.speakers ? fuzzyMatchScore(exhibition.speakers, searchTerm) * 20 : 0;
-
-        return venueScore + titleScore + categoryScore + descScore + speakersScore;
+    const handleExpandExhibit = useCallback((id) => {
+        setExpandedExhibit(id);
+        document.body.classList.add('modal-open');
+        const exhibit = exhibitions.find(ex => ex.id === id);
+        if (exhibit?.id) {
+            setExhibitParam(exhibit.id);
+        }
+    }, [exhibitions]);
+    const handleCollapseExhibit = useCallback(() => {
+        setExpandedExhibit(null);
+        document.body.classList.remove('modal-open');
+        setExhibitParam(null);
     }, []);
 
     // Filter and sort exhibitions based on all selected filters
@@ -265,20 +259,6 @@ function App() {
                     return false
                 }
             })
-        // .filter(ex => {
-        //     if (!searchTerm.trim()) return true;
-        //     return calculateSearchScore(ex, searchTerm) > 0;
-        // });
-
-        // if (searchTerm.trim()) {
-        //     const scores = new Map(filtered.map(ex => [ex.title, calculateSearchScore(ex, searchTerm)]));
-        //     return [...filtered].sort((a, b) => {
-        //         const scoreA = scores.get(a.title);
-        //         const scoreB = scores.get(b.title);
-        //         if (scoreA !== scoreB) return scoreB - scoreA;
-        //         return parseISO(a.dates[0]) - parseISO(b.dates[0]);
-        //     });
-        // }
 
         return [...filtered].sort((a, b) => {
             const aVisited = visitedSet.has(a.title);
@@ -292,162 +272,77 @@ function App() {
             if (startDiff !== 0) return startDiff;
             return parseISO(a.dates[a.dates.length - 1]) - parseISO(b.dates[b.dates.length - 1]);
         });
-    }, [exhibitions, filters, dateRange, visitedSet, /* searchTerm, calculateSearchScore, */filteringByFavourites, favouritesSet])
-
-    const toggleCalendar = () => {
-        const calendar = document.querySelector('.calendar-date-picker')
-        if (!calendar) return;
-        if (calendar.style.display === 'flex') {
-            calendar.style.display = 'none';
-        } else {
-            calendar.style.display = 'flex';
-        }
-    }
-    const toggleFilters = () => {
-        setFiltersExpanded(prev => !prev);
-    }
-    const toggleMap = () => {
-        setMapExpanded(prev => !prev);
-    }
-
-    const handleCheckboxToggle = (filterType, value) => {
-        setFilters(prev => {
-            const current = prev[filterType];
-            if (current.includes(value)) {
-                return { ...prev, [filterType]: current.filter(v => v !== value) };
-            } else {
-                return { ...prev, [filterType]: [...current, value] };
-            }
-        });
-    }
+    }, [exhibitions, filters, dateRange, visitedSet, filteringByFavourites, favouritesSet])
 
     if (loading) return <SkeletonLoader />
     if (error) return <p>Error loading exhibitions: {error}</p>
-    if (!filterOptions) return null;
 
     return (
         <div>
             <img src={IMAGE_BASE_URL + 'headerlogo.png'} id='logo' />
             <NavBar
-                onToggleFilters={toggleFilters}
-                onToggleMap={toggleMap}
-                onToggleCalendar={toggleCalendar}
+                toggleFilters={() => setFiltersExpanded(p => !p)}
+                toggleMap={() => setMapExpanded(p => !p)}
+                toggleCalendar={() => setCalendarExpanded(p => !p)}
                 calendarText={calendarText}
-                onSearch={setSearchTerm}
+                // onSearch={setSearchTerm}
                 userProfile={userProfile}
                 setUserProfile={setUserProfile}
                 setFavourites={setFavourites}
                 setVisited={setVisited}
+                togglePreferences={() => setShowPreferences(p => !p)}
+            />
+            <FilterMenu
+                exhibitions={exhibitions}
+                filtersExpanded={filtersExpanded}
+                setFiltersExpanded={setFiltersExpanded}
+                filters={filters}
+                setFilters={setFilters}
+                filteringByFavourites={filteringByFavourites}
+                setFilteringByFavourites={setFilteringByFavourites}
             />
 
-            {/* Filter sidebar backdrop */}
-            <div
-                className={`filter-sidebar-backdrop${filtersExpanded ? ' visible' : ''}`}
-                onClick={() => setFiltersExpanded(false)}
-            />
-
-            {/* Filter sidebar */}
-            <div className={`filter-sidebar${filtersExpanded ? ' open' : ''}`}>
-                <div className='filter-sidebar-header'>
-                    <h3>Filters</h3>
-                    <button className='filter-sidebar-close' onClick={() => setFiltersExpanded(false)}>×</button>
-                </div>
-
-                <div className='filter-section'>
-                    <h4>Favourites</h4>
-                    <label className='filter-checkbox-label'>
-                        <input
-                            type='checkbox'
-                            checked={filteringByFavourites}
-                            onChange={() => setFilteringByFavourites(!filteringByFavourites)}
-                        />
-                        Show only favourites
-                    </label>
-                </div>
-
-                <div className='filter-section'>
-                    <h4>Venue</h4>
-                    {filterOptions.venue.map(venue => (
-                        <label key={venue} className='filter-checkbox-label'>
-                            <input
-                                type='checkbox'
-                                checked={filters.venues.includes(venue)}
-                                onChange={() => handleCheckboxToggle('venues', venue)}
-                            />
-                            {venue}
-                        </label>
-                    ))}
-                    {filters.venues.length > 0 ? (
-                        <a className='filter-checkbox-label'
-                            onClick={() => setFilters(prev => {
-                                return { ...prev, venues: [] }
-                            })}
-                        >Remove All</a>
-                    ) : (
-                        <a className='filter-checkbox-label'
-                            onClick={() => setFilters(prev => {
-                                return { ...prev, venues: [...filterOptions.venue] }
-                            })}
-                        >Select All</a>
-                    )}
-                </div>
-
-                <div className='filter-section'>
-                    <h4>Entry</h4>
-                    {filterOptions.paid.map(option => (
-                        <label key={option} className='filter-checkbox-label'>
-                            <input
-                                type='checkbox'
-                                checked={filters.paid.includes(option)}
-                                onChange={() => handleCheckboxToggle('paid', option)}
-                            />
-                            {option.charAt(0).toUpperCase() + option.slice(1)}
-                        </label>
-                    ))}
-                </div>
-            </div>
-            <CalendarDatePicker
-                value={dateRange}
-                onChange={setDateRange}
-                onPresetChange={setCalendarText}
-            />
-
-            {mapExpanded && mapInitialized && (
-                <div className="map-container">
-                    <VenueMap venues={venues} />
-                </div>
+            {calendarExpanded && (
+                <CalendarDatePicker
+                    value={dateRange}
+                    onChange={setDateRange}
+                    onPresetChange={setCalendarText}
+                />
             )}
 
-            <div
-                id='exhibits_container'
-            >
-                {filteredExhibitions.map((exhibition) =>
-                    <Exhibit
-                        key={exhibition.url || exhibition.title}
-                        data={exhibition}
-                        isExpanded={expandedExhibit === exhibition.title}
-                        isFavourite={favouritesSet.has(exhibition.title)}
-                        isVisited={visitedSet.has(exhibition.title)}
-                        onExpand={handleExpandExhibit}
-                        onCollapse={handleCollapseExhibit}
-                        onFavouriteToggle={handleFavouriteToggle}
-                        onVisitToggle={handleVisitToggle}
-                    />
-                )}
-            </div>
+            {mapExpanded && (<VenueMap venues={venues} />)}
+
+            <ErrorBoundary fallback={<p>Something went wrong while rendering the exhibits. Please try refreshing the page.</p>}>
+                <div id='exhibits_container'>
+                    {filteredExhibitions.map((exhibition) =>
+                        <Exhibit
+                            key={exhibition.id}
+                            data={exhibition}
+                            isExpanded={expandedExhibit === exhibition.id}
+                            isFavourite={favouritesSet.has(exhibition.title)}
+                            isVisited={visitedSet.has(exhibition.title)}
+                            onExpand={handleExpandExhibit}
+                            onCollapse={handleCollapseExhibit}
+                            onFavouriteToggle={handleFavouriteToggle}
+                            onVisitToggle={handleVisitToggle}
+                        />
+                    )}
+                </div>
+            </ErrorBoundary>
+
             {showPreferences && (
                 <SetPreferences
                     onSkip={() => setShowPreferences(false)}
                     onSave={(prefs) => {
                         localStorage.setItem('preferences', JSON.stringify(prefs));
                         syncUserData('updatePreferences', { preferences: prefs }, prefSyncTimeout);
-                        setShowPreferences(false);
+                        setPreferences(prefs);
+                        setShowPreferences(false)
                     }}
+                    preferences={preferences}
                 />
             )}
         </div>
-
-
     )
 }
 

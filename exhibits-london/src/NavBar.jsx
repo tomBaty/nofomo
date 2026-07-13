@@ -1,26 +1,26 @@
 
-import { SearchBar } from './SearchBar';
+// import { SearchBar } from './SearchBar';
 import { GoogleSignIn } from './GoogleSignIn';
 import './NavBar.css';
 import { IMAGE_BASE_URL } from './constants';
 
-export function NavBar({ onToggleFilters, onToggleMap, onToggleCalendar, calendarText, onSearch, userProfile, setUserProfile, setFavourites, setVisited }) {
+export function NavBar({ toggleFilters, toggleMap, toggleCalendar, calendarText, userProfile, setUserProfile, setFavourites, setVisited, togglePreferences }) {
     return (
-        <div id='navbar'>
-            <div className='circleButton' id='filterToggle' onClick={onToggleFilters}>
-                <img src={IMAGE_BASE_URL + 'icon_filter.svg'} style={{ width: '20px', verticalAlign: 'middle' }} />
+        <section id='navbar' aria-label='Navigation'>
+            <button className='circleButton' id='filterToggle' aria-label='Toggle Filters' onClick={toggleFilters}>
+                <img src={IMAGE_BASE_URL + 'icon_filter.svg'}/>
                 <p>Filters</p>
-            </div>
-            <div className='circleButton' id='mapToggle' onClick={onToggleMap}>
-                <img src={IMAGE_BASE_URL + 'icon_map.svg'} style={{ width: '20px', verticalAlign: 'middle' }} />
+            </button>
+            <button className='circleButton' id='mapToggle' aria-label='View Map' onClick={toggleMap}>
+                <img src={IMAGE_BASE_URL + 'icon_map.svg'}/>
                 <p>View Map</p>
-            </div>
+            </button>
 
             {/* <SearchBar onSearch={onSearch} /> */}
-            <div className='circleButton' onClick={onToggleCalendar}>
-                <img src={IMAGE_BASE_URL + 'icon_calendar.svg'} style={{ width: '20px', marginRight: '10px', verticalAlign: 'middle' }} />
+            <button className='circleButton' aria-label='Toggle Calendar' onClick={toggleCalendar}>
+                <img src={IMAGE_BASE_URL + 'icon_calendar.svg'}/>
                 <p>{calendarText}</p>
-            </div>
+            </button>
             <a href="/about/index.html" id="about-link">
                 <div className='circleButton'>
                     <p>About the site</p>
@@ -28,12 +28,15 @@ export function NavBar({ onToggleFilters, onToggleMap, onToggleCalendar, calenda
             </a>
             {userProfile ?
                 <div className='circleButton' id='profileButton' href='/login'>
-                    <img src={userProfile.profile.picture} style={{ width: '20px', verticalAlign: 'middle' }} />
+                    <img src={userProfile.profile.picture}/>
                     <p>{userProfile.profile.given_name}</p>
                 </div> :
                 <GoogleSignIn setUserProfile={setUserProfile} userProfile={userProfile} setFavourites={setFavourites} setVisited={setVisited} />
             }
-        </div>
+            <button className='circleButton' id='preferencesToggle' aria-label='View Preferences' onClick={togglePreferences}>
+                <p>Preferences</p>
+            </button>
+        </section>
     )
 
 }

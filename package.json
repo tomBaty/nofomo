@@ -16,7 +16,11 @@
     "exhibitions"
   ],
   "devDependencies": {
-    "@azure/static-web-apps-cli": "^2.0.9"
+    "@azure/static-web-apps-cli": "^2.0.9",
+    "@types/node": "^26.1.1",
+    "eslint-plugin-typescript": "^0.14.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.63.0"
   },
   "dependencies": {
     "date-fns": "^4.2.1",

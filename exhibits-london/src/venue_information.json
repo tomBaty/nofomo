@@ -4,6 +4,7 @@
         "coordinates": [51.5203, -0.0937],
         "address": "Silk Street, London EC2Y 8DS",
         "category": "Arts Centre",
+        "description": "Europe's largest multi-arts venue, the Barbican is a brutalist landmark where cinema, theatre, music, dance and visual art collide. Its galleries host ambitious contemporary exhibitions, while the Conservatory hides a tropical jungle beneath concrete. Whether you want to catch an arthouse film, hear world-class classical music, or simply wander one of London's most striking architectural spaces, the Barbican delivers culture on an epic scale.",
         "entryPrice": 0,
         "openHours": [
             [10, 20],
@@ -20,6 +21,7 @@
         "coordinates": [51.5194, -0.1270],
         "address": "Great Russell Street, London WC1B 3DG",
         "category": "Museum",
+        "description": "A temple to human history, the British Museum holds treasures spanning two million years and every continent. From the Rosetta Stone and Parthenon sculptures to Egyptian mummies and Anglo-Saxon gold, its collection is staggering. The Great Court's glass roof is a destination in itself. Best of all, entry is free, making it one of the world's great cultural bargains and an essential stop for anyone curious about civilisation.",
         "entryPrice": 0,
         "openHours": [
             [10, 17],
@@ -36,6 +38,7 @@
         "coordinates": [51.51165886516919, -0.11774356481111975],
         "address": "Somerset House, Strand, London WC2R 0RN",
         "category": "Gallery",
+        "description": "Housed in the elegant riverside wings of Somerset House, the Courtauld is a jewel-box gallery with an outstanding collection of paintings. Medieval altarpieces, Renaissance masterpieces, and Impressionist and Post-Impressionist icons by Van Gogh, Cézanne and Monet hang in beautifully restored rooms. It also holds a significant group of works by Bloomsbury Set artists. Intimate, atmospheric and rich with colour, it is one of London's most rewarding art experiences.",
         "entryPrice": 12,
         "openHours": [
             [10, 18],
@@ -52,6 +55,7 @@
         "coordinates": [51.5081, -0.0972],
         "address": "21 New Globe Walk, Bankside, London SE1 9DT",
         "category": "Theatre",
+        "description": "Shakespeare's Globe is a faithful reconstruction of the open-air playhouse where the Bard's works first thrilled London crowds. Set on the South Bank, it offers an immersive theatre experience with standing tickets in the yard and candlelit indoor plays at the Sam Wanamaker Playhouse. The exhibition explores Elizabethan stagecraft, costume and society. Even if you do not catch a show, the timbered, thatched building is a evocative piece of living history.",
         "entryPrice": 0,
         "openHours": [
             [10, 17],
@@ -68,6 +72,7 @@
         "coordinates": [51.5001, -0.1939],
         "address": "101-111 Kensington High Street, London W8 5SA",
         "category": "Gallery",
+        "description": "Japan House is a sleek cultural embassy celebrating the best of Japanese design, craft, technology and hospitality. Its gallery stages rotating exhibitions of contemporary makers and artists, while the shop stocks exquisite homeware, stationery and ceramics. Downstairs, an authentic restaurant serves refined Japanese cuisine. It is a calm, beautifully designed space that offers a window into Japan without leaving Kensington High Street.",
         "entryPrice": 0,
         "openHours": [
             [12, 18],
@@ -84,6 +89,7 @@
         "coordinates": [51.5145, -0.1167],
         "address": "Houghton Street, London WC2A 2AE",
         "category": "Talks",
+        "description": "The London School of Economics is not a traditional visitor attraction, but its public lecture programme is one of the capital's hidden intellectual gems. Leading academics, politicians, journalists and thinkers gather here to debate economics, politics, sociology and global affairs. Most events are free and open to all, offering a chance to hear cutting-edge ideas in the heart of London. Check the LSE Events calendar for upcoming talks.",
         "entryPrice": 0,
         "openHours": [
             [10, 17],
@@ -100,6 +106,7 @@
         "coordinates": [51.5089, -0.1283],
         "address": "Trafalgar Square, London WC2N 5DN",
         "category": "Gallery",
+        "description": "Overlooking Trafalgar Square, the National Gallery houses one of the world's finest collections of Western European painting. More than 2,300 works trace the story of art from the thirteenth to the early twentieth century, with masterpieces by Leonardo, Van Eyck, Turner, Rembrandt and Van Gogh. Entry is free, and the grand rooms are as much a pleasure as the paintings themselves. A must-visit for art lovers and casual browsers alike.",
         "entryPrice": 0,
         "openHours": [
             [10, 18],
@@ -116,6 +123,7 @@
         "coordinates": [51.5092, -0.1281],
         "address": "St Martin's Place, London WC2H 0HE",
         "category": "Gallery",
+        "description": "Just off Trafalgar Square, the National Portrait Gallery tells the story of Britain through the faces of those who shaped it. Its collection ranges from Tudor paintings and Victorian photographs to contemporary portraits of politicians, writers, musicians and activists. The galleries are arranged chronologically, making it a fascinating walk through history. Free to enter, with a lively programme of temporary exhibitions and events.",
         "entryPrice": 0,
         "openHours": [
             [10.5, 18],
@@ -132,6 +140,7 @@
         "coordinates": [51.4967, -0.1764],
         "address": "Cromwell Road, London SW7 5BD",
         "category": "Museum",
+        "description": "A cathedral to the natural world, the Natural History Museum wows visitors with its soaring Hintze Hall, blue whale skeleton and roaring animatronic dinosaurs. Its collections cover botany, entomology, mineralogy, palaeontology and zoology, with hands-on displays for all ages. The building itself, a masterpiece of terracotta Romanesque architecture, is worth the trip alone. Free entry makes it a favourite for families, scientists and dreamers.",
         "entryPrice": 0,
         "openHours": [
             [10, 17.83],
@@ -148,6 +157,7 @@
         "coordinates": [51.4978, -0.1745],
         "address": "Exhibition Road, South Kensington, London SW7 2DD",
         "category": "Museum",
+        "description": "The Science Museum makes discovery feel like play. From Stephenson's Rocket and the Apollo 10 command module to interactive galleries on space, medicine and computing, it celebrates human ingenuity across the centuries. The Wonderlab hands-on gallery is a hit with children, while adults can lose themselves in the history of flight, clocks and engines. Free to enter, it is one of South Kensington's most stimulating destinations.",
         "entryPrice": 0,
         "openHours": [
             [10, 18],
@@ -164,6 +174,7 @@
         "coordinates": [51.4910, -0.1278],
         "address": "Millbank, London SW1P 4RG",
         "category": "Gallery",
+        "description": "Tate Britain is the home of British art from 1500 to today. Its chronological hang includes Tudor portraits, J.M.W. Turner's luminous seascapes, Pre-Raphaelite treasures, and bold contemporary works. The grand Duveen Galleries host spectacular installations, and the museum's riverside location makes for a pleasant approach. Free entry to the collection, with ticketed exhibitions, makes it an essential stop for anyone interested in the nation's visual culture.",
         "entryPrice": 0,
         "openHours": [
             [10, 18],
@@ -180,6 +191,7 @@
         "coordinates": [51.5076, -0.0994],
         "address": "Bankside, London SE1 9TG",
         "category": "Gallery",
+        "description": "Housed in a former power station on the South Bank, Tate Modern is a powerhouse of international modern and contemporary art. Its vast Turbine Hall hosts monumental installations, while the collection spans Picasso, Warhol, Rothko, Hockney and beyond. The viewing level offers sweeping Thames-side panoramas. Free to enter, with paid exhibitions, it is one of London's most dynamic and visited cultural spaces.",
         "entryPrice": 0,
         "openHours": [
             [10, 18],
@@ -196,6 +208,7 @@
         "coordinates": [51.4998, -0.2014],
         "address": "224-238 Kensington High Street, London W8 6AG",
         "category": "Museum",
+        "description": "The Design Museum champions the role of design in everyday life. Its sleek Kensington home hosts exhibitions on fashion, architecture, graphics, product design and digital innovation, from classic chairs to futuristic concepts. The permanent collection, Designer Maker User, is free and traces how design shapes the world. A must for creatives, makers and anyone who has ever wondered why things look the way they do.",
         "entryPrice": 0,
         "openHours": [
             [10, 18],
@@ -212,6 +225,7 @@
         "coordinates": [51.4957, -0.1090],
         "address": "Lambeth Road, London SE1 6HZ",
         "category": "Museum",
+        "description": "The Imperial War Museum London explores the human stories behind conflict from the First World War to the present day. Housed in the former Bethlehem Royal Hospital, its atrium is dominated by aircraft, missiles and tanks. Thought-provoking galleries cover the Holocaust, espionage, peacekeeping and everyday life in wartime. Powerful, moving and free to enter, it offers essential context on modern history.",
         "entryPrice": 0,
         "openHours": [
             [10, 18],
@@ -228,6 +242,7 @@
         "coordinates": [51.5014, -0.1419],
         "address": "Buckingham Palace, London SW1A 1AA",
         "category": "Gallery",
+        "description": "The King's Gallery at Buckingham Palace showcases changing exhibitions drawn from the Royal Collection, one of the world's greatest art collections. Visitors can see paintings, drawings, photographs and decorative arts selected by the monarch, often with themes tied to royal history or anniversaries. The gallery itself is a modern, elegant space at the palace gates, offering a regal cultural experience in the heart of Westminster.",
         "entryPrice": 22,
         "openHours": [
             [10, 17.5],
@@ -244,6 +259,7 @@
         "coordinates": [51.5067, -0.1300],
         "address": "The Mall, London SW1Y 5BD",
         "category": "Gallery",
+        "description": "Mall Galleries is a friendly, accessible space on The Mall dedicated to contemporary figurative art. Run by the Federation of British Artists, it hosts a rotating programme of open exhibitions, solo shows and art competitions, including the annual Royal Society of Portrait Painters show. With free entry to many displays and a welcoming café, it is a rewarding stop near Buckingham Palace and Trafalgar Square.",
         "entryPrice": 0,
         "openHours": [
             [10, 17],
@@ -260,6 +276,7 @@
         "coordinates": [51.5092, -0.1397],
         "address": "Burlington House, Piccadilly, London W1J 0BD",
         "category": "Gallery",
+        "description": "Founded in 1768, the Royal Academy of Arts is both an art school and a world-class exhibition venue in the grand courtyard of Burlington House. Its programme mixes blockbuster shows on Old Masters and modern icons with the annual Summer Exhibition, a riot of contemporary art. The permanent collection and free displays offer further delights. A Piccadilly institution with a lively, creative spirit.",
         "entryPrice": 0,
         "openHours": [
             [10, 18],
@@ -276,6 +293,7 @@
         "coordinates": [51.5047, -0.1751],
         "address": "Kensington Gardens, London W2 3XA",
         "category": "Gallery",
+        "description": "Set in Kensington Gardens, the Serpentine Galleries are two spaces dedicated to cutting-edge contemporary art. The Serpentine Gallery and the Serpentine Sackler Gallery host ambitious exhibitions by international artists, architects and designers. Each summer, the Serpentine Pavilion brings a temporary architectural experiment to the lawn. Free to enter, with a picturesque park setting, it is a refreshing escape for art enthusiasts.",
         "entryPrice": 0,
         "openHours": [
             [10, 19],
@@ -292,6 +310,7 @@
         "coordinates": [51.50578715785221, -0.11674763180281776],
         "address": "Belvedere Road, London SE1 8XX",
         "category": "Arts Centre",
+        "description": "The Southbank Centre is London's busiest arts complex, sprawling along the Thames beside the Royal Festival Hall. It hosts concerts, festivals, talks, dance, literature events and free exhibitions, with a buzzing riverside atmosphere. The brutalist architecture, food markets and skate park give it a distinctive, democratic energy. Whether you want high culture or people-watching, the Southbank Centre is always worth a visit.",
         "entryPrice": 0,
         "openHours": [
             [11, 19],
@@ -308,6 +327,7 @@
         "coordinates": [51.5156, -0.1529],
         "address": "Hertford House, Manchester Square, London W1U 3BN",
         "category": "Museum",
+        "description": "The Wallace Collection is an exquisite house museum in a Georgian townhouse on Manchester Square. It is packed with Old Master paintings, French eighteenth-century decorative arts, armour, porcelain and furniture. Highlights include works by Fragonard, Watteau and Velázquez, displayed in gilded salons that feel frozen in time. Free entry, with a lovely courtyard restaurant, makes it one of London's most elegant cultural hideaways.",
         "entryPrice": 0,
         "openHours": [
             [10, 17],
@@ -324,6 +344,7 @@
         "coordinates": [51.5154, -0.0715],
         "address": "77-82 Whitechapel High Street, London E1 7QX",
         "category": "Gallery",
+        "description": "Whitechapel Gallery has been at the forefront of contemporary art in London for over a century. It introduced Picasso to the British public and continues to champion emerging and established international artists. The programme includes exhibitions, film screenings, talks and live events in a striking East End building. Free to enter, it is a vital part of London's avant-garde art scene.",
         "entryPrice": 0,
         "openHours": [
             [11, 18],
@@ -340,6 +361,7 @@
         "coordinates": [51.5177, -0.1406],
         "address": "63 Wells Street, London W1A 3AE",
         "category": "Museum",
+        "description": "The Cartoon Museum celebrates British cartoons, caricature and comic art from the eighteenth century to the present. Its collection includes Hogarth, Gillray, Giles, Steve Bell and the Beano, alongside original pages from graphic novels and contemporary webcomics. With a shop full of prints and comics, it is a nostalgic and often hilarious destination for anyone who grew up with British humour on the page.",
         "entryPrice": 8,
         "openHours": [
             [10.5, 17.5],
@@ -356,6 +378,7 @@
         "coordinates": [51.4488, -0.0841],
         "address": "Gallery Road, London SE21 7AD",
         "category": "Gallery",
+        "description": "England's oldest public art gallery, Dulwich Picture Gallery is a serene Neoclassical building set in leafy parkland. Its collection features European Old Masters including Rembrandt, Poussin, Rubens and Canaletto, displayed in beautifully proportioned rooms. The gallery also hosts contemporary exhibitions and outdoor installations. A short train ride from central London, it feels like a cultured country escape with a world-class collection.",
         "entryPrice": 16,
         "openHours": [
             [10, 18],
@@ -372,6 +395,7 @@
         "coordinates": [51.5442, -0.0954],
         "address": "39a Canonbury Square, London N1 2AN",
         "category": "Gallery",
+        "description": "The Estorick Collection is the only museum in Britain dedicated to modern Italian art. Housed in a graceful Georgian villa in Islington, it holds a superb array of Futurist works by Boccioni, Balla and Severini, alongside figurative paintings and sculpture. The intimate rooms and peaceful garden make it a delightful place to discover a lesser-known but thrilling chapter of twentieth-century art.",
         "entryPrice": 8,
         "openHours": [
             [12, 17],
@@ -388,6 +412,7 @@
         "coordinates": [51.5233, -0.1193],
         "address": "40 Brunswick Square, London WC1N 1AZ",
         "category": "Museum",
+        "description": "The Foundling Museum tells the moving story of London's first children's charity, the Foundling Hospital, established in 1739 by Thomas Coram. The collection includes art by Hogarth, Gainsborough and Handel, who supported the hospital's work. Visitors can see the tokens left by mothers with their babies, a poignant record of love and loss. It is a small museum with a big heart, set in a charming Georgian square.",
         "entryPrice": 12.5,
         "openHours": [
             [10, 17],
@@ -404,6 +429,7 @@
         "coordinates": [51.4956, -0.1205],
         "address": "Lambeth Palace Road, London SE1 7LB",
         "category": "Museum",
+        "description": "The Garden Museum celebrates British gardens and gardening in a converted medieval church beside Lambeth Palace. Its collection includes historic tools, paintings, ceramics and the tomb of the Tradescants, pioneering plant hunters. The knot garden is a quiet retreat, and the café is a local favourite. Whether you are a keen gardener or simply enjoy beautiful spaces, this museum is a blooming lovely stop.",
         "entryPrice": 12,
         "openHours": [
             [10.5, 17],
@@ -420,6 +446,7 @@
         "coordinates": [51.5158, -0.0924],
         "address": "Guildhall Yard, London EC2V 5AE",
         "category": "Gallery",
+        "description": "Tucked beside the City of London's Guildhall, this gallery specialises in Victorian art and London-themed paintings. Its collection includes works by Millais, Leighton and Constable, alongside a rolling programme of temporary exhibitions. Beneath the gallery lie the remains of a Roman amphitheatre, discovered during redevelopment and now displayed in atmospheric rooms. Free entry makes it a rewarding detour in the Square Mile.",
         "entryPrice": 0,
         "openHours": [
             [12, 16],
@@ -436,6 +463,7 @@
         "coordinates": [51.50622184503297, -0.11531962513132923],
         "address": "Belvedere Road, London SE1 8XX",
         "category": "Gallery",
+        "description": "Part of the Southbank Centre, the Hayward Gallery is a Brutalist icon known for ambitious contemporary art exhibitions. Its cavernous, adaptable spaces have hosted immersive installations, light works, sculpture and painting by leading international artists. The gallery's concrete architecture is divisive but unforgettable. With a focus on the experiential, it is a must-visit for anyone who wants art to surprise and challenge.",
         "entryPrice": 16,
         "openHours": [
             [11, 19],
@@ -452,6 +480,7 @@
         "coordinates": [51.4414, -0.0561],
         "address": "100 London Road, Forest Hill, London SE23 3PQ",
         "category": "Museum",
+        "description": "The Horniman Museum is a family-friendly wonderland in Forest Hill, combining anthropology, natural history, musical instruments and an aquarium. Its famous overstuffed walrus presides over the natural history gallery, while the gardens offer city views, an animal walk and a butterfly house. Free entry to the main museum, with charges for some attractions, makes it one of south London's best days out.",
         "entryPrice": 0,
         "openHours": [
             [10, 17.5],
@@ -468,6 +497,7 @@
         "coordinates": [51.5051, -0.1873],
         "address": "Kensington Gardens, London W8 4PX",
         "category": "Museum",
+        "description": "Kensington Palace is a working royal residence with a fascinating public museum. Visitors can explore the State Apartments, the King's and Queen's Galleries, and exhibitions on Queen Victoria, Diana, Princess of Wales, and modern royalty. The palace sits in the beautiful Kensington Gardens, and the Orangery offers a regal spot for tea. It is a chance to step inside royal life and history in an intimate, elegant setting.",
         "entryPrice": 27,
         "openHours": [
             [10, 18],
@@ -484,6 +514,7 @@
         "coordinates": [51.4787, -0.2957],
         "address": "Royal Botanic Gardens, Kew, Richmond TW9 3AE",
         "category": "Gardens",
+        "description": "Kew Gardens is a UNESCO World Heritage Site and one of the world's most important botanical gardens. Its 300 acres contain rare plants, historic glasshouses, treetop walkways, a royal palace and the soaring Palm House. The gardens are also a centre for scientific research and conservation. Seasonal displays, from spring bulbs to Christmas lights, make it worth visiting year-round. A verdant escape on the edge of London.",
         "entryPrice": 22,
         "openHours": [
             [10, 19],
@@ -500,6 +531,7 @@
         "coordinates": [51.4983, -0.2035],
         "address": "12 Holland Park Road, London W14 8LZ",
         "category": "Museum",
+        "description": "Leighton House is the former studio-home of Victorian artist Frederic, Lord Leighton, preserved as a dazzling museum. Its centrepiece is the Arab Hall, lined with Islamic tiles, mosaics and a golden dome. The house also displays Leighton's own paintings and a collection of Victorian art. Recently expanded, it offers a rare glimpse into the exotic, aesthetic world of a nineteenth-century artistic genius.",
         "entryPrice": 10,
         "openHours": [
             [10, 17.5],
@@ -516,6 +548,7 @@
         "coordinates": [51.50754062770585, -0.023812848440276604],
         "address": "West India Quay, Canary Wharf, London E14 4AL",
         "category": "Museum",
+        "description": "London Museum Docklands explores the history of the River Thames, trade, empire and the East End. Housed in a nineteenth-century warehouse at West India Quay, its galleries cover the sugar trade, the Blitz, the docks' decline and the area's regeneration. The permanent exhibition, London, Sugar & Slavery, confronts the city's role in the transatlantic slave trade. Free entry makes it a thought-provoking Canary Wharf destination.",
         "entryPrice": 0,
         "openHours": [
             [10, 18],
@@ -532,6 +565,7 @@
         "coordinates": [51.5296, -0.0763],
         "address": "136 Kingsland Road, London E2 8EA",
         "category": "Museum",
+        "description": "The Museum of the Home reveals how Londoners have lived across the centuries. Set in restored almshouses in Hoxton, its rooms recreate domestic interiors from the seventeenth century to the present day, showing changing tastes, technologies and family life. The gardens and temporary exhibitions add further layers. Free to enter, it is a warm, relatable museum that makes history feel personal.",
         "entryPrice": 0,
         "openHours": [
             [10, 17],
@@ -548,6 +582,7 @@
         "coordinates": [51.4871, -0.1616],
         "address": "Royal Hospital Road, Chelsea, London SW3 4HT",
         "category": "Museum",
+        "description": "The National Army Museum tells the story of the British Army from the English Civil War to current operations. Interactive displays, personal stories and an impressive collection of uniforms, weapons, medals and art bring military history to life. Highlights include the skeleton of Napoleon's horse and the Victorian Cross collection. Free entry, with family-friendly activities, makes it a compelling visit in Chelsea.",
         "entryPrice": 0,
         "openHours": [
             [10, 17.5],
@@ -564,6 +599,7 @@
         "coordinates": [51.4818, -0.0047],
         "address": "Romney Road, Greenwich, London SE10 9NF",
         "category": "Museum",
+        "description": "Part of Royal Museums Greenwich, the National Maritime Museum is the world's largest maritime museum. Its collection includes Nelson's uniform from Trafalgar, J.M.W. Turner's Battle of Teguhoff, and galleries on exploration, trade, migration and naval warfare. The Great Map and interactive displays make it ideal for families. Free entry, with the stunning Greenwich park and observatory nearby, makes for a perfect day out.",
         "entryPrice": 0,
         "openHours": [
             [10, 17],
@@ -580,6 +616,7 @@
         "coordinates": [51.5232, -0.1321],
         "address": "Malet Place, London WC1E 6BT",
         "category": "Museum",
+        "description": "The Petrie Museum of Egyptian Archaeology is one of London's best-kept secrets. Hidden within University College London, it holds over 80,000 objects from ancient Egypt and Sudan, including pottery, jewellery, mummies and the world's oldest surviving dress. Named after pioneering archaeologist Flinders Petrie, the museum offers an extraordinary, densely packed journey through ancient lives. Free entry, but check opening days.",
         "entryPrice": 0,
         "openHours": [
             [0, 0],
@@ -596,6 +633,7 @@
         "coordinates": [51.5986, -0.2286],
         "address": "Grahame Park Way, London NW9 5LL",
         "category": "Museum",
+        "description": "The RAF Museum London celebrates over a century of Royal Air Force history across six hangars at the former Hendon Aerodrome. Visitors can get close to iconic aircraft from Spitfires and Lancasters to modern jets, and explore interactive exhibitions on the Battle of Britain, the Dambusters and Cold War espionage. Free entry and ample space make it a thrilling day out for aviation enthusiasts and families.",
         "entryPrice": 0,
         "openHours": [
             [10, 17],
@@ -612,6 +650,7 @@
         "coordinates": [51.5167, -0.1199],
         "address": "13 Lincoln's Inn Fields, London WC2A 3BP",
         "category": "Museum",
+        "description": "Sir John Soane's Museum is the extraordinary house of the nineteenth-century architect, left almost exactly as it was at his death. Crammed with antiquities, paintings, sculptures and architectural models, the rooms are a theatrical maze of hidden spaces, mirrors and skylights. Highlights include Hogarth's A Rake's Progress and the sarcophagus of Seti I. Free entry, but arrive early as space is limited in this unforgettable house.",
         "entryPrice": 0,
         "openHours": [
             [10, 17],
@@ -628,6 +667,7 @@
         "coordinates": [51.5113, -0.1167],
         "address": "Strand, London WC2R 1LA",
         "category": "Arts Centre",
+        "description": "Somerset House is a magnificent neoclassical courtyard on the Strand, home to art exhibitions, fashion shows, film screenings, concerts and seasonal events. It houses the Courtauld Gallery and the Embankment Galleries, alongside cafés and fountains that become an ice rink in winter. The building's riverside terraces offer superb views. A cultural playground in one of London's most beautiful settings.",
         "entryPrice": 0,
         "openHours": [
             [10, 18],
@@ -644,6 +684,7 @@
         "coordinates": [51.5136, -0.1390],
         "address": "16-18 Ramillies Street, London W1F 7LW",
         "category": "Gallery",
+        "description": "The Photographer's Gallery is London's leading space for photography in all its forms. Located just off Oxford Street, it shows everything from documentary and fashion photography to experimental and digital image-making. The gallery also runs workshops, talks and a popular print room. With a well-curated bookshop and café, it is an essential stop for anyone interested in the art and politics of the image.",
         "entryPrice": 5,
         "openHours": [
             [11, 18],
@@ -660,6 +701,7 @@
         "coordinates": [51.5107, -0.1135],
         "address": "2 Temple Place, London WC2R 3BD",
         "category": "Gallery",
+        "description": "Two Temple Place is a stunning Victorian mansion on the Embankment, built for William Waldorf Astor as an estate office. Today it hosts annual winter exhibitions showcasing regional museum collections, from sculpture and stained glass to textiles and archaeology. The building itself is a fantasy of mahogany, marble and carved figures, making it one of London's most atmospheric and underappreciated exhibition venues. Free entry.",
         "entryPrice": 0,
         "openHours": [
             [11, 16.5],
@@ -676,6 +718,7 @@
         "coordinates": [51.5417, -0.0138],
         "address": "14 Victory Park Road, London E20 1GJ",
         "category": "Museum",
+        "description": "V&A East Museum is a bold new outpost of the Victoria and Albert Museum in Stratford's Queen Elizabeth Olympic Park. It celebrates global creativity through design, fashion, performance and digital culture, with a focus on contemporary makers and East London's creative communities. The striking building and dynamic programme make it a fresh, forward-looking addition to London's museum landscape.",
         "entryPrice": 0,
         "openHours": [
             [10, 18],
@@ -692,6 +735,7 @@
         "coordinates": [51.4966, -0.1722],
         "address": "Cromwell Road, London SW7 2RL",
         "category": "Museum",
+        "description": "The V&A is the world's leading museum of art, design and performance. Its vast South Kensington building holds everything from Renaissance sculpture and Islamic carpets to fashion, photography, ceramics, jewellery and theatre costumes. The Cast Courts, the William Morris galleries and the stunning café are just a few highlights. Free entry, with paid exhibitions, makes it a paradise for anyone interested in human creativity.",
         "entryPrice": 0,
         "openHours": [
             [10, 17.75],
@@ -708,6 +752,7 @@
         "coordinates": [51.5257, -0.1332],
         "address": "183 Euston Road, London NW1 2BE",
         "category": "Museum",
+        "description": "The Wellcome Collection explores the connections between medicine, life and art in the twenty-first century. Founded by pharmaceutical magnate Henry Wellcome, it displays curious medical artefacts alongside contemporary art installations and thought-provoking exhibitions. The Reading Room and café are popular retreats. Free entry and a bold, inclusive programme make it one of London's most intellectually stimulating museums.",
         "entryPrice": 0,
         "openHours": [
             [11, 18],
@@ -724,6 +769,7 @@
         "coordinates": [51.59120351828314, -0.02051889733014103],
         "address": "Lloyd Park, Forest Road, Walthamstow, London E17 4PP",
         "category": "Museum",
+        "description": "The William Morris Gallery is the only public museum devoted to the life and work of the Victorian designer, craftsman and socialist. Set in his childhood home in Walthamstow, it displays textiles, wallpapers, furniture, books and personal items that trace his influence on the Arts and Crafts movement. The surrounding Lloyd Park adds to the charm. Free entry makes it a rewarding journey into design history.",
         "entryPrice": 0,
         "openHours": [
             [10, 17],
@@ -740,6 +786,7 @@
         "coordinates": [51.5286, -0.0529],
         "address": "Cambridge Heath Road, London E2 9PA",
         "category": "Museum",
+        "description": "Young V&A in Bethnal Green is the V&A's museum designed especially for children and young people. Reopened after a major transformation, it offers interactive galleries on play, design and imagination, with hands-on making spaces, sensory experiences and objects from the V&A's collection. It is a joyful, creative environment that encourages young visitors to explore, make and dream. Free entry.",
         "entryPrice": 0,
         "openHours": [
             [10, 17.75],

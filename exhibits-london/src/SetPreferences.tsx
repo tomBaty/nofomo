@@ -106,11 +106,24 @@ const PREFERENCES = {
     'Royals': []
 };
 
-export function SetPreferences({ onSkip, onSave }) {
-    const [selected, setSelected] = useState(new Set());
-    const [expanded, setExpanded] = useState(new Set());
+interface setPreferenceProps {
+    onSkip: () => void
+    onSave: (prefs: string[]) => void
+    preferences: string[]
+}
 
-    const togglePreference = (category, value, isTopLevel) => {
+interface Pill {
+    category: string
+    value: string
+    isTopLevel: boolean
+    pinned?: boolean
+}
+
+export function SetPreferences({ onSkip, onSave, preferences }: setPreferenceProps) {
+    const [selected, setSelected] = useState<Set<string>>(new Set(preferences));
+    const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+    const togglePreference = (category: string, value: string, isTopLevel: boolean) => {
         setSelected(prev => {
             const next = new Set(prev);
             if (next.has(value)) {
@@ -135,7 +148,7 @@ export function SetPreferences({ onSkip, onSave }) {
     };
 
     const allPills = useMemo(() => {
-        const pills = [];
+        const pills: Pill[] = [];
         Object.entries(PREFERENCES).forEach(([category, subPreferences]) => {
             const isExpanded = expanded.has(category);
             const hasSelectedSub = subPreferences.some(sub => selected.has(sub));
@@ -158,7 +171,7 @@ export function SetPreferences({ onSkip, onSave }) {
     }, [expanded, selected]);
 
     const handleSave = () => {
-        onSave?.(Array.from(selected));
+        onSave(Array.from(selected));
     };
 
     return (
@@ -172,11 +185,12 @@ export function SetPreferences({ onSkip, onSave }) {
                 <div className="preferences-grid">
                     {allPills.map(({ category, value, isTopLevel, pinned }) => {
                         const isSelected = selected.has(isTopLevel ? value : `${category}-${value}`);
+                        const pillColor: string = CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS]
                         return (
                             <button
                                 key={isTopLevel ? value : `${category}-${value}`}
                                 className={`preference-pill${isTopLevel ? '' : ' sub-preference'}${isSelected ? ' selected' : ''}${pinned ? ' pinned' : ''}`}
-                                style={{ backgroundColor: CATEGORY_COLORS[category] }}
+                                style={{ backgroundColor: pillColor }}
                                 onClick={() => togglePreference(category, isTopLevel ? value : `${category}-${value}`, isTopLevel)}
                             >
                                 {value}

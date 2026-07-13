@@ -1,8 +1,7 @@
 .calendar-date-picker {
-    display: none;
+    display: flex;
     flex-direction: row;
     gap: 15px;
-
     background: white;
     border-radius: 12px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -70,6 +69,17 @@
     color: #333;
     transition: all 0.2s ease;
     flex-shrink: 0;
+}
+.calendar-nav-button.desktop {
+    display: none;
+}
+@media (min-width: 768px) {
+    .calendar-month-header .calendar-nav-button {
+        display: none;
+    }
+    .calendar-nav-button.desktop {
+        display: flex;
+    }
 }
 
 .calendar-nav-button:hover {

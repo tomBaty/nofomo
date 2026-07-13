@@ -33,6 +33,7 @@
     gap: 10px;
     height: 24px;
     align-items: center;
+    box-sizing: content-box;
 }
 #profileButton > img {
     border-radius: 50%;

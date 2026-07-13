@@ -32,54 +32,56 @@ export function VenueMap({ venues = [] }) {
     }
 
     return (
-        <div className="exhibition-map">
-            <Map
-                mapboxAccessToken={MAPBOX_TOKEN}
-                initialViewState={{
-                    longitude: -0.1278,
-                    latitude: 51.5074,
-                    zoom: 11
-                }}
-                mapStyle="mapbox://styles/tbaty/cmqvgfnwd003z01s6e9io7os0"
-                style={{ width: "100%", height: "100%" }}
-            >
-                <NavigationControl position="top-right" />
+        <div className="map-container">
+            <div className="exhibition-map">
+                <Map
+                    mapboxAccessToken={MAPBOX_TOKEN}
+                    initialViewState={{
+                        longitude: -0.1278,
+                        latitude: 51.5074,
+                        zoom: 11
+                    }}
+                    mapStyle="mapbox://styles/tbaty/cmqvgfnwd003z01s6e9io7os0"
+                    style={{ width: "100%", height: "100%" }}
+                >
+                    <NavigationControl position="top-right" />
 
-                {validVenues.map((venue) => (
-                    <Marker
-                        key={venue.name}
-                        longitude={venue.coordinates[1]}
-                        latitude={venue.coordinates[0]}
-                        anchor="bottom"
-                        onClick={(event) => {
-                            event.originalEvent.stopPropagation();
-                            setSelectedVenue(venue);
-                        }}
-                    >
-                        <button
-                            className="map-marker"
-                            aria-label={`View ${venue.name}`}
+                    {validVenues.map((venue) => (
+                        <Marker
+                            key={venue.name}
+                            longitude={venue.coordinates[1]}
+                            latitude={venue.coordinates[0]}
+                            anchor="bottom"
+                            onClick={(event) => {
+                                event.originalEvent.stopPropagation();
+                                setSelectedVenue(venue);
+                            }}
                         >
-                            <img src={getImageForCategory(venue.category)} alt={venue.name} style={{width: '20px', height: '20px'}} />
-                        </button>
-                    </Marker>
-                ))}
+                            <button
+                                className="map-marker"
+                                aria-label={`View ${venue.name}`}
+                            >
+                                <img src={getImageForCategory(venue.category)} alt={venue.name} style={{ width: '20px', height: '20px' }} />
+                            </button>
+                        </Marker>
+                    ))}
 
-                {selectedVenue && (
-                    <Popup
-                        longitude={selectedVenue.coordinates[1]}
-                        latitude={selectedVenue.coordinates[0]}
-                        anchor="top"
-                        closeOnClick={false}
-                        onClose={() => setSelectedVenue(null)}
-                    >
-                        <div className="map-popup">
-                            <strong>{selectedVenue.name}</strong>
-                            <small>{selectedVenue.category}</small>
-                        </div>
-                    </Popup>
-                )}
-            </Map>
+                    {selectedVenue && (
+                        <Popup
+                            longitude={selectedVenue.coordinates[1]}
+                            latitude={selectedVenue.coordinates[0]}
+                            anchor="top"
+                            closeOnClick={false}
+                            onClose={() => setSelectedVenue(null)}
+                        >
+                            <div className="map-popup">
+                                <strong>{selectedVenue.name}</strong>
+                                <small>{selectedVenue.category}</small>
+                            </div>
+                        </Popup>
+                    )}
+                </Map>
+            </div>
         </div>
     );
 }

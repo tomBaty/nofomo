@@ -134,22 +134,22 @@ export function CalendarDatePicker({ value, onChange, onPresetChange }) {
     };
 
     // Render a single month
-    const renderMonth = (monthDate, addButtons) => {
+    const renderMonth = (monthDate) => {
         const days = getDaysInMonth(monthDate);
         const monthName = monthDate.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
 
         return (
             <div className="calendar-month">
                 <div className="calendar-month-header">
-                    {addButtons && <button
+                    <button
                         className="calendar-nav-button"
                         onClick={goToPreviousMonth}
                         disabled={!canGoPrevious()}
-                    >‹</button>}
+                    >‹</button>
                     {monthName}
-                    {addButtons && <button className="calendar-nav-button" onClick={goToNextMonth}>
+                    <button className="calendar-nav-button" onClick={goToNextMonth}>
                         ›
-                    </button>}
+                    </button>
                 </div>
                 <div className="calendar-weekdays">
                     <div className="calendar-weekday">Mon</div>
@@ -241,44 +241,30 @@ export function CalendarDatePicker({ value, onChange, onPresetChange }) {
         setIsSelectingEnd(false);
     };
 
+    const presets = ['Today', 'Tomorrow', 'This Weekend', 'Next 2 Weeks', 'This Month', 'Next 2 Months', 'All'];
+
     return (
         <div className="calendar-date-picker">
             <div className="calendar-navigation">
-                {window.innerWidth >= 768 && <button
-                    className="calendar-nav-button"
+                <button
+                    className="calendar-nav-button desktop"
                     onClick={goToPreviousMonth}
                     disabled={!canGoPrevious()}
-                >‹</button>}
+                >‹</button>
                 <div className="calendar-months">
-                    {renderMonth(currentMonth, window.innerWidth <= 768)}
+                    {renderMonth(currentMonth)}
                     {window.innerWidth >= 768 && renderMonth(nextMonth)}
                 </div>
-                {window.innerWidth >= 768 && <button className="calendar-nav-button" onClick={goToNextMonth}>
-                        ›
-                    </button>}
+                <button className="calendar-nav-button desktop" onClick={goToNextMonth}>
+                    ›
+                </button>
             </div>
             <div className="calendar-presets">
-                <button className="preset-button" onClick={() => handlePresetClick('Today')}>
-                    Today
-                </button>
-                <button className="preset-button" onClick={() => handlePresetClick('Tomorrow')}>
-                    Tomorrow
-                </button>
-                <button className="preset-button" onClick={() => handlePresetClick('This Weekend')}>
-                    This Weekend
-                </button>
-                <button className="preset-button" onClick={() => handlePresetClick('Next 2 Weeks')}>
-                    Next 2 Weeks
-                </button>
-                <button className="preset-button" onClick={() => handlePresetClick('This Month')}>
-                    This Month
-                </button>
-                <button className="preset-button" onClick={() => handlePresetClick('Next 2 Months')}>
-                    Next 2 Months
-                </button>
-                <button className="preset-button" onClick={() => handlePresetClick('All')}>
-                    All
-                </button>
+                {presets.map(preset => (
+                    <button key={preset} className="preset-button" onClick={() => handlePresetClick(preset)}>
+                        {preset}
+                    </button>
+                ))}
             </div>
         </div>
     );

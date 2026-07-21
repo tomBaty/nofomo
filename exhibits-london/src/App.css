@@ -446,6 +446,60 @@ div:has(>blockquote) {
     display: none;
 }
 
+.price-edit-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #757575;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.price-edit-btn:hover {
+    color: #333;
+}
+
+.price-info-edit textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    margin-top: 10px;
+}
+
+.price-edit-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.price-edit-actions button {
+    padding: 6px 14px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.price-edit-actions button:first-child {
+    background: #E1251B;
+    color: white;
+}
+
+.price-edit-actions button:last-child {
+    background: #ccc;
+    color: #333;
+}
+
 .price-info-detail {
     overflow: hidden;
 }

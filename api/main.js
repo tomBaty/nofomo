@@ -1,21 +1,73 @@
 const { BlobServiceClient } = require("@azure/storage-blob");
+const { TableClient } = require("@azure/data-tables");
 const { app } = require("@azure/functions");
 const { OAuth2Client } = require('google-auth-library');
+const crypto = require('crypto');
 const client = new OAuth2Client();
 
-function getGoogleIdToken(request) {
-    // Prefer the custom header because Azure Static Web Apps uses Authorization
-    // for its own EasyAuth session token, which would collide with the Google ID token.
-    const customHeader = request.headers.get('X-Google-ID-Token');
-    if (customHeader) {
-        return customHeader;
+const EXHIBITIONS_TABLE_NAME = 'exhibitions';
+const exhibitionsTableClient = TableClient.fromConnectionString(
+    process.env.AZURE_STORAGE_CONNECTION_STRING,
+    EXHIBITIONS_TABLE_NAME
+);
+
+function exhibitionToEntity(exhibition) {
+    const id = exhibition.id == null ? '' : String(exhibition.id);
+    if (!id) {
+        throw new Error(`Exhibition is missing an id: ${JSON.stringify(exhibition.title)}`);
     }
 
+    return {
+        partitionKey: 'exhibition',
+        rowKey: id,
+        title: exhibition.title ?? '',
+        venue: exhibition.venue ?? '',
+        paid: exhibition.paid == null ? '' : String(exhibition.paid),
+        datesJson: JSON.stringify(exhibition.dates ?? []),
+        descriptionHTML: exhibition.descriptionHTML ?? '',
+        description: exhibition.description ?? '',
+        url: exhibition.url ?? '',
+        imageUrl: exhibition.imageUrl ?? '',
+        shortDescription: exhibition.shortDescription ?? '',
+        priceInfo: exhibition.priceInfo ?? '',
+        category: exhibition.category ?? '',
+        icon: exhibition.icon ?? '',
+        dateRangeType: exhibition.dateRangeType ?? ''
+    };
+}
+
+function entityToExhibition(entity) {
+    return {
+        id: entity.rowKey,
+        title: entity.title,
+        venue: entity.venue,
+        paid: entity.paid,
+        dates: JSON.parse(entity.datesJson ?? '[]'),
+        descriptionHTML: entity.descriptionHTML,
+        description: entity.description,
+        url: entity.url,
+        imageUrl: entity.imageUrl,
+        shortDescription: entity.shortDescription,
+        priceInfo: entity.priceInfo,
+        category: entity.category,
+        icon: entity.icon,
+        dateRangeType: entity.dateRangeType
+    };
+}
+
+function getGoogleIdToken(request) {
+    // Use a custom header because Azure Static Web Apps uses Authorization
+    // for its own EasyAuth session token, which would collide with the Google ID token.
+    // The Google token is only used to create a session; subsequent requests use the
+    // session token in the Authorization header.
+    return request.headers.get('X-Google-ID-Token');
+}
+
+function getSessionId(request) {
     const authHeader = request.headers.get('Authorization');
     if (authHeader && authHeader.startsWith('Bearer ')) {
         return authHeader.slice('Bearer '.length);
     }
-
     return null;
 }
 
@@ -81,16 +133,19 @@ async function fetchExhibitionsData(context) {
     }
 
     try {
-        context.log('Fetching exhibitions from blob storage');
-        const data = await _blob_read_json("exhibits-data", 'all_exhibitions.json');
+        context.log('Fetching exhibitions from table storage');
+        const exhibitions = [];
+        for await (const entity of exhibitionsTableClient.listEntities()) {
+            exhibitions.push(entityToExhibition(entity));
+        }
 
         // Update cache
-        exhibitionsCache = data;
+        exhibitionsCache = exhibitions;
         cacheTimestamp = now;
 
-        return data;
+        return exhibitions;
     } catch (error) {
-        context.error('Error fetching from blob storage:', error);
+        context.error('Error fetching from table storage:', error);
 
         // If we have stale cache, use it as fallback
         if (exhibitionsCache) {
@@ -100,6 +155,66 @@ async function fetchExhibitionsData(context) {
 
         throw error;
     }
+}
+
+function chunk(array, size) {
+    const result = [];
+    for (let i = 0; i < array.length; i += size) {
+        result.push(array.slice(i, i + size));
+    }
+    return result;
+}
+
+async function migrateExhibitionsFromBlob(context) {
+    context.log('Migrating exhibitions from blob to table storage');
+    await exhibitionsTableClient.createTable();
+
+    const exhibitions = await _blob_read_json('exhibits-data', 'all_exhibitions.json');
+    if (!Array.isArray(exhibitions)) {
+        throw new Error('Expected all_exhibitions.json to contain an array');
+    }
+
+    const seenKeys = new Set();
+    const uniqueExhibitions = [];
+    let skippedDuplicateCount = 0;
+
+    for (const ex of exhibitions) {
+        const key = ex.id == null ? '' : String(ex.id);
+        if (!key) {
+            context.log.warn('Skipping exhibition with missing id:', ex.title);
+            continue;
+        }
+        if (seenKeys.has(key)) {
+            context.log.warn('Skipping duplicate exhibition id:', key, ex.title);
+            skippedDuplicateCount++;
+            continue;
+        }
+        seenKeys.add(key);
+        uniqueExhibitions.push(ex);
+    }
+
+    let migratedCount = 0;
+    let updatedCount = 0;
+
+    for (const ex of uniqueExhibitions) {
+        const entity = exhibitionToEntity(ex);
+        try {
+            await exhibitionsTableClient.createEntity(entity);
+            migratedCount++;
+        } catch (error) {
+            if (error.statusCode === 409) {
+                // Entity already exists; replace it with the latest blob data
+                await exhibitionsTableClient.upsertEntity(entity, 'Replace');
+                updatedCount++;
+            } else {
+                context.error('Row failed:', ex.id, ex.title, error.message);
+                throw error;
+            }
+        }
+    }
+
+    context.log(`Migrated ${migratedCount} new exhibitions, updated ${updatedCount} existing, skipped ${skippedDuplicateCount} duplicates`);
+    return { migratedCount, updatedCount, skippedDuplicateCount };
 }
 
 async function fetchUserFromBlob(context, userId) {
@@ -122,6 +237,85 @@ async function fetchUserFromBlob(context, userId) {
 }
 
 const SUPPORTED_USER_UPDATE_ACTIONS = ['updateFavourites', 'updateVisited', 'updatePreferences'];
+const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+function generateSessionId() {
+    return crypto.randomBytes(32).toString('base64url');
+}
+
+async function createSession(context, userId, profile, userData) {
+    const sessionId = generateSessionId();
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + SESSION_DURATION_MS).toISOString();
+    const userIsAdmin = userData?.userRole === 'admin';
+
+    await _blob_write_json('sessions', `${sessionId}.json`, {
+        userId,
+        profile,
+        userIsAdmin,
+        createdAt: now.toISOString(),
+        expiresAt
+    });
+
+    context.log('Created session for user:', userId );
+
+    return { sessionId, expiresAt };
+}
+
+async function loadSession(context, sessionId) {
+    try {
+        const session = await _blob_read_json('sessions', `${sessionId}.json`);
+        const now = new Date();
+        if (new Date(session.expiresAt) < now) {
+            context.log('Session expired:', sessionId.slice(0, 8));
+            return null;
+        }
+
+        // Extend session expiry on each use (sliding 30-day window)
+        session.expiresAt = new Date(now.getTime() + SESSION_DURATION_MS).toISOString();
+        await _blob_write_json('sessions', `${sessionId}.json`, session);
+
+        return session;
+    } catch {
+        return null;
+    }
+}
+
+async function deleteSession(context, sessionId) {
+    try {
+        const blobClient = _blob_service('nofomodata')
+            .getContainerClient('sessions')
+            .getBlobClient(`${sessionId}.json`);
+        await blobClient.deleteIfExists();
+    } catch (error) {
+        context.error('Error deleting session:', error);
+    }
+}
+
+async function requireSession(request, context) {
+    const sessionId = getSessionId(request);
+    if (!sessionId) {
+        return { status: 401, jsonBody: { error: 'Missing session' } };
+    }
+
+    const session = await loadSession(context, sessionId);
+    if (!session) {
+        return { status: 401, jsonBody: { error: 'Invalid or expired session' } };
+    }
+
+    return { userId: session.userId, profile: session.profile, userIsAdmin: session.userIsAdmin };
+}
+
+async function requireAdminSession(request, context) {
+    const sessionResult = await requireSession(request, context);
+    if (sessionResult.status) return sessionResult;
+
+    if (!sessionResult.userIsAdmin) {
+        return { status: 403, jsonBody: { error: 'Admin access required' } };
+    }
+
+    return sessionResult;
+}
 
 async function updateUserInBlob(context, userId, action, { favourites, visited, preferences }) {
     // Load any existing record for this user, defaulting to an empty one if
@@ -146,19 +340,14 @@ async function updateUserInBlob(context, userId, action, { favourites, visited, 
     return userData;
 }
 
-app.http('user', {
-    methods: ['GET'],
+app.http('createSession', {
+    methods: ['POST'],
     authLevel: 'anonymous',
-    route: 'user',
+    route: 'auth/session',
     handler: async (request, context) => {
         const idToken = getGoogleIdToken(request);
-        context.log('ID token present:', !!idToken);
-        context.log('ID token length:', idToken?.length);
         if (!idToken) {
-            return {
-                status: 401,
-                jsonBody: { error: 'Missing or invalid X-Google-ID-Token header' }
-            };
+            return { status: 401, jsonBody: { error: 'Missing or invalid X-Google-ID-Token header' } };
         }
 
         // Diagnostic: log the received JWT header (safe, no signature/payload)
@@ -177,13 +366,8 @@ app.http('user', {
             context.log('Token verified for user:', userid);
         } catch (error) {
             context.error('Error verifying Google token:', error.message || error);
-            return {
-                status: 401,
-                jsonBody: { error: 'Invalid Google token', details: error.message || String(error) }
-            };
+            return { status: 401, jsonBody: { error: 'Invalid Google token', details: error.message || String(error) } };
         }
-
-        context.log('Fetching user ' + userid);
 
         // Look up any previously stored data for this user, but don't fail
         // the request if none exists yet
@@ -194,12 +378,55 @@ app.http('user', {
             context.log('No stored data found for user ' + userid);
         }
 
+        const { sessionId, expiresAt } = await createSession(context, userid, payload, userData);
+
+        
+
         return {
             status: 200,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            jsonBody: { userid, profile: payload, userData }
+            headers: { 'Content-Type': 'application/json' },
+            jsonBody: { sessionId, expiresAt, userid, profile: payload, userData }
+        };
+    }
+})
+
+app.http('deleteSession', {
+    methods: ['DELETE'],
+    authLevel: 'anonymous',
+    route: 'auth/session',
+    handler: async (request, context) => {
+        const sessionId = getSessionId(request);
+        if (sessionId) {
+            await deleteSession(context, sessionId);
+        }
+        return { status: 204 };
+    }
+})
+
+app.http('user', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'user',
+    handler: async (request, context) => {
+        const session = await requireSession(request, context);
+        if (session.status) return session;
+
+        const { userId, profile } = session;
+        context.log('Fetching user ' + userId);
+
+        // Look up any previously stored data for this user, but don't fail
+        // the request if none exists yet
+        let userData = null;
+        try {
+            userData = await fetchUserFromBlob(context, userId);
+        } catch (error) {
+            context.log('No stored data found for user ' + userId);
+        }
+
+        return {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+            jsonBody: { userid: userId, profile, userData }
         };
     }
 })
@@ -209,74 +436,42 @@ app.http('updateUser', {
     authLevel: 'anonymous',
     route: 'user',
     handler: async (request, context) => {
-        const idToken = getGoogleIdToken(request);
-        if (!idToken) {
-            return {
-                status: 401,
-                jsonBody: { error: 'Missing or invalid X-Google-ID-Token header' }
-            };
-        }
+        const session = await requireSession(request, context);
+        if (session.status) return session;
 
-        // Verify the Google ID token server-side before trusting who is making the update
-        let userid;
-        try {
-            ({ userid } = await verifyGoogleUser(idToken));
-        } catch (error) {
-            context.error('Error verifying Google token:', error);
-            return {
-                status: 401,
-                jsonBody: { error: 'Invalid Google token' }
-            };
-        }
+        const { userId } = session;
 
         let body;
         try {
             body = await request.json();
         } catch (error) {
-            return {
-                status: 400,
-                jsonBody: { error: 'Invalid or missing JSON body' }
-            };
+            return { status: 400, jsonBody: { error: 'Invalid or missing JSON body' } };
         }
 
         const { action, favourites, visited, preferences } = body || {};
 
         if (!SUPPORTED_USER_UPDATE_ACTIONS.includes(action)) {
-            return {
-                status: 400,
-                jsonBody: { error: `action must be one of: ${SUPPORTED_USER_UPDATE_ACTIONS.join(', ')}` }
-            };
+            return { status: 400, jsonBody: { error: `action must be one of: ${SUPPORTED_USER_UPDATE_ACTIONS.join(', ')}` } };
         }
 
         if (action === 'updateFavourites' && !Array.isArray(favourites)) {
-            return {
-                status: 400,
-                jsonBody: { error: 'favourites must be an array' }
-            };
+            return { status: 400, jsonBody: { error: 'favourites must be an array' } };
         }
 
         if (action === 'updateVisited' && !Array.isArray(visited)) {
-            return {
-                status: 400,
-                jsonBody: { error: 'visited must be an array' }
-            };
+            return { status: 400, jsonBody: { error: 'visited must be an array' } };
         }
 
         try {
-            const userData = await updateUserInBlob(context, userid, action, { favourites, visited, preferences });
+            const userData = await updateUserInBlob(context, userId, action, { favourites, visited, preferences });
             return {
                 status: 200,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                jsonBody: { userid, userData }
+                headers: { 'Content-Type': 'application/json' },
+                jsonBody: { userid: userId, userData }
             };
         } catch (error) {
             context.error('Error updating user data:', error);
-            return {
-                status: 500,
-                jsonBody: { error: 'Internal server error' }
-            };
+            return { status: 500, jsonBody: { error: 'Internal server error' } };
         }
     }
 })
@@ -289,29 +484,29 @@ app.http('exhibitions', {
         context.log('Exhibitions API function processed a request.');
 
         try {
-            // Fetch exhibitions data from blob storage
+            // Fetch exhibitions data from table storage
             const exhibitions = await fetchExhibitionsData(context);
             let filteredExhibitions = [...exhibitions];
 
             // Filter by start date (exhibitions ending on or after this date)
-            const startDate = request.query.get('startDate');
-            if (startDate) {
-                const startDateObj = new Date(startDate);
-                filteredExhibitions = filteredExhibitions.filter(ex => {
-                    const endDate = new Date(ex.dates[ex.dates.length - 1]);
-                    return endDate >= startDateObj;
-                });
-            }
+            // const startDate = request.query.get('startDate');
+            // if (startDate) {
+            //     const startDateObj = new Date(startDate);
+            //     filteredExhibitions = filteredExhibitions.filter(ex => {
+            //         const endDate = new Date(ex.dates[ex.dates.length - 1]);
+            //         return endDate >= startDateObj;
+            //     });
+            // }
 
-            // Filter by end date (exhibitions starting on or before this date)
-            const endDate = request.query.get('endDate');
-            if (endDate) {
-                const endDateObj = new Date(endDate);
-                filteredExhibitions = filteredExhibitions.filter(ex => {
-                    const startDate = new Date(ex.dates[0]);
-                    return startDate <= endDateObj;
-                });
-            }
+            // // Filter by end date (exhibitions starting on or before this date)
+            // const endDate = request.query.get('endDate');
+            // if (endDate) {
+            //     const endDateObj = new Date(endDate);
+            //     filteredExhibitions = filteredExhibitions.filter(ex => {
+            //         const startDate = new Date(ex.dates[0]);
+            //         return startDate <= endDateObj;
+            //     });
+            // }
 
             // Filter by venue
             const venue = request.query.get('venue');
@@ -343,6 +538,84 @@ app.http('exhibitions', {
                 status: 500,
                 jsonBody: { error: 'Internal server error' }
             };
+        }
+    }
+})
+
+app.http('migrateExhibitions', {
+    methods: ['POST'],
+    authLevel: 'function',
+    route: 'exhibitions/migrate',
+    handler: async (request, context) => {
+        try {
+            const { migratedCount, updatedCount, skippedDuplicateCount } = await migrateExhibitionsFromBlob(context);
+            return {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+                jsonBody: { migratedCount, updatedCount, skippedDuplicateCount, message: 'Migration complete' }
+            };
+        } catch (error) {
+            context.error('Error migrating exhibitions:', error);
+            return {
+                status: 500,
+                jsonBody: { error: 'Migration failed', details: error.message || String(error) }
+            };
+        }
+    }
+})
+
+app.http('updateExhibition', {
+    methods: ['PATCH'],
+    authLevel: 'anonymous',
+    route: 'exhibitions/{id}',
+    handler: async (request, context) => {
+        const session = await requireAdminSession(request, context);
+        if (session.status) return session;
+
+        const id = request.params.id;
+
+        let body;
+        try {
+            body = await request.json();
+        } catch {
+            return { status: 400, jsonBody: { error: 'Invalid or missing JSON body' } };
+        }
+
+        try {
+            await exhibitionsTableClient.getEntity('exhibition', id);
+        } catch {
+            return { status: 404, jsonBody: { error: 'Exhibition not found' } };
+        }
+
+        const updates = {
+            partitionKey: 'exhibition',
+            rowKey: id
+        };
+
+        if (body.title !== undefined) updates.title = body.title;
+        if (body.venue !== undefined) updates.venue = body.venue;
+        if (body.paid !== undefined) updates.paid = String(body.paid);
+        if (body.dates !== undefined) updates.datesJson = JSON.stringify(body.dates);
+        if (body.description !== undefined) updates.description = body.description;
+        if (body.priceInfo !== undefined) updates.priceInfo = body.priceInfo;
+        if (body.url !== undefined) updates.url = body.url;
+        if (body.imageUrl !== undefined) updates.imageUrl = body.imageUrl;
+
+        try {
+            await exhibitionsTableClient.updateEntity(updates, 'Merge');
+
+            // Invalidate the in-memory aggregate cache so the next read is fresh.
+            exhibitionsCache = null;
+            cacheTimestamp = null;
+
+            return {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+                jsonBody: { id, ...updates }
+            };
+        } catch (error) {
+            context.error('Error updating exhibition:', error);
+            return { status: 500, jsonBody: { error: 'Internal server error' } };
         }
     }
 })

@@ -36,7 +36,7 @@ const openInNewTabIcon = <svg viewBox="0 0 164 164" fill="none" xmlns="http://ww
     <path d="M154.5 9C154.5 9 111.532 51.968 84 79.5" stroke="white" strokeWidth="14" strokeLinejoin="round"></path>
 </svg>
 
-export function ExhibitModal({ exhibit, onCollapse, isFavourite, onFavouriteToggle, isVisited, onVisitToggle, formatDate }) {
+export function ExhibitModal({ exhibit, onCollapse, isFavourite, onFavouriteToggle, isVisited, onVisitToggle, formatDate, userProfile, onExhibitUpdate }) {
     const { exhibitTitle, exhibitSubtitle } = useMemo(() => {
         if (exhibit.title.length > 30) {
             const splitTitle = exhibit.title.split(/[:|]/);
@@ -48,6 +48,34 @@ export function ExhibitModal({ exhibit, onCollapse, isFavourite, onFavouriteTogg
 
     const [priceExpanded, setPriceExpanded] = useState(false);
     const [venueExpanded, setVenueExpanded] = useState(false);
+    const [isEditingPrice, setIsEditingPrice] = useState(false);
+    const [editedPriceInfo, setEditedPriceInfo] = useState(exhibit.priceInfo || '');
+    const [isSavingPrice, setIsSavingPrice] = useState(false);
+
+    const isAdmin = userProfile?.userData.userRole === 'admin';
+
+    const handleSavePrice = async () => {
+        if (!userProfile?.sessionId) return;
+        setIsSavingPrice(true);
+        try {
+            const res = await fetch(`/api/exhibitions/${exhibit.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${userProfile.sessionId}`
+                },
+                body: JSON.stringify({ priceInfo: editedPriceInfo })
+            });
+            if (!res.ok) throw new Error('Failed to update price info');
+            onExhibitUpdate?.(exhibit.id, { priceInfo: editedPriceInfo });
+            setIsEditingPrice(false);
+        } catch (err) {
+            console.error('Error updating price information:', err);
+            alert('Failed to save price information.');
+        } finally {
+            setIsSavingPrice(false);
+        }
+    };
 
     const venue = venues.find(v => v.name === exhibit.venue);
 
@@ -78,24 +106,51 @@ export function ExhibitModal({ exhibit, onCollapse, isFavourite, onFavouriteTogg
             </div>
         </div>
     ))
-    const priceInformation = (exhibit.priceInfo && exhibit.priceInfo.split('\n').filter(line => line.trim() !== '').length > 1 ? (
+    const priceHasDetails = exhibit.priceInfo && exhibit.priceInfo.split('\n').filter(line => line.trim() !== '').length > 1;
+
+    const priceInformation = (
         <div className='modal-price-info'>
             <div className='price-info-summary'>
                 <strong>
-                    {(() => { const min = getMinPrice(exhibit.priceInfo); return min ? `Entry from £${min}` : 'Price Information'; })()}
+                    {priceHasDetails
+                        ? (() => { const min = getMinPrice(exhibit.priceInfo); return min ? `Entry from £${min}` : 'Price Information'; })()
+                        : exhibit.paid.toLowerCase() === 'free' ? 'Free entry' : 'Price Information'}
                 </strong>
-                <button className='price-see-more-btn' onClick={(e) => { e.stopPropagation(); setPriceExpanded(v => !v); }}>
-                    {priceExpanded ? 'See less' : 'See more'}
-                </button>
+                {isAdmin && !isEditingPrice && (
+                    <button className='price-edit-btn' onClick={(e) => { e.stopPropagation(); setIsEditingPrice(true); }} title='Edit price information'>
+                        Edit
+                    </button>
+                )}
+                {priceHasDetails && !isEditingPrice && (
+                    <button className='price-see-more-btn' onClick={(e) => { e.stopPropagation(); setPriceExpanded(v => !v); }}>
+                        {priceExpanded ? 'See less' : 'See more'}
+                    </button>
+                )}
             </div>
-            <div className={`price-info-detail${priceExpanded ? ' expanded' : ''}`}>
-                <ul>{exhibit.priceInfo.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                    <li key={index}>{line}</li>
-                ))}</ul>
-            </div>
+            {isEditingPrice ? (
+                <div className='price-info-edit'>
+                    <textarea
+                        value={editedPriceInfo}
+                        onChange={(e) => setEditedPriceInfo(e.target.value)}
+                        rows={6}
+                        disabled={isSavingPrice}
+                    />
+                    <div className='price-edit-actions'>
+                        <button onClick={handleSavePrice} disabled={isSavingPrice}>Save</button>
+                        <button onClick={() => { setIsEditingPrice(false); setEditedPriceInfo(exhibit.priceInfo || ''); }} disabled={isSavingPrice}>Cancel</button>
+                    </div>
+                </div>
+            ) : priceHasDetails ? (
+                <div className={`price-info-detail${priceExpanded ? ' expanded' : ''}`}>
+                    <ul>{exhibit.priceInfo.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                        <li key={index}>{line}</li>
+                    ))}</ul>
+                </div>
+            ) : (
+                <p>{exhibit.paid.toLowerCase() === 'free' ? 'Free entry' : exhibit.priceInfo}</p>
+            )}
         </div>
-    ) : (<div className='modal-price-info'><p>{exhibit.paid.toLowerCase() === 'free' ? 'Free entry' : exhibit.priceInfo}</p></div>))
-
+    )
 
     return <div
         className={`exhibit-modal-overlay `}

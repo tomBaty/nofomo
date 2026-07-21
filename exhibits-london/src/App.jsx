@@ -49,7 +49,7 @@ const useExhibitions = () => {
         return () => { cancelled = true; };
     }, []);
 
-    return { exhibitions, loading, error };
+    return { exhibitions, setExhibitions, loading, error };
 };
 
 /**
@@ -63,7 +63,9 @@ const useAuth = () => {
 
         const parsed = JSON.parse(stored);
 
-        if (!parsed.idToken) {
+        // Old sessions stored the raw Google ID token, which expires after ~1 hour.
+        // Force those clients to sign in again so they receive a proper session token.
+        if (!parsed.sessionId) {
             localStorage.removeItem("googleUserProfile");
             return null;
         }
@@ -89,7 +91,7 @@ const setExhibitParam = (identifier) => {
 };
 
 function App() {
-    const { exhibitions, loading, error } = useExhibitions();
+    const { exhibitions, setExhibitions, loading, error } = useExhibitions();
     const [filtersExpanded, setFiltersExpanded] = useState(false);
     const [mapExpanded, setMapExpanded] = useState(false);
     const [calendarExpanded, setCalendarExpanded] = useState(false);
@@ -170,7 +172,7 @@ function App() {
     // (e.g. clicking through several exhibits quickly) collapse into a single
     // request carrying the latest state, rather than one request per click.
     const syncUserData = useCallback((action, payload, timeoutRef) => {
-        if (!userProfile?.idToken) {
+        if (!userProfile?.sessionId) {
             console.warn(`Skipping ${action} sync: not signed in`);
             return;
         }
@@ -181,12 +183,34 @@ function App() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Google-ID-Token': userProfile.idToken
+                    'Authorization': `Bearer ${userProfile.sessionId}`
                 },
                 body: JSON.stringify({ action, ...payload })
             }).catch(err => console.error('Failed to sync ' + action + ':', err));
         }, 800);
     }, [userProfile]);
+
+    const handleSignOut = useCallback(async () => {
+        if (userProfile?.sessionId) {
+            try {
+                await fetch('/api/auth/session', {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${userProfile.sessionId}`
+                    }
+                });
+            } catch (err) {
+                console.error('Failed to delete session:', err);
+            }
+        }
+
+        if (window.google?.accounts?.id) {
+            window.google.accounts.id.disableAutoSelect();
+        }
+
+        localStorage.removeItem("googleUserProfile");
+        setUserProfile(null);
+    }, [userProfile, setUserProfile]);
 
     // Clear any pending sync timers on unmount
     useEffect(() => {
@@ -231,6 +255,10 @@ function App() {
         document.body.classList.remove('modal-open');
         setExhibitParam(null);
     }, []);
+
+    const handleExhibitUpdate = useCallback((id, updates) => {
+        setExhibitions(prev => prev.map(ex => ex.id === id ? { ...ex, ...updates } : ex));
+    }, [setExhibitions]);
 
     // Filter and sort exhibitions based on all selected filters
     const filteredExhibitions = useMemo(() => {
@@ -291,6 +319,7 @@ function App() {
                 setFavourites={setFavourites}
                 setVisited={setVisited}
                 togglePreferences={() => setShowPreferences(p => !p)}
+                onSignOut={handleSignOut}
             />
             <FilterMenu
                 exhibitions={exhibitions}
@@ -325,6 +354,8 @@ function App() {
                             onCollapse={handleCollapseExhibit}
                             onFavouriteToggle={handleFavouriteToggle}
                             onVisitToggle={handleVisitToggle}
+                            userProfile={userProfile}
+                            onExhibitUpdate={handleExhibitUpdate}
                         />
                     )}
                 </div>

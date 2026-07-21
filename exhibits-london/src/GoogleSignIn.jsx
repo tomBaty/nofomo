@@ -19,11 +19,12 @@ export function GoogleSignIn({ setUserProfile, setFavourites, setVisited }) {
                         console.log('Credential is not a standard JWT:', response.credential?.slice(0, 20));
                     }
 
-                    // Send the raw Google ID token to internal API where it can be verified, and any user data in storage fetched
+                    // Exchange the Google ID token for a long-lived server-side session.
                     // Use a custom header instead of Authorization because Azure Static Web Apps uses
                     // Authorization for its own EasyAuth session token (HS256), which would overwrite
                     // the Google ID token (RS256) and cause verification to fail.
-                    const res = await fetch('/api/user', {
+                    const res = await fetch('/api/auth/session', {
+                        method: 'POST',
                         headers: {
                             'X-Google-ID-Token': response.credential
                         }
@@ -33,22 +34,21 @@ export function GoogleSignIn({ setUserProfile, setFavourites, setVisited }) {
                         throw new Error(`Sign-in verification failed with status ${res.status}`);
                     }
 
-                    const data = await res.json();
-                    // Keep the raw ID token around so we can authenticate follow-up
-                    // calls (e.g. syncing favourites/visited) without asking the
-                    // user to sign in again. Note: Google ID tokens expire after
-                    // ~1 hour, so sync calls made after that will need a fresh sign-in.
-                    const profileWithToken = { ...data, idToken: response.credential };
+                    const { sessionId, profile, userData } = await res.json();
+
+                    // Keep the session token around so we can authenticate follow-up
+                    // calls (e.g. syncing favourites/visited) for up to 30 days.
+                    const profileWithToken = { sessionId, profile, userData };
                     setUserProfile(profileWithToken);
                     localStorage.setItem("googleUserProfile", JSON.stringify(profileWithToken));
 
-                    if (profileWithToken.userData?.favourites) {
-                        localStorage.setItem("favourites", JSON.stringify(profileWithToken.userData.favourites));
-                        setFavourites(profileWithToken.userData.favourites);
+                    if (userData?.favourites) {
+                        localStorage.setItem("favourites", JSON.stringify(userData.favourites));
+                        setFavourites(userData.favourites);
                     }
-                    if (profileWithToken.userData?.visited) {
-                        localStorage.setItem("visited", JSON.stringify(profileWithToken.userData.visited));
-                        setVisited(profileWithToken.userData.visited);
+                    if (userData?.visited) {
+                        localStorage.setItem("visited", JSON.stringify(userData.visited));
+                        setVisited(userData.visited);
                     }
                 } catch (error) {
                     console.error('Google sign-in failed:', error);

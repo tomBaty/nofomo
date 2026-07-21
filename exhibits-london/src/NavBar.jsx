@@ -4,7 +4,7 @@ import { GoogleSignIn } from './GoogleSignIn';
 import './NavBar.css';
 import { IMAGE_BASE_URL } from './constants';
 
-export function NavBar({ toggleFilters, toggleMap, toggleCalendar, calendarText, userProfile, setUserProfile, setFavourites, setVisited, togglePreferences }) {
+export function NavBar({ toggleFilters, toggleMap, toggleCalendar, calendarText, userProfile, setUserProfile, setFavourites, setVisited, togglePreferences, onSignOut }) {
     return (
         <section id='navbar' aria-label='Navigation'>
             <button className='circleButton' id='filterToggle' aria-label='Toggle Filters' onClick={toggleFilters}>
@@ -27,10 +27,10 @@ export function NavBar({ toggleFilters, toggleMap, toggleCalendar, calendarText,
                 </div>
             </a>
             {userProfile ?
-                <div className='circleButton' id='profileButton' href='/login'>
+                <button className='circleButton' id='profileButton' aria-label='Sign out' onClick={onSignOut}>
                     <img src={userProfile.profile.picture}/>
                     <p>{userProfile.profile.given_name}</p>
-                </div> :
+                </button> :
                 <GoogleSignIn setUserProfile={setUserProfile} userProfile={userProfile} setFavourites={setFavourites} setVisited={setVisited} />
             }
             <button className='circleButton' id='preferencesToggle' aria-label='View Preferences' onClick={togglePreferences}>

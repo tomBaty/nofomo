@@ -25,7 +25,7 @@
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "Access-Control-Allow-Headers": "authorization, content-type, x-google-id-token",
-    "Content-Security-Policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval' https:; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self' blob:;"
+    "Content-Security-Policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval' https:; img-src 'self' data: blob: https:; font-src 'self' data:; worker-src 'self' blob:;"
   },
   "mimeTypes": {
     ".json": "application/json",

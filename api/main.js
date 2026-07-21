@@ -78,6 +78,11 @@ function getGoogleIdToken(request) {
 }
 
 function getSessionId(request) {
+    // Azure Static Web Apps can consume or replace the Authorization header
+    // for its own EasyAuth, so prefer a custom header for our session id.
+    const sessionHeader = request.headers.get('X-Session-Id');
+    if (sessionHeader) return sessionHeader;
+
     const authHeader = request.headers.get('Authorization');
     if (authHeader && authHeader.startsWith('Bearer ')) {
         return authHeader.slice('Bearer '.length);
@@ -282,16 +287,27 @@ async function loadSession(context, sessionId) {
         const now = new Date();
         if (new Date(session.expiresAt) < now) {
             context.log('Session expired:', sessionId.slice(0, 8));
-            return null;
+            return { error: 'expired' };
         }
 
         // Extend session expiry on each use (sliding 30-day window)
         session.expiresAt = new Date(now.getTime() + SESSION_DURATION_MS).toISOString();
-        await _blob_write_json('sessions', `${sessionId}.json`, session);
+        try {
+            await _blob_write_json('sessions', `${sessionId}.json`, session);
+        } catch (writeError) {
+            // Don't fail the request just because the sliding-extension write failed.
+            // Log it so we can diagnose storage permission or concurrency issues.
+            context.error('Session extension write failed:', sessionId.slice(0, 8), writeError.message || writeError);
+        }
 
         return session;
-    } catch {
-        return null;
+    } catch (error) {
+        if (error.statusCode === 404) {
+            context.log('Session not found:', sessionId.slice(0, 8));
+            return { error: 'not_found' };
+        }
+        context.error('Error loading session:', sessionId.slice(0, 8), error.message || error);
+        return { error: 'load_error', details: error.message || String(error) };
     }
 }
 
@@ -312,11 +328,15 @@ async function requireSession(request, context) {
         return { status: 401, jsonBody: { error: 'Missing session' } };
     }
 
-    const session = await loadSession(context, sessionId);
-    if (!session) {
-        return { status: 401, jsonBody: { error: 'Invalid or expired session' } };
+    const sessionResult = await loadSession(context, sessionId);
+    if (sessionResult.error) {
+        let message = 'Invalid or expired session';
+        if (sessionResult.error === 'expired') message = 'Session expired';
+        if (sessionResult.error === 'not_found') message = 'Session not found';
+        return { status: 401, jsonBody: { error: message, code: sessionResult.error } };
     }
 
+    const session = sessionResult;
     return { userId: session.userId, profile: session.profile, userIsAdmin: session.userIsAdmin };
 }
 

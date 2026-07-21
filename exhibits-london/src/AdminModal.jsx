@@ -17,10 +17,18 @@ const RAW_FIELDS = [
     { key: 'dates', label: 'Dates (one per line)', multiline: true }
 ];
 
-function resizeImageToPng(file, width, height) {
+function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+function resizeImageToPng(dataUrl, width, height) {
     return new Promise((resolve, reject) => {
         const img = new Image();
-        const url = URL.createObjectURL(file);
         img.onload = () => {
             const canvas = document.createElement('canvas');
             canvas.width = width;
@@ -35,15 +43,11 @@ function resizeImageToPng(file, width, height) {
 
             ctx.drawImage(img, x, y, drawWidth, drawHeight);
             canvas.toBlob((blob) => {
-                URL.revokeObjectURL(url);
                 resolve(blob);
             }, 'image/png');
         };
-        img.onerror = (err) => {
-            URL.revokeObjectURL(url);
-            reject(err);
-        };
-        img.src = url;
+        img.onerror = reject;
+        img.src = dataUrl;
     });
 }
 
@@ -72,20 +76,18 @@ export function AdminModal({ exhibit, userProfile, onClose, onDeleted, onUpdated
         return () => document.removeEventListener('keydown', handleEscape);
     }, [onClose]);
 
-    useEffect(() => {
-        return () => {
-            if (previewUrl) URL.revokeObjectURL(previewUrl);
-        };
-    }, [previewUrl]);
+
+
+    const sessionHeaders = () => ({
+        'X-Session-Id': userProfile.sessionId
+    });
 
     const handleDelete = async () => {
         setIsDeleting(true);
         try {
             const res = await fetch(`/api/exhibitions/${exhibit.id}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${userProfile.sessionId}`
-                }
+                headers: sessionHeaders()
             });
             if (!res.ok) throw new Error('Failed to delete exhibit');
             onDeleted?.();
@@ -103,15 +105,20 @@ export function AdminModal({ exhibit, userProfile, onClose, onDeleted, onUpdated
         if (!file) return;
 
         setSelectedFile(file);
-        if (previewUrl) URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(URL.createObjectURL(file));
+        try {
+            const dataUrl = await readFileAsDataUrl(file);
+            setPreviewUrl(dataUrl);
+        } catch {
+            setPreviewUrl(null);
+        }
     };
 
     const handleUpload = async () => {
         if (!selectedFile) return;
         setIsUploading(true);
         try {
-            const pngBlob = await resizeImageToPng(selectedFile, 120, 160);
+            const fileDataUrl = await readFileAsDataUrl(selectedFile);
+            const pngBlob = await resizeImageToPng(fileDataUrl, 120, 160);
             const dataUrl = await new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onloadend = () => resolve(reader.result);
@@ -123,7 +130,7 @@ export function AdminModal({ exhibit, userProfile, onClose, onDeleted, onUpdated
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${userProfile.sessionId}`
+                    ...sessionHeaders()
                 },
                 body: JSON.stringify({ image: base64 })
             });
@@ -137,7 +144,7 @@ export function AdminModal({ exhibit, userProfile, onClose, onDeleted, onUpdated
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${userProfile.sessionId}`
+                    ...sessionHeaders()
                 },
                 body: JSON.stringify({ icon: data.imageUrl })
             });
@@ -169,7 +176,7 @@ export function AdminModal({ exhibit, userProfile, onClose, onDeleted, onUpdated
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${userProfile.sessionId}`
+                    ...sessionHeaders()
                 },
                 body: JSON.stringify(updates)
             });

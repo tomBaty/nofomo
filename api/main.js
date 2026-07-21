@@ -11,6 +11,20 @@ const exhibitionsTableClient = TableClient.fromConnectionString(
     EXHIBITIONS_TABLE_NAME
 );
 
+const REVIEWS_TABLE_NAME = 'reviews';
+const reviewsTableClient = TableClient.fromConnectionString(
+    process.env.AZURE_STORAGE_CONNECTION_STRING,
+    REVIEWS_TABLE_NAME
+);
+
+async function ensureReviewsTable() {
+    try {
+        await reviewsTableClient.createTable();
+    } catch (error) {
+        if (error.statusCode !== 409) throw error;
+    }
+}
+
 function exhibitionToEntity(exhibition) {
     const id = exhibition.id == null ? '' : String(exhibition.id);
     if (!id) {
@@ -597,9 +611,14 @@ app.http('updateExhibition', {
         if (body.paid !== undefined) updates.paid = String(body.paid);
         if (body.dates !== undefined) updates.datesJson = JSON.stringify(body.dates);
         if (body.description !== undefined) updates.description = body.description;
+        if (body.descriptionHTML !== undefined) updates.descriptionHTML = body.descriptionHTML;
         if (body.priceInfo !== undefined) updates.priceInfo = body.priceInfo;
+        if (body.shortDescription !== undefined) updates.shortDescription = body.shortDescription;
         if (body.url !== undefined) updates.url = body.url;
         if (body.imageUrl !== undefined) updates.imageUrl = body.imageUrl;
+        if (body.category !== undefined) updates.category = body.category;
+        if (body.icon !== undefined) updates.icon = body.icon;
+        if (body.dateRangeType !== undefined) updates.dateRangeType = body.dateRangeType;
 
         try {
             await exhibitionsTableClient.updateEntity(updates, 'Merge');
@@ -615,6 +634,134 @@ app.http('updateExhibition', {
             };
         } catch (error) {
             context.error('Error updating exhibition:', error);
+            return { status: 500, jsonBody: { error: 'Internal server error' } };
+        }
+    }
+})
+
+app.http('deleteExhibition', {
+    methods: ['DELETE'],
+    authLevel: 'anonymous',
+    route: 'exhibitions/{id}',
+    handler: async (request, context) => {
+        const session = await requireAdminSession(request, context);
+        if (session.status) return session;
+
+        const id = request.params.id;
+        try {
+            await exhibitionsTableClient.deleteEntity('exhibition', id);
+
+            exhibitionsCache = null;
+            cacheTimestamp = null;
+
+            return { status: 204 };
+        } catch (error) {
+            context.error('Error deleting exhibition:', error);
+            return { status: 500, jsonBody: { error: 'Internal server error' } };
+        }
+    }
+})
+
+app.http('uploadExhibitionImage', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    route: 'exhibitions/{id}/image',
+    handler: async (request, context) => {
+        const session = await requireAdminSession(request, context);
+        if (session.status) return session;
+
+        const id = request.params.id;
+
+        let body;
+        try {
+            body = await request.json();
+        } catch {
+            return { status: 400, jsonBody: { error: 'Invalid or missing JSON body' } };
+        }
+
+        const { image } = body || {};
+        if (!image || typeof image !== 'string') {
+            return { status: 400, jsonBody: { error: 'image (base64) is required' } };
+        }
+
+        try {
+            const buffer = Buffer.from(image, 'base64');
+            const blobService = _blob_service('nofomodata');
+            const blockBlobClient = blobService
+                .getContainerClient('images')
+                .getBlockBlobClient(`${id}.png`);
+
+            await blockBlobClient.upload(buffer, buffer.length, {
+                blobHTTPHeaders: { blobContentType: 'image/png' }
+            });
+
+            return {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+                jsonBody: { imageUrl: `${id}.png` }
+            };
+        } catch (error) {
+            context.error('Error uploading exhibition image:', error);
+            return { status: 500, jsonBody: { error: 'Internal server error' } };
+        }
+    }
+})
+
+app.http('createReview', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    route: 'reviews',
+    handler: async (request, context) => {
+        const session = await requireSession(request, context);
+        if (session.status) return session;
+
+        let body;
+        try {
+            body = await request.json();
+        } catch {
+            return { status: 400, jsonBody: { error: 'Invalid or missing JSON body' } };
+        }
+
+        const { exhibitId, time, stars, comment } = body || {};
+
+        if (!exhibitId) {
+            return { status: 400, jsonBody: { error: 'exhibitId is required' } };
+        }
+
+        if (typeof stars !== 'number' || !Number.isInteger(stars) || stars < 1 || stars > 5) {
+            return { status: 400, jsonBody: { error: 'stars must be an integer between 1 and 5' } };
+        }
+
+        const validTimes = ['<15m', '15-1h', '1hr+'];
+        if (time !== undefined && time !== null && !validTimes.includes(time)) {
+            return { status: 400, jsonBody: { error: `time must be one of: ${validTimes.join(', ')}` } };
+        }
+
+        if (comment !== undefined && comment !== null && comment.length > 1000) {
+            return { status: 400, jsonBody: { error: 'comment must be 1000 characters or fewer' } };
+        }
+
+        const reviewId = crypto.randomUUID();
+
+        try {
+            await ensureReviewsTable();
+            await reviewsTableClient.createEntity({
+                partitionKey: String(exhibitId),
+                rowKey: reviewId,
+                exhibitId: String(exhibitId),
+                userId: session.userId,
+                time: time || '',
+                stars,
+                comment: comment || ''
+            });
+
+            return {
+                status: 201,
+                headers: { 'Content-Type': 'application/json' },
+                jsonBody: { reviewId, exhibitId, userId: session.userId, time, stars, comment }
+            };
+        } catch (error) {
+            context.error('Error creating review:', error);
             return { status: 500, jsonBody: { error: 'Internal server error' } };
         }
     }

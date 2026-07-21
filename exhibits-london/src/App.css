@@ -474,6 +474,9 @@ div:has(>blockquote) {
     resize: vertical;
     margin-top: 10px;
 }
+#price-info-table tr > td:nth-child(2) {
+    text-align: right;
+}
 
 .price-edit-actions {
     display: flex;
@@ -667,7 +670,7 @@ div:has(>blockquote) {
         margin-top: 10px;
     }
 
-    .price-info-detail > ul {
+    .price-info-detail > #price-info-table {
         overflow: hidden;
         margin: 0;
     }
@@ -676,7 +679,7 @@ div:has(>blockquote) {
         grid-template-rows: 1fr;
     }
 
-    .price-info-detail.expanded > ul {
+    .price-info-detail.expanded > #price-info-table {
         margin-top: 10px;
     }
 
@@ -869,4 +872,452 @@ body.modal-open {
     font-weight: bold;
     font-size: 20px;
     margin-bottom: 0;
+}
+.price-info-cell {
+    width: fit-content;
+    display: block;
+}
+.price-info-row {
+    width: 100%;
+    justify-content: space-between;
+    display: flex;
+}
+.price-info-row:has(:only-child) {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+/* ── Review Modal ───────────────────────────────────── */
+.review-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    padding: 20px;
+    animation: overlayFadeIn 0.3s ease-out forwards;
+}
+
+.review-modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 480px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    padding: 28px;
+    text-align: left;
+}
+
+.review-modal-content h2 {
+    margin: 0 0 20px;
+    font-size: 22px;
+    color: #08060d;
+}
+
+.review-modal-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+}
+
+.review-modal-close-btn:hover {
+    background: #e0e0e0;
+}
+
+.review-field {
+    margin-bottom: 20px;
+}
+
+.review-field > label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #08060d;
+    margin-bottom: 8px;
+}
+
+.review-optional {
+    font-weight: 400;
+    color: #888;
+}
+
+.review-required {
+    color: #E1251B;
+}
+
+.review-radio-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.review-radio-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid #ccc;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.review-radio-option input[type='radio'] {
+    accent-color: #E1251B;
+    cursor: pointer;
+    margin: 0;
+}
+
+.review-radio-option.selected {
+    border-color: #E1251B;
+    background: #fff0f0;
+}
+
+.review-stars {
+    display: flex;
+    gap: 6px;
+}
+
+.review-star {
+    background: none;
+    border: none;
+    font-size: 30px;
+    color: #d0d0d0;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s, transform 0.1s;
+}
+
+.review-star.filled {
+    color: #f5b50a;
+}
+
+.review-star:hover {
+    transform: scale(1.1);
+}
+
+.review-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.review-char-count {
+    float: right;
+    font-weight: 400;
+    color: #888;
+    font-size: 12px;
+}
+
+.review-submit-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 50px;
+    background: #E1251B;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
+}
+
+.review-submit-btn:disabled {
+    background: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.review-submit-btn:not(:disabled):hover {
+    background: #c81e15;
+}
+
+@media (max-width: 767px) {
+    .review-modal-overlay {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    .review-modal-content {
+        max-width: 100%;
+        border-radius: 16px 16px 0 0;
+        max-height: 85vh;
+        padding: 24px 20px;
+    }
+}
+
+/* ── Admin Modal ────────────────────────────────────── */
+.admin-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    padding: 20px;
+    animation: overlayFadeIn 0.3s ease-out forwards;
+}
+
+.admin-modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 520px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    padding: 28px;
+    text-align: left;
+}
+
+.admin-modal-content h2 {
+    margin: 0 0 20px;
+    font-size: 22px;
+    color: #08060d;
+}
+
+.admin-modal-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+}
+
+.admin-modal-close-btn:hover {
+    background: #e0e0e0;
+}
+
+.admin-action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.admin-action-btn {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 50px;
+    background: white;
+    color: #08060d;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.admin-action-btn:hover {
+    background: #f5f5f5;
+    border-color: #999;
+}
+
+.admin-action-danger {
+    border-color: #E1251B;
+    color: #E1251B;
+}
+
+.admin-action-danger:hover {
+    background: #fff0f0;
+}
+
+.admin-file-input {
+    display: none;
+}
+
+.admin-upload-preview {
+    margin-top: 16px;
+    text-align: center;
+}
+
+.admin-upload-preview img {
+    width: 200px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.admin-upload-preview p {
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: #888;
+}
+
+.admin-confirm-box {
+    margin-top: 20px;
+    padding: 16px;
+    background: #fff0f0;
+    border: 1px solid #E1251B;
+    border-radius: 8px;
+}
+
+.admin-confirm-box p {
+    margin: 0 0 12px;
+    font-size: 14px;
+    color: #08060d;
+}
+
+.admin-confirm-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.admin-confirm-actions button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.admin-confirm-yes {
+    background: #E1251B;
+    color: white;
+}
+
+.admin-confirm-no {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.admin-action-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.admin-submit-btn {
+    padding: 12px;
+    border: none;
+    border-radius: 50px;
+    background: #E1251B;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
+}
+
+.admin-submit-btn:disabled {
+    background: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.admin-submit-btn:not(:disabled):hover {
+    background: #c81e15;
+}
+
+.admin-secondary-btn {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 50px;
+    background: white;
+    color: #333;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.admin-secondary-btn:hover {
+    background: #f5f5f5;
+}
+
+.admin-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-height: 50vh;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.admin-edit-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #08060d;
+    margin-bottom: 6px;
+}
+
+.admin-edit-field input,
+.admin-edit-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.admin-edit-field textarea {
+    resize: vertical;
+}
+
+@media (max-width: 767px) {
+    .admin-modal-overlay {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    .admin-modal-content {
+        max-width: 100%;
+        border-radius: 16px 16px 0 0;
+        max-height: 85vh;
+        padding: 24px 20px;
+    }
+
+    .admin-edit-form {
+        max-height: 45vh;
+    }
 }

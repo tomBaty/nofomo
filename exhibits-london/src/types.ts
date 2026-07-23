@@ -10,6 +10,7 @@ export interface Exhibition {
     shortDescription: string
     priceInfo: string
     icon: string
+    themes: string[]
 }
 export interface FilterState {
     venues: string[]

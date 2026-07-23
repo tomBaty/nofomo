@@ -37,7 +37,23 @@
 }
 #profileButton > img {
     border-radius: 50%;
+    width: 24px;
+    height: 24px;
 }
+
+.navbar-profile-fallback {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #E1251B;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+}
+
 .circleButton:hover {
     box-shadow: 0 4px 0px 2px rgba(74, 144, 226, 0.2);
 }

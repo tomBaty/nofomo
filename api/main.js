@@ -46,7 +46,8 @@ function exhibitionToEntity(exhibition) {
         priceInfo: exhibition.priceInfo ?? '',
         category: exhibition.category ?? '',
         icon: exhibition.icon ?? '',
-        dateRangeType: exhibition.dateRangeType ?? ''
+        dateRangeType: exhibition.dateRangeType ?? '',
+        themesJson: JSON.stringify(exhibition.themes ?? [])
     };
 }
 
@@ -65,7 +66,8 @@ function entityToExhibition(entity) {
         priceInfo: entity.priceInfo,
         category: entity.category,
         icon: entity.icon,
-        dateRangeType: entity.dateRangeType
+        dateRangeType: entity.dateRangeType,
+        themes: JSON.parse(entity.themesJson ?? '[]')
     };
 }
 
@@ -785,4 +787,68 @@ app.http('createReview', {
             return { status: 500, jsonBody: { error: 'Internal server error' } };
         }
     }
+});
+
+app.http('listUserReviews', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'reviews',
+    handler: async (request, context) => {
+        const session = await requireSession(request, context);
+        if (session.status) return session;
+
+        try {
+            await ensureReviewsTable();
+            const reviews = [];
+            const query = reviewsTableClient.listEntities({
+                queryOptions: { filter: `userId eq '${session.userId}'` }
+            });
+            for await (const entity of query) {
+                reviews.push({
+                    reviewId: entity.rowKey,
+                    exhibitId: entity.exhibitId,
+                    time: entity.time,
+                    stars: entity.stars,
+                    comment: entity.comment
+                });
+            }
+            return {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+                jsonBody: reviews
+            };
+        } catch (error) {
+            context.error('Error listing reviews:', error);
+            return { status: 500, jsonBody: { error: 'Internal server error' } };
+        }
+    }
 })
+
+app.http('listAllReviews', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'reviews/all',
+    handler: async (request, context) => {
+        try {
+            await ensureReviewsTable();
+            const reviews = [];
+            for await (const entity of reviewsTableClient.listEntities()) {
+                reviews.push({
+                    reviewId: entity.rowKey,
+                    exhibitId: entity.exhibitId,
+                    time: entity.time,
+                    stars: entity.stars,
+                    comment: entity.comment
+                });
+            }
+            return {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+                jsonBody: reviews
+            };
+        } catch (error) {
+            context.error('Error listing all reviews:', error);
+            return { status: 500, jsonBody: { error: 'Internal server error' } };
+        }
+    }
+});

@@ -52,25 +52,12 @@ const PREFERENCES = {
         'Natural History',
         'Physics'
     ],
-    // 'Music': [
-    //     'Classical',
-    //     'Jazz',
-    //     'Rock & Pop',
-    //     'Opera',
-    //     'Folk',
-    //     'Electronic'
-    // ],
     'Theatre': [
         'Shakespeare',
         'Modern',
         'Musicals',
         'Comedy'
     ],
-    // 'Dance': [
-    //     'Ballet',
-    //     'Contemporary Dance',
-    //     'Folk Dance'
-    // ],
     'Film': [
         'Blockbuster',
         'Arthouse',
@@ -84,6 +71,7 @@ const PREFERENCES = {
         'Classics'
     ],
     'Military': [
+        'Imperial',
         'WWI',
         'WWII',
         'Medieval',
@@ -152,7 +140,7 @@ export function SetPreferences({ onSkip, onSave, preferences }: setPreferencePro
         Object.entries(PREFERENCES).forEach(([category, subPreferences]) => {
             const isExpanded = expanded.has(category);
             const hasSelectedSub = subPreferences.some(sub => selected.has(sub));
-            const showSubThemes = isExpanded || hasSelectedSub;
+            const showSubThemes = isExpanded || hasSelectedSub || selected.has(category);
 
             pills.push({ category, value: category, isTopLevel: true });
 

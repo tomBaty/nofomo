@@ -6,7 +6,7 @@ const TIME_OPTIONS = [
     { value: '1hr+', label: '1hr+' }
 ];
 
-export function ReviewModal({ exhibit, userProfile, onClose, onSubmitted }) {
+export function WriteReviewModal({ exhibit, userProfile, onClose, onSubmitted }) {
     const [time, setTime] = useState('');
     const [stars, setStars] = useState(0);
     const [hoveredStar, setHoveredStar] = useState(0);

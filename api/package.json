@@ -4,12 +4,14 @@
   "description": "Azure Functions API for exhibitions data",
   "main": "main.js",
   "scripts": {
-    "start": "func start"
+    "start": "func start",
+    "enrich-themes": "node enrich-themes.js"
   },
   "dependencies": {
     "@azure/data-tables": "^13.0.0",
     "@azure/functions": "^4.0.0",
     "@azure/storage-blob": "^12.17.0",
-    "google-auth-library": "^10.9.0"
+    "google-auth-library": "^10.9.0",
+    "openai": "^4.80.0"
   }
 }

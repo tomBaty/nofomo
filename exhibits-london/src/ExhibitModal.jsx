@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import venues from './venue_information.json'
 import { IMAGE_BASE_URL } from './constants';
-import { ReviewModal } from './ReviewModal';
+import { WriteReviewModal } from './WriteReviewModal';
 import { AdminModal } from './AdminModal';
+import { ReviewsModal } from './ReviewsModal';
 
 const heartIcon = <svg className='favouriteIcon' width="28" height="25" viewBox="0 0 28 25" fill="#7E7E7E" xmlns="http://www.w3.org/2000/svg">
     <path d="M6.84559 0.0220063C7.37272 -0.055768 8.4797 0.0880607 8.99553 0.21255C11.2084 0.746537 12.8351 2.16176 14.0098 4.0194C14.43 3.19101 15.2011 2.37573 15.9154 1.77395C17.7619 0.218672 20.2465 -0.336749 22.6176 0.223417C24.1047 0.58096 25.4333 1.3997 26.4046 2.55706C28.0336 4.52884 28.1327 6.53321 27.9145 8.9461C27.5771 12.6742 25.4736 14.9563 22.7983 17.3585C22.189 17.9027 21.5712 18.4377 20.9449 18.9629C20.614 19.2439 20.2958 19.5286 19.9532 19.798C19.8795 19.8785 19.769 19.9572 19.6847 20.0318C19.476 20.2163 19.2526 20.3904 19.043 20.573L16.5009 22.7729C15.7666 23.4173 15.0466 24.0792 14.3257 24.7379C14.2368 24.8192 14.1198 24.9406 14.019 25C13.9366 24.9771 11.5359 22.8018 11.2499 22.5532L9.63024 21.1521L6.43659 18.4341C5.71731 17.8231 5.01345 17.195 4.32565 16.5504C2.58566 14.9069 1.23158 13.3455 0.512698 11.0328C0.281028 10.2804 0.132425 9.50593 0.0694166 8.72264C0.0244148 8.13134 -0.00550477 7.51444 0.000849696 6.92209C0.0348576 3.75552 2.23147 0.940284 5.4115 0.223013C5.90738 0.111171 6.33648 0.058723 6.84559 0.0220063Z" />
@@ -38,7 +39,19 @@ const openInNewTabIcon = <svg viewBox="0 0 164 164" fill="none" xmlns="http://ww
     <path d="M154.5 9C154.5 9 111.532 51.968 84 79.5" stroke="white" strokeWidth="14" strokeLinejoin="round"></path>
 </svg>
 
-export function ExhibitModal({ exhibit, onCollapse, isFavourite, onFavouriteToggle, isVisited, onVisitToggle, formatDate, userProfile, onExhibitUpdate }) {
+const getReviewSummary = (reviews, exhibitId) => {
+    const exhibitReviews = reviews?.filter(review => review.exhibitId === String(exhibitId)) ?? [];
+    if (exhibitReviews.length === 0) return null;
+    const average = exhibitReviews.reduce((sum, r) => sum + r.stars, 0) / exhibitReviews.length;
+    const roundedAverage = Math.round(average);
+    return {
+        average: roundedAverage,
+        count: exhibitReviews.length,
+        stars: '★'.repeat(roundedAverage) + '☆'.repeat(5 - roundedAverage)
+    };
+};
+
+export function ExhibitModal({ exhibit, onCollapse, isFavourite, onFavouriteToggle, isVisited, onVisitToggle, formatDate, userProfile, onExhibitUpdate, reviews, onReviewSubmitted }) {
     const { exhibitTitle, exhibitSubtitle } = useMemo(() => {
         if (exhibit.title.length > 30) {
             const splitTitle = exhibit.title.split(/[:|]/);
@@ -50,8 +63,11 @@ export function ExhibitModal({ exhibit, onCollapse, isFavourite, onFavouriteTogg
 
     const [priceExpanded, setPriceExpanded] = useState(false);
     const [venueExpanded, setVenueExpanded] = useState(false);
-    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [showWriteReviewModal, setShowWriteReviewModal] = useState(false);
     const [showAdminModal, setShowAdminModal] = useState(false);
+    const [showExhibitReviews, setShowExhibitReviews] = useState(false);
+
+    const reviewSummary = useMemo(() => getReviewSummary(reviews, exhibit.id), [reviews, exhibit.id]);
 
     const isAdmin = userProfile?.userData.userRole === 'admin';
 
@@ -146,7 +162,7 @@ export function ExhibitModal({ exhibit, onCollapse, isFavourite, onFavouriteTogg
                         <div className='modal-fav-button' onClick={(e) => { e.stopPropagation(); onFavouriteToggle(exhibit.title); }}>{heartIcon} {isFavourite ? 'Favourited' : 'Add to Favourites'}</div>
                         <div className='modal-fav-button' onClick={(e) => { e.stopPropagation(); onVisitToggle(exhibit.title); }}>{ } {isVisited ? 'Visited' : 'Mark as Visited'}</div>
                         {userProfile && (
-                            <div className='modal-fav-button' onClick={(e) => { e.stopPropagation(); setShowReviewModal(true); }}>Review</div>
+                            <div className='modal-fav-button' onClick={(e) => { e.stopPropagation(); setShowWriteReviewModal(true); }}>Review</div>
                         )}
                         {isAdmin && (
                             <div className='modal-fav-button' onClick={(e) => { e.stopPropagation(); setShowAdminModal(true); }}>Admin</div>
@@ -161,6 +177,21 @@ export function ExhibitModal({ exhibit, onCollapse, isFavourite, onFavouriteTogg
                 {priceInformation}
 
                 <div className='modal-description'>
+                    {reviewSummary && (
+                        <div className='modal-info-item modal-review-summary'>
+                            <strong>Reviews</strong>
+                            <p>
+                                <span className='modal-review-stars'>{reviewSummary.stars}</span>
+                                <span className='modal-review-count'>({reviewSummary.count})</span>
+                            </p>
+                            <button
+                                className='modal-review-cta'
+                                onClick={(e) => { e.stopPropagation(); onCollapse(); setShowExhibitReviews(true); }}
+                            >
+                                Read reviews
+                            </button>
+                        </div>
+                    )}
                     {exhibit.speakers && (
                         <div className='modal-info-item'>
                             <strong>Speakers</strong>
@@ -174,11 +205,20 @@ export function ExhibitModal({ exhibit, onCollapse, isFavourite, onFavouriteTogg
                     )}
                 </div>
             </div>
-            {showReviewModal && (
-                <ReviewModal
+            {showWriteReviewModal && (
+                <WriteReviewModal
                     exhibit={exhibit}
                     userProfile={userProfile}
-                    onClose={() => setShowReviewModal(false)}
+                    onClose={() => setShowWriteReviewModal(false)}
+                    onSubmitted={onReviewSubmitted}
+                />
+            )}
+            {showExhibitReviews && (
+                <ReviewsModal
+                    mode='exhibit'
+                    exhibit={exhibit}
+                    allReviews={reviews}
+                    onClose={() => setShowExhibitReviews(false)}
                 />
             )}
             {showAdminModal && (
@@ -190,6 +230,7 @@ export function ExhibitModal({ exhibit, onCollapse, isFavourite, onFavouriteTogg
                     onUpdated={onExhibitUpdate}
                 />
             )}
+            
         </div>
     </div >
 }

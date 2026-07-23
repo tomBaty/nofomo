@@ -9,6 +9,8 @@ interface FilterMenuProps {
     setFilters: React.Dispatch<React.SetStateAction<FilterState>>
     filteringByFavourites: boolean
     setFilteringByFavourites: (value: boolean) => void
+    filteringByVisited: boolean
+    setFilteringByVisited: (value: boolean) => void
 }
 
 export function FilterMenu({
@@ -19,6 +21,8 @@ export function FilterMenu({
     setFilters,
     filteringByFavourites,
     setFilteringByFavourites,
+    filteringByVisited,
+    setFilteringByVisited,
 }: FilterMenuProps) {
     const filtersInitialized = useRef(false);
 
@@ -65,7 +69,7 @@ export function FilterMenu({
             </div>
 
             <div className='filter-section'>
-                <h4>Favourites</h4>
+                <h4>Your lists</h4>
                 <label className='filter-checkbox-label'>
                     <input
                         type='checkbox'
@@ -74,6 +78,28 @@ export function FilterMenu({
                     />
                     Show only favourites
                 </label>
+                <label className='filter-checkbox-label'>
+                    <input
+                        type='checkbox'
+                        checked={filteringByVisited}
+                        onChange={() => setFilteringByVisited(!filteringByVisited)}
+                    />
+                    Show only visited
+                </label>
+            </div>
+
+            <div className='filter-section'>
+                <h4>Entry</h4>
+                {filterOptions.paid.map(option => (
+                    <label key={option} className='filter-checkbox-label'>
+                        <input
+                            type='checkbox'
+                            checked={filters.paid.includes(option)}
+                            onChange={() => handleCheckboxToggle('paid', option)}
+                        />
+                        {option.charAt(0).toUpperCase() + option.slice(1)}
+                    </label>
+                ))}
             </div>
 
             <div className='filter-section'>
@@ -101,20 +127,6 @@ export function FilterMenu({
                         })}
                     >Select All</a>
                 )}
-            </div>
-
-            <div className='filter-section'>
-                <h4>Entry</h4>
-                {filterOptions.paid.map(option => (
-                    <label key={option} className='filter-checkbox-label'>
-                        <input
-                            type='checkbox'
-                            checked={filters.paid.includes(option)}
-                            onChange={() => handleCheckboxToggle('paid', option)}
-                        />
-                        {option.charAt(0).toUpperCase() + option.slice(1)}
-                    </label>
-                ))}
             </div>
         </div>
     </>);

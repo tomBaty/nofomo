@@ -1,0 +1,14 @@
+{
+    "Art": ["Old Masters", "1800s", "1900s", "Modern"],
+    "Sculpture": ["Classical", "Modern"],
+    "Photography": ["Portraits", "Street", "Documentary"],
+    "History": ["America", "Africa", "Europe", "Ancient", "Medieval", "Renaissance", "Imperialism", "London"],
+    "Science": ["Astronomy", "Biology", "Medicine", "Technology", "Natural History", "Physics"],
+    "Theatre": ["Shakespeare", "Modern", "Musicals", "Comedy"],
+    "Film": ["Blockbuster", "Arthouse", "IMAX", "Documentary", "Animation"],
+    "Literature": ["Poetry", "Fiction", "Classics"],
+    "Military": ["Imperial", "WWI", "WWII", "Medieval", "Naval", "Aviation"],
+    "Architecture": ["Ancient", "1800s", "1900s", "Modern", "Islamic"],
+    "Other": ["Fashion", "Design", "Crafts", "Food & Drink"],
+    "Royals": []
+}
